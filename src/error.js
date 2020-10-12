@@ -21,6 +21,12 @@ export class StackUnderflowError extends Error {
   }
 }
 
+export class CallStackUnderflowError extends Error {
+  toString() {
+    return "Call stack underflow";
+  }
+}
+
 export class UnexpectedEOF extends Error {
   toString() {
     return "Unexpected EOF";

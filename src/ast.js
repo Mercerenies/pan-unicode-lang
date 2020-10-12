@@ -91,6 +91,13 @@ export class SimpleCmd extends AST {
         state.push(- state.pop());
         break;
       }
+      case "s": { // Get stack frame
+                  // (Numerical argument determines how deep to go; n=0 is current)
+        let mod = this.getNumMod(0);
+        let frame = state.getFromCallStack(mod);
+        state.push(frame);
+        break;
+      }
       case "{": { // Sentinel value
         state.push(new SentinelValue("{"));
         break;
@@ -192,8 +199,12 @@ export class ArrayLit extends AST {
 }
 
 export function tryCall(fn, state) {
-  if (fn instanceof AST)
-    return fn.call(state);
-  else
+  if (fn instanceof AST) {
+    state.pushCall(fn);
+    let result = fn.call(state);
+    state.popCall(fn);
+    return result;
+  } else {
     throw new Error.CallNonFunction(fn);
+  }
 }

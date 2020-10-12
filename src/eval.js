@@ -6,6 +6,7 @@ export class Evaluator {
 
   constructor() {
     this.stack = [];
+    this.callStack = [];
   }
 
   eval(arg) {
@@ -53,6 +54,22 @@ export class Evaluator {
         return this.stack.slice(- n);
       }
     }
+  }
+
+  pushCall(v) {
+    this.callStack.push(v);
+  }
+
+  popCall() {
+    return this.callStack.pop();
+  }
+
+  // n=0 gets the current stack frame. Higher arguments get deeper in
+  // the call stack.
+  getFromCallStack(n) {
+    if (n >= this.callStack.length)
+      throw new Error.CallStackUnderflowError();
+    return this.callStack[this.callStack.length - (n + 1)];
   }
 
   print(value) {

@@ -1,7 +1,8 @@
 
-import { tokenize, parse } from './parser.js'
-import { Evaluator } from './eval.js'
-import { Error } from './error.js'
+import { tokenize, parse } from './parser.js';
+import { Evaluator } from './eval.js';
+import { Error } from './error.js';
+import { FunctionLit } from './ast.js';
 
 export class InteractiveEvaluator extends Evaluator {
 
@@ -19,7 +20,9 @@ export function run() {
     let parsed = parse(tokens);
     document.querySelector("#output").innerText = "";
     document.querySelector("#stack").innerText = "";
+    evaluator.pushCall(new FunctionLit(parsed));
     evaluator.eval(parsed);
+    evaluator.popCall();
   } catch (e) {
     if (e instanceof Error) {
       document.querySelector("#output").innerText += "\n\n" + e.toString() + "\n";
