@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="src/main.js" type="module"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <textarea id="code" rows="10" cols="80"></textarea>
+    <br/>
+    <input id="run-button" type="button" value="Run" />
+    <br/>
+    Output:
+    <br/>
+    <div id="output"></div>
+    <br/>
+    Final Stack:
+    <br/>
+    <div id="stack"></div>
+
+    <script type="module">
+     import * as Main from './src/main.js';
+     document.querySelector('#run-button').addEventListener('click', Main.run);
+    </script>
+  </body>
+</html>
