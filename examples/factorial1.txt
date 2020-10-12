@@ -1,0 +1,4 @@
+« Simple recursive factorial function »
+
+[ s ø 0 > [ [ : 1 - ] D $ × ] [ %② 1 ] i ]
+∧
