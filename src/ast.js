@@ -91,6 +91,20 @@ export class SimpleCmd extends AST {
         state.push(- state.pop());
         break;
       }
+      case "{": { // Sentinel value
+        state.push(new SentinelValue("{"));
+        break;
+      }
+      case "}": { // End array (pops until sentinel value is hit)
+        let arr = [];
+        let value = state.pop();
+        while (!(value instanceof SentinelValue) || value.type != "{") {
+          arr.push(value);
+          value = state.pop();
+        }
+        state.push(new ArrayLit(arr.reverse()));
+        break;
+      }
       case "$": { // Call ( ..a ( ..a -- ..b ) -- ..b )
         let fn = state.pop();
         tryCall(fn, state);
@@ -145,6 +159,34 @@ export class FunctionLit extends AST {
 
   toString() {
     return "[ " + this.body.join(" ") + " ]";
+  }
+
+}
+
+// Types
+// "{" - Array start
+export class SentinelValue extends AST {
+
+  constructor(type) {
+    super();
+    this.type = type;
+  }
+
+  toString() {
+    return this.type;
+  }
+
+}
+
+export class ArrayLit extends AST {
+
+  constructor(arr) {
+    super();
+    this.data = arr;
+  }
+
+  toString() {
+    return "{ " + this.data.join(" ") + " }"
   }
 
 }
