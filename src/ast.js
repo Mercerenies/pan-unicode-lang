@@ -106,33 +106,32 @@ export class SimpleCmd extends AST {
       // COMPARISONS //
       // TODO For now, comparison is really just designed for numbers. Generalize.
       case '=': { // Equal ( x y -- ? )
-        let [x, y] = state.pop(2);
-        state.push((x == y) ? -1 : 0);
+        Op.mergeReduce(Op.scalarExtend((a, b) => a == b ? -1 : 0), (a, b) => a & b, this, state, {'zero': -1});
         break;
       }
       case '<': { // LT ( x y -- ? )
-        let [x, y] = state.pop(2);
-        state.push((x < y) ? -1 : 0);
+        Op.mergeReduce(Op.scalarExtend((a, b) => a < b ? -1 : 0), (a, b) => a & b, this, state, {'zero': -1});
         break;
       }
       case '>': { // GT ( x y -- ? )
-        let [x, y] = state.pop(2);
-        state.push((x > y) ? -1 : 0);
+        Op.mergeReduce(Op.scalarExtend((a, b) => a > b ? -1 : 0), (a, b) => a & b, this, state, {'zero': -1});
         break;
       }
       case '≤': { // LE ( x y -- ? )
-        let [x, y] = state.pop(2);
-        state.push((x <= y) ? -1 : 0);
+        Op.mergeReduce(Op.scalarExtend((a, b) => a <= b ? -1 : 0), (a, b) => a & b, this, state, {'zero': -1});
         break;
       }
       case '≥': { // GE ( x y -- ? )
-        let [x, y] = state.pop(2);
-        state.push((x >= y) ? -1 : 0);
+        Op.mergeReduce(Op.scalarExtend((a, b) => a >= b ? -1 : 0), (a, b) => a & b, this, state, {'zero': -1});
         break;
       }
       case '≠': { // Not Equal ( x y -- ? )
-        let [x, y] = state.pop(2);
-        state.push((x != y) ? -1 : 0);
+        Op.mergeReduce(Op.scalarExtend((a, b) => a != b ? -1 : 0), (a, b) => a & b, this, state, {'zero': -1});
+        break;
+      }
+      case '≡': { // Same ( x y -- ? )
+        // Note: No scalar extension
+        Op.mergeReduce((a, b) => a == b ? -1 : 0, (a, b) => a & b, this, state, {'zero': -1});
         break;
       }
       // METAPROGRAMMING //
