@@ -35,6 +35,8 @@ export class SimpleCmd extends AST {
     return typeof(this.token.text) === 'number';
   }
 
+  ///// Boolean ∧ and ∨, as well as generalizing arithmetic to work over lists.
+
   eval(state) {
     if (this.isNumberLit()) {
       state.push(this.token.text);
