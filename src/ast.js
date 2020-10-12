@@ -93,7 +93,7 @@ export class SimpleCmd extends AST {
       }
       case "$": { // Call ( ..a ( ..a -- ..b ) -- ..b )
         let fn = state.pop();
-        fn.call(state);
+        tryCall(fn, state);
         break;
       }
       case "D": { // Dip ( ..a x ( ..a -- ..b ) -- ..b x )
@@ -101,7 +101,7 @@ export class SimpleCmd extends AST {
         let mod = this.getNumMod(1);
         let fn = state.pop();
         let preserve = state.pop(mod);
-        fn.call(state);
+        tryCall(fn, state);
         state.push(...preserve);
         break;
       }
@@ -110,7 +110,7 @@ export class SimpleCmd extends AST {
         let mod = this.getNumMod(1);
         let fn = state.pop();
         let preserve = state.peek(mod);
-        fn.call(state);
+        tryCall(fn, state);
         state.push(...preserve);
         break;
       }
@@ -147,4 +147,11 @@ export class FunctionLit extends AST {
     return "[ " + this.body.join(" ") + " ]";
   }
 
+}
+
+export function tryCall(fn, state) {
+  if (fn instanceof AST)
+    return fn.call(state);
+  else
+    throw new Error.CallNonFunction(fn);
 }
