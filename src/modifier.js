@@ -1,4 +1,6 @@
 
+const NUMS = "⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
+
 export class Modifier {}
 
 export class NumModifier extends Modifier {
@@ -6,10 +8,13 @@ export class NumModifier extends Modifier {
     super();
     this.value = n;
   }
+  toString() {
+    return NUMS.charAt(this.value);
+  }
 }
 
 export function toNumModifier(tok) {
-  let result = "⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳".indexOf(tok.text);
+  let result = NUMS.indexOf(tok.text);
   if (result >= 0)
     return new NumModifier(result);
   else

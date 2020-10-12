@@ -67,6 +67,7 @@ export class SimpleCmd extends AST {
         state.push(lift);
         break;
       }
+      // ARITHMETIC //
       case '+': { // Add ( x y -- z )
         let [x, y] = state.pop(2);
         state.push(x + y);
@@ -91,6 +92,39 @@ export class SimpleCmd extends AST {
         state.push(- state.pop());
         break;
       }
+      // COMPARISONS //
+      // TODO For now, comparison is really just designed for numbers. Generalize.
+      case '=': { // Equal ( x y -- ? )
+        let [x, y] = state.pop(2);
+        state.push((x == y) ? -1 : 0);
+        break;
+      }
+      case '<': { // LT ( x y -- ? )
+        let [x, y] = state.pop(2);
+        state.push((x < y) ? -1 : 0);
+        break;
+      }
+      case '>': { // GT ( x y -- ? )
+        let [x, y] = state.pop(2);
+        state.push((x > y) ? -1 : 0);
+        break;
+      }
+      case '≤': { // LE ( x y -- ? )
+        let [x, y] = state.pop(2);
+        state.push((x <= y) ? -1 : 0);
+        break;
+      }
+      case '≥': { // GE ( x y -- ? )
+        let [x, y] = state.pop(2);
+        state.push((x >= y) ? -1 : 0);
+        break;
+      }
+      case '≠': { // Not Equal ( x y -- ? )
+        let [x, y] = state.pop(2);
+        state.push((x != y) ? -1 : 0);
+        break;
+      }
+      // //
       case "s": { // Get stack frame
                   // (Numerical argument determines how deep to go; n=0 is current)
         let mod = this.getNumMod(0);
@@ -110,6 +144,15 @@ export class SimpleCmd extends AST {
           value = state.pop();
         }
         state.push(new ArrayLit(arr.reverse()));
+        break;
+      }
+      case "i": { // If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
+        let [c, t, f] = state.pop(3);
+        if ((typeof(c) !== 'number') || (c != 0)) {
+          tryCall(t, state);
+        } else {
+          tryCall(f, state);
+        }
         break;
       }
       case "$": { // Call ( ..a ( ..a -- ..b ) -- ..b )
@@ -144,7 +187,7 @@ export class SimpleCmd extends AST {
   }
 
   toString() {
-    return this.token.toString();
+    return this.token.toString() + this.modifiers.join("");
   }
 
 }
@@ -165,7 +208,7 @@ export class FunctionLit extends AST {
   }
 
   toString() {
-    return "[ " + this.body.join(" ") + " ]";
+    return "[ " + this.body.join(" ") + " ]" + this.modifiers.join("");
   }
 
 }
@@ -180,7 +223,7 @@ export class SentinelValue extends AST {
   }
 
   toString() {
-    return this.type;
+    return this.type + this.modifiers.join("");
   }
 
 }
@@ -193,7 +236,7 @@ export class ArrayLit extends AST {
   }
 
   toString() {
-    return "{ " + this.data.join(" ") + " }"
+    return "{ " + this.data.join(" ") + " }" + this.modifiers.join("");
   }
 
 }
