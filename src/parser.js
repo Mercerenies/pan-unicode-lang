@@ -23,6 +23,21 @@ export function tokenize(str) {
         idx += 1;
       }
       arr.push(new Token(parseInt(num, 10)));
+    } else if (ch == '«') {
+      // Comment; skip until next matching »
+      let nested = 1;
+      idx += 1;
+      while (nested > 0) {
+        if (idx >= len)
+          throw new Error.UnexpectedEOF();
+        let curr = str.charAt(idx);
+        if (curr == '«') {
+          nested += 1;
+        } else if (curr == '»') {
+          nested -= 1;
+        }
+        idx += 1;
+      }
     } else {
       // Miscellaneous; single character
       arr.push(new Token(ch));
