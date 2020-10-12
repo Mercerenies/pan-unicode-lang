@@ -2,6 +2,7 @@
 import * as Error from './error.js';
 import { stringify } from './pretty.js';
 import * as Modifier from './modifier.js';
+import * as Op from './op.js';
 
 export class AST {
 
@@ -82,23 +83,20 @@ export class SimpleCmd extends AST {
       }
       // ARITHMETIC //
       case '+': { // Add ( x y -- z )
-        let [x, y] = state.pop(2);
-        state.push(x + y);
+                  // (Numerical modifier determines arity)
+        Op.binaryReduce(Op.scalarExtend((a, b) => a + b), this, state, {'zero': 0});
         break;
       }
       case '-': { // Subtract ( x y -- z )
-        let [x, y] = state.pop(2);
-        state.push(x - y);
+        Op.binaryReduce(Op.scalarExtend((a, b) => a - b), this, state, {'one': (x) => -x});
         break;
       }
       case '×': { // Multiply ( x y -- z )
-        let [x, y] = state.pop(2);
-        state.push(x * y);
+        Op.binaryReduce(Op.scalarExtend((a, b) => a * b), this, state, {'zero': 1});
         break;
       }
       case '÷': { // Divide ( x y -- z )
-        let [x, y] = state.pop(2);
-        state.push(x / y);
+        Op.binaryReduce(Op.scalarExtend((a, b) => a / b), this, state, {'one': (x) => 1 / x});
         break;
       }
       case '_': { // Negate ( x -- y )
@@ -251,8 +249,16 @@ export class ArrayLit extends AST {
     this.data = arr;
   }
 
+  static filled(n, x) {
+    return new ArrayLit(Array(n).fill(x));
+  }
+
   toString() {
     return "{ " + this.data.join(" ") + " }" + this.modifiers.join("");
+  }
+
+  get length() {
+    return this.data.length;
   }
 
 }

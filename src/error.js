@@ -52,3 +52,19 @@ export class CallNonFunction extends Error {
     return "Attempt to call non-function " + this.object.toString();
   }
 }
+
+export class InvalidModifier extends Error {
+  constructor(tok) {
+    super();
+    this.token = tok;
+  }
+  toString() {
+    return "Invalid modifier(s) on " + this.token;
+  }
+}
+
+export class IncompatibleArrayLengths extends Error {
+  toString() {
+    return "Incompatible array lengths";
+  }
+}
