@@ -40,10 +40,12 @@ export class SimpleCmd extends AST {
       state.push(this.token.text);
     } else {
       switch (this.token.text) {
+      // IO //
       case '.': { // Pretty print ( x -- )
         state.print(stringify(state.pop()));
         break;
       }
+      // STACK SHUFFLING //
       case ':': { // Duplicate ( x -- x x )
                   // (Numerical modifier determines number of things to duplicate)
         let mod = this.getNumMod(1);
@@ -63,6 +65,15 @@ export class SimpleCmd extends AST {
         let mod = this.getNumMod(1);
         let store = state.pop(mod);
         let lift = state.pop();
+        state.push(...store);
+        state.push(lift);
+        break;
+      }
+      case "ø": { // Over ( x y -- x y x )
+                  // (Numerical modifier determines how deep to go)
+        let mod = this.getNumMod(1);
+        let store = state.pop(mod);
+        let lift = state.peek();
         state.push(...store);
         state.push(lift);
         break;
@@ -124,7 +135,7 @@ export class SimpleCmd extends AST {
         state.push((x != y) ? -1 : 0);
         break;
       }
-      // //
+      // METAPROGRAMMING //
       case "s": { // Get stack frame
                   // (Numerical argument determines how deep to go; n=0 is current)
         let mod = this.getNumMod(0);
@@ -132,6 +143,7 @@ export class SimpleCmd extends AST {
         state.push(frame);
         break;
       }
+      // ARRAYS //
       case "{": { // Sentinel value
         state.push(new SentinelValue("{"));
         break;
@@ -146,6 +158,7 @@ export class SimpleCmd extends AST {
         state.push(new ArrayLit(arr.reverse()));
         break;
       }
+      // CONTROL FLOW //
       case "i": { // If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
         let [c, t, f] = state.pop(3);
         if ((typeof(c) !== 'number') || (c != 0)) {
@@ -160,6 +173,7 @@ export class SimpleCmd extends AST {
         tryCall(fn, state);
         break;
       }
+      // STACK COMBINATORS //
       case "D": { // Dip ( ..a x ( ..a -- ..b ) -- ..b x )
                   // (Numerical modifier determines arity)
         let mod = this.getNumMod(1);
