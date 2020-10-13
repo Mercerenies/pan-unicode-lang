@@ -25,8 +25,6 @@ export class SimpleCmd extends AST
   isNumberLit: () ->
     typeof(@token.text) == 'number'
 
-  # ///// Boolean ∧ and ∨, as well as generalizing arithmetic to work over lists.
-
   eval: (state) ->
     if this.isNumberLit()
       state.push @token.text
@@ -72,6 +70,12 @@ export class SimpleCmd extends AST
           Op.binaryReduce(Op.scalarExtend((a, b) -> a / b), this, state, {'one': (x) => 1 / x})
         when '_' # Negate ( x -- y )
           state.push(- state.pop())
+        when '∧' # Bitwise Conjunction ( x y -- z )
+          Op.binaryReduce(Op.scalarExtend((a, b) -> a & b), this, state, {'zero': -1})
+        when '∨' # Bitwise Disjunction ( x y -- z )
+          Op.binaryReduce(Op.scalarExtend((a, b) -> a | b), this, state, {'zero': 0})
+        when '⊕' # Bitwise Exclusive Or ( x y -- z )
+          Op.binaryReduce(Op.scalarExtend((a, b) -> a ^ b), this, state, {'zero': 0})
         ### COMPARISONS ###
         # TODO For now, comparison is really just designed for numbers. Generalize.
         when '=' # Equal ( x y -- ? )
