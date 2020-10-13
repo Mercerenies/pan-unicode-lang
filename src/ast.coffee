@@ -237,6 +237,11 @@ export class SimpleCmd extends AST
             result = state.pop()
             break unless isTruthy(result)
             tryCall(body, state)
+        when "⍳" # Repeat N times ( ..a n ( ..a i -- ..a ) -- ..a )
+          [n, body] = state.pop(2)
+          for i in [0..n-1] by 1
+            state.push(i)
+            tryCall(body, state)
         when "$" # Call ( ..a ( ..a -- ..b ) -- ..b )
           fn = state.pop()
           tryCall(fn, state)
