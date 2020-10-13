@@ -101,9 +101,9 @@ export class SimpleCmd extends AST
           mod = this.getNumMod(0)
           frame = state.getFromCallStack(mod)
           state.push(frame)
+        when "{", "⚐" # Sentinel value
+          state.push(new SentinelValue(@token.text))
         ### ARRAYS ###
-        when "{" # Sentinel value
-          state.push(new SentinelValue("{"))
         when "}" # End array (pops until sentinel value is hit)
           arr = []
           value = state.pop()
@@ -156,6 +156,7 @@ export class FunctionLit extends AST
 
 # Types
 # "{" - Array start
+# "⚐" - Empty fold argument
 export class SentinelValue extends AST
 
   constructor: (@type) -> super()
