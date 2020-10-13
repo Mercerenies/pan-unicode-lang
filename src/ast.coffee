@@ -88,6 +88,11 @@ export class SimpleCmd extends AST
             one: (a) -> 1 / a
             extension: Op.binary
             scalarExtend: true
+        when '|' # Remainder ( x y -- z )
+          # This does not extend with modifier; it only scalar extends
+          Op.op state, this,
+            function: (a, b) -> (a % b + b) % b # "True" mod
+            scalarExtend: true
         when '_' # Negate ( x -- y )
           state.push(- state.pop())
         when '∧' # Bitwise Conjunction ( x y -- z )

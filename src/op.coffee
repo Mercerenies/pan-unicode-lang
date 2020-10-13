@@ -76,13 +76,16 @@ export handleWhiteFlag = (state, term, default_, f) ->
     top = state.peek()
     if top instanceof SentinelValue and top.type == '⚐'
       state.pop() # Pop the sentinel
-      state.push(default_)
+      if typeof default_ == 'function'
+        state.push(default_())
+      else
+        state.push(default_)
       return
   f()
 
 export noExtension = (fn, term, state, opts = {}) ->
   [a, b] = state.pop(2)
-  fn(a, b)
+  state.push fn(a, b)
 
 export binary = (fn, term, state, opts = {}) ->
   zero = opts.zero
