@@ -6,8 +6,27 @@ import { FunctionLit } from './ast.js'
 
 export class InteractiveEvaluator extends Evaluator
 
+  constructor: () ->
+    super()
+    @input = document.querySelector("#input").value
+    @inputPos = 0
+
   print: (value) ->
     document.querySelector("#output").innerText += value.toString() + "\n"
+
+  readInput: () ->
+    if @inputPos >= @input.length
+      undefined
+    else
+      result = @input.charAt @inputPos
+      @inputPos += 1
+      result
+
+  peekInput: () ->
+    if @inputPos >= @input.length
+      undefined
+    else
+      @input.charAt @inputPos
 
 export run = ->
   text = document.querySelector("#code").value

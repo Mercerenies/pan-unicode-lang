@@ -61,5 +61,14 @@ export class Evaluator
     # editor will override this.
     console.log value.toString()
 
+  readInput: () ->
+    # Read one character from input. Returns undefined if input is
+    # empty.
+    undefined
+
+  peekInput: () ->
+    # Read one character from input but don't consume.
+    undefined
+
   stackToString: () ->
     @stack.join " "

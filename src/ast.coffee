@@ -33,6 +33,8 @@ export class SimpleCmd extends AST
         ### IO ####
         when '.' # Pretty print ( x -- )
           state.print stringify(state.pop());
+        when ',' # Read integer from input
+          state.push readAndParseInt(state)
         ### STACK SHUFFLING ###
         when ':' # Duplicate ( x -- x x )
                  # (Numerical modifier determines number of things to duplicate)
@@ -182,3 +184,24 @@ export tryCall = (fn, state) ->
     result
   else
     throw new Error.CallNonFunction(fn)
+
+readAndParseInt = (state) ->
+  # Skip to the next number
+  while state.peekInput()? and /[^-+0-9]/.test(state.peekInput())
+    state.readInput()
+  # Start reading
+  valid = false
+  sign = (x) -> x
+  if state.peekInput()? and /[-+]/.test(state.peekInput())
+    ch = state.readInput()
+    sign = ((x) -> - x) if ch == '-'
+    valid = true
+  v = 0
+  next = state.peekInput()
+  while next? and /[0-9]/.test(next)
+    valid = true
+    state.readInput()
+    v = v * 10 + parseInt(next, 10)
+    next = state.peekInput()
+  throw new Error.InvalidInput() unless valid
+  sign(v)

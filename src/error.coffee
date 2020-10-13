@@ -29,3 +29,6 @@ export class InvalidModifier extends Error
 
 export class IncompatibleArrayLengths extends Error
   toString: () -> "Incompatible array lengths"
+
+export class InvalidInput extends Error
+  toString: () -> "Invalid input"
