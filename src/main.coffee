@@ -3,6 +3,9 @@ import { tokenize, parse } from './parser.js'
 import { Evaluator } from './eval.js'
 import { Error } from './error.js'
 import { FunctionLit } from './ast.js'
+import { InputManager } from './unicode_input.js'
+
+inputManager = null
 
 export class InteractiveEvaluator extends Evaluator
 
@@ -45,3 +48,7 @@ export run = ->
     else
       throw e
   document.querySelector("#stack").innerText = evaluator.stackToString()
+
+export initInputMgr = ->
+  inputManager = new InputManager()
+  inputManager.register(document.querySelector("#code"))

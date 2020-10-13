@@ -8,3 +8,6 @@ export arrayEq = (a, b, fn = (x, y) -> x == y) ->
   for [x, y] from zip(a, b)
     return false unless fn(x, y)
   true
+
+export spliceStr = (str, sub, a, b) ->
+  str.substring(0, a) + sub + str.substring(b)
