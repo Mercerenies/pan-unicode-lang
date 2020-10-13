@@ -113,7 +113,7 @@ export WhiteFlag =
   # Perform no special handling.
   ignore: (opts) -> undefined
 
-export toBool = (x) ->
+export boolToInt = (x) ->
   if x then -1 else 0
 
 # This function is an attempt to summarize all of the above, providing

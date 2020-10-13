@@ -113,42 +113,42 @@ export class SimpleCmd extends AST
         when '=' # Equal ( x y -- ? )
           Op.op state, this,
             function: (a, b) -> equals(a, b)
-            postProcess: Op.toBool
+            postProcess: Op.boolToInt
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
         when '<' # LT ( x y -- ? )
           Op.op state, this,
             function: (a, b) -> a < b
-            postProcess: Op.toBool
+            postProcess: Op.boolToInt
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
         when '>' # GT ( x y -- ? )
           Op.op state, this,
             function: (a, b) -> a > b
-            postProcess: Op.toBool
+            postProcess: Op.boolToInt
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
         when '≤' # LE ( x y -- ? )
           Op.op state, this,
             function: (a, b) -> a <= b
-            postProcess: Op.toBool
+            postProcess: Op.boolToInt
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
         when '≥' # GE ( x y -- ? )
           Op.op state, this,
             function: (a, b) -> a >= b
-            postProcess: Op.toBool
+            postProcess: Op.boolToInt
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
         when '≠' # Not Equal ( x y -- ? )
           Op.op state, this,
             function: (a, b) -> not equals(a, b)
-            postProcess: Op.toBool
+            postProcess: Op.boolToInt
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
@@ -156,7 +156,7 @@ export class SimpleCmd extends AST
           # Note: No scalar extension
           Op.op state, this,
             function: (a, b) -> equals(a, b)
-            postProcess: Op.toBool
+            postProcess: Op.boolToInt
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: false
@@ -226,10 +226,17 @@ export class SimpleCmd extends AST
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)
-          if (typeof(c) != 'number') or (c != 0)
+          if isTruthy(c)
             tryCall(t, state)
           else
             tryCall(f, state)
+        when "w" # While ( ..a ( ..a -- ..b ? ) ( ..b -- ..a ) -- ..b )
+          [cond, body] = state.pop(2)
+          loop
+            tryCall(cond, state)
+            result = state.pop()
+            break unless isTruthy(result)
+            tryCall(body, state)
         when "$" # Call ( ..a ( ..a -- ..b ) -- ..b )
           fn = state.pop()
           tryCall(fn, state)
@@ -326,3 +333,6 @@ export equals = (a, b) ->
   if a instanceof ArrayLit and b instanceof ArrayLit
     return true if arrayEq(a.data, b.data, equals)
   false
+
+export isTruthy = (c) ->
+  (typeof(c) != 'number') or (c != 0)
