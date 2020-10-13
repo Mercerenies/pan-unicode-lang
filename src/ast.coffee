@@ -65,45 +65,101 @@ export class SimpleCmd extends AST
         ### ARITHMETIC ###
         when '+' # Add ( x y -- z )
                  # (Numerical modifier determines arity)
-          Op.handleWhiteFlag state, this, 0, =>
-            Op.binaryReduce(Op.scalarExtend((a, b) -> a + b), this, state, {'zero': 0})
+          Op.op state, this,
+            function: (a, b) -> a + b
+            zero: 0
+            extension: Op.binary
+            scalarExtend: true
         when '-' # Subtract ( x y -- z )
-          Op.handleWhiteFlag state, this, 0, =>
-            Op.binaryReduce(Op.scalarExtend((a, b) -> a - b), this, state, {'one': (x) => -x})
+          Op.op state, this,
+            function: (a, b) -> a - b
+            one: (a) -> - a
+            extension: Op.binary
+            scalarExtend: true
         when '×' # Multiply ( x y -- z )
-          Op.handleWhiteFlag state, this, 1, =>
-            Op.binaryReduce(Op.scalarExtend((a, b) -> a * b), this, state, {'zero': 1});
+          Op.op state, this,
+            function: (a, b) -> a * b
+            zero: 1
+            extension: Op.binary
+            scalarExtend: true
         when '÷' # Divide ( x y -- z )
-          Op.handleWhiteFlag state, this, 1, =>
-            Op.binaryReduce(Op.scalarExtend((a, b) -> a / b), this, state, {'one': (x) => 1 / x})
+          Op.op state, this,
+            function: (a, b) -> a / b
+            one: (a) -> 1 / a
+            extension: Op.binary
+            scalarExtend: true
         when '_' # Negate ( x -- y )
           state.push(- state.pop())
         when '∧' # Bitwise Conjunction ( x y -- z )
-          Op.handleWhiteFlag state, this, -1, =>
-            Op.binaryReduce(Op.scalarExtend((a, b) -> a & b), this, state, {'zero': -1})
+          Op.op state, this,
+            function: (a, b) -> a & b
+            zero: -1
+            extension: Op.binary
+            scalarExtend: true
         when '∨' # Bitwise Disjunction ( x y -- z )
-          Op.handleWhiteFlag state, this, 0, =>
-            Op.binaryReduce(Op.scalarExtend((a, b) -> a | b), this, state, {'zero': 0})
+          Op.op state, this,
+            function: (a, b) -> a | b
+            zero: 0
+            extension: Op.binary
+            scalarExtend: true
         when '⊕' # Bitwise Exclusive Or ( x y -- z )
-          Op.handleWhiteFlag state, this, 0, =>
-            Op.binaryReduce(Op.scalarExtend((a, b) -> a ^ b), this, state, {'zero': 0})
+          Op.op state, this,
+            function: (a, b) -> a ^ b
+            zero: -1
+            extension: Op.binary
+            scalarExtend: true
         ### COMPARISONS ###
         # TODO For now, comparison is really just designed for numbers. Generalize.
         when '=' # Equal ( x y -- ? )
-          Op.mergeReduce(Op.scalarExtend((a, b) -> if equals(a, b) then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
+          Op.op state, this,
+            function: (a, b) -> equals(a, b)
+            postProcess: Op.toBool
+            zero: -1
+            extension: Op.merge (a, b) -> a & b
+            scalarExtend: true
         when '<' # LT ( x y -- ? )
-          Op.mergeReduce(Op.scalarExtend((a, b) -> if a < b then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
+          Op.op state, this,
+            function: (a, b) -> a < b
+            postProcess: Op.toBool
+            zero: -1
+            extension: Op.merge (a, b) -> a & b
+            scalarExtend: true
         when '>' # GT ( x y -- ? )
-          Op.mergeReduce(Op.scalarExtend((a, b) -> if a > b then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
+          Op.op state, this,
+            function: (a, b) -> a > b
+            postProcess: Op.toBool
+            zero: -1
+            extension: Op.merge (a, b) -> a & b
+            scalarExtend: true
         when '≤' # LE ( x y -- ? )
-          Op.mergeReduce(Op.scalarExtend((a, b) -> if a <= b then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
+          Op.op state, this,
+            function: (a, b) -> a <= b
+            postProcess: Op.toBool
+            zero: -1
+            extension: Op.merge (a, b) -> a & b
+            scalarExtend: true
         when '≥' # GE ( x y -- ? )
-          Op.mergeReduce(Op.scalarExtend((a, b) -> if a >= b then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
+          Op.op state, this,
+            function: (a, b) -> a >= b
+            postProcess: Op.toBool
+            zero: -1
+            extension: Op.merge (a, b) -> a & b
+            scalarExtend: true
         when '≠' # Not Equal ( x y -- ? )
-          Op.mergeReduce(Op.scalarExtend((a, b) -> if not equals(a, b) then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
+          Op.op state, this,
+            function: (a, b) -> not equals(a, b)
+            postProcess: Op.toBool
+            zero: -1
+            extension: Op.merge (a, b) -> a & b
+            scalarExtend: true
         when '≡' # Same ( x y -- ? )
           # Note: No scalar extension
-          Op.mergeReduce(((a, b) -> if equals(a, b) then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
+          Op.op state, this,
+            function: (a, b) -> equals(a, b)
+            postProcess: Op.toBool
+            zero: -1
+            extension: Op.merge (a, b) -> a & b
+            scalarExtend: false
         ### METAPROGRAMMING ###
         when "s" # Get stack frame
                  # (Numerical argument determines how deep to go; n=0 is current)

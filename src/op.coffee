@@ -19,7 +19,7 @@ export binaryReduce = (fn, term, state, opts = {}) ->
   mod = term.getNumMod 2
   if mod == 0
     if opts.zero?
-      state.push opts.zero
+      state.push opts.zero()
     else
       throw new Error.InvalidModifier(term)
   else if mod == 1 and opts.one?
@@ -47,7 +47,8 @@ export mergeReduce = (fn, reduce, term, state, opts = {}) ->
       throw new Error.InvalidModifier(term)
   else if mod == 1
     if opts.one?
-      state.push opts.one
+      top = state.pop()
+      state.push opts.one(top)
     else
       throw new Error.InvalidModifier(term)
   else
@@ -78,3 +79,78 @@ export handleWhiteFlag = (state, term, default_, f) ->
       state.push(default_)
       return
   f()
+
+export noExtension = (fn, term, state, opts = {}) ->
+  [a, b] = state.pop(2)
+  fn(a, b)
+
+export binary = (fn, term, state, opts = {}) ->
+  zero = opts.zero
+  one = opts.one
+  zero = (() -> opts.zero) if zero? and typeof zero != 'function'
+  one = ((_) -> opts.one) if one? and typeof one != 'function'
+  binaryReduce fn, term, state,
+    zero: zero
+    one: one
+
+export merge = (reduce) -> (fn, term, state, opts = {}) ->
+  if opts.scalarExtend
+    reduce = scalarExtend(reduce)
+  zero = opts.zero
+  one = opts.one
+  zero = (() -> opts.zero) if zero? and typeof zero != 'function'
+  one = ((_) -> opts.one) if one? and typeof one != 'function'
+  mergeReduce fn, reduce, term, state,
+    zero: zero
+    one: one
+
+export WhiteFlag =
+  # Inherit from the zero argument, if provided. If not, behaves like
+  # ignore.
+  inherit: (opts) -> opts.zero
+  # Use a constant value.
+  value: (n) -> (opts) -> n
+  # Perform no special handling.
+  ignore: (opts) -> undefined
+
+export toBool = (x) ->
+  if x then -1 else 0
+
+# This function is an attempt to summarize all of the above, providing
+# all of that functionality as keyword arguments. The available
+# keyword arguments are listed below.
+#
+# - function (required) - The function to apply.
+#
+# - postProcess (optional) - Unary function; runs after the original
+#   function. Defaults to the identity function.
+#
+# - extension (optional) - If provided, this should be one of Op.none,
+#   Op.binary, or Op.merge(...). It determines how to reduce the
+#   function along more arguments.
+#
+# - scalarExtend (optional) - Boolean which defaults to false. If
+#   true, the function will extend if at least one of the arguments is
+#   a list.
+#
+# - zero (optional) - If provided, this will be used as the
+#   zero-argument result after extension.
+#
+# - one (optional) - If provided, this will be used as the
+#   one-argument result after extension.
+#
+# - whiteFlag (optional) - How to handle the white flag, usually one
+# - of the WhiteFlag.* constants. Defaults to WhiteFlag.inherit.
+export op = (state, term, opts = {}) ->
+  func = opts.function
+  if opts.postProcess
+    unprocessedFunc = func
+    func = (a, b) -> opts.postProcess(unprocessedFunc(a, b))
+  if opts.scalarExtend
+    func = scalarExtend(func)
+  operation = -> (opts.extension ? noExtension)(func, term, state, opts)
+  whiteFlag = (opts.whiteFlag ? WhiteFlag.inherit)(opts)
+  if whiteFlag?
+    oldOperation = operation
+    operation = -> handleWhiteFlag state, term, whiteFlag, oldOperation
+  operation()
