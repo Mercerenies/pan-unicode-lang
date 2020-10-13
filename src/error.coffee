@@ -32,3 +32,7 @@ export class IncompatibleArrayLengths extends Error
 
 export class InvalidInput extends Error
   toString: () -> "Invalid input"
+
+export class TypeError extends Error
+  constructor: (@expected, @value) -> super()
+  toString: () -> "Type error (Expected #{@expected} got #{@value})"

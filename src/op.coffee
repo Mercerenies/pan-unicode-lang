@@ -1,6 +1,6 @@
 
 import * as Error from './error.js';
-import { ArrayLit } from './ast.js';
+import { ArrayLit, SentinelValue } from './ast.js';
 import { zip } from './util.js';
 
 # Helper functions for producing operations on the stack
@@ -68,3 +68,13 @@ export scalarExtend = (f) ->
     else
       f(x, y)
   f1
+
+export handleWhiteFlag = (state, term, default_, f) ->
+  mod = term.getNumMod 2
+  if mod > 0
+    top = state.peek()
+    if top instanceof SentinelValue and top.type == '⚐'
+      state.pop() # Pop the sentinel
+      state.push(default_)
+      return
+  f()

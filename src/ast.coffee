@@ -3,6 +3,8 @@ import * as Error from './error.js'
 import { stringify } from './pretty.js'
 import * as Modifier from './modifier.js'
 import * as Op from './op.js'
+import { arrayEq } from './util.js'
+import { Token } from './token.js'
 
 export class AST
 
@@ -63,25 +65,32 @@ export class SimpleCmd extends AST
         ### ARITHMETIC ###
         when '+' # Add ( x y -- z )
                  # (Numerical modifier determines arity)
-          Op.binaryReduce(Op.scalarExtend((a, b) -> a + b), this, state, {'zero': 0});
+          Op.handleWhiteFlag state, this, 0, =>
+            Op.binaryReduce(Op.scalarExtend((a, b) -> a + b), this, state, {'zero': 0})
         when '-' # Subtract ( x y -- z )
-          Op.binaryReduce(Op.scalarExtend((a, b) -> a - b), this, state, {'one': (x) => -x})
+          Op.handleWhiteFlag state, this, 0, =>
+            Op.binaryReduce(Op.scalarExtend((a, b) -> a - b), this, state, {'one': (x) => -x})
         when '×' # Multiply ( x y -- z )
-          Op.binaryReduce(Op.scalarExtend((a, b) -> a * b), this, state, {'zero': 1});
+          Op.handleWhiteFlag state, this, 1, =>
+            Op.binaryReduce(Op.scalarExtend((a, b) -> a * b), this, state, {'zero': 1});
         when '÷' # Divide ( x y -- z )
-          Op.binaryReduce(Op.scalarExtend((a, b) -> a / b), this, state, {'one': (x) => 1 / x})
+          Op.handleWhiteFlag state, this, 1, =>
+            Op.binaryReduce(Op.scalarExtend((a, b) -> a / b), this, state, {'one': (x) => 1 / x})
         when '_' # Negate ( x -- y )
           state.push(- state.pop())
         when '∧' # Bitwise Conjunction ( x y -- z )
-          Op.binaryReduce(Op.scalarExtend((a, b) -> a & b), this, state, {'zero': -1})
+          Op.handleWhiteFlag state, this, -1, =>
+            Op.binaryReduce(Op.scalarExtend((a, b) -> a & b), this, state, {'zero': -1})
         when '∨' # Bitwise Disjunction ( x y -- z )
-          Op.binaryReduce(Op.scalarExtend((a, b) -> a | b), this, state, {'zero': 0})
+          Op.handleWhiteFlag state, this, 0, =>
+            Op.binaryReduce(Op.scalarExtend((a, b) -> a | b), this, state, {'zero': 0})
         when '⊕' # Bitwise Exclusive Or ( x y -- z )
-          Op.binaryReduce(Op.scalarExtend((a, b) -> a ^ b), this, state, {'zero': 0})
+          Op.handleWhiteFlag state, this, 0, =>
+            Op.binaryReduce(Op.scalarExtend((a, b) -> a ^ b), this, state, {'zero': 0})
         ### COMPARISONS ###
         # TODO For now, comparison is really just designed for numbers. Generalize.
         when '=' # Equal ( x y -- ? )
-          Op.mergeReduce(Op.scalarExtend((a, b) -> if a == b then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
+          Op.mergeReduce(Op.scalarExtend((a, b) -> if equals(a, b) then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
         when '<' # LT ( x y -- ? )
           Op.mergeReduce(Op.scalarExtend((a, b) -> if a < b then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
         when '>' # GT ( x y -- ? )
@@ -91,10 +100,10 @@ export class SimpleCmd extends AST
         when '≥' # GE ( x y -- ? )
           Op.mergeReduce(Op.scalarExtend((a, b) -> if a >= b then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
         when '≠' # Not Equal ( x y -- ? )
-          Op.mergeReduce(Op.scalarExtend((a, b) -> if a != b then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
+          Op.mergeReduce(Op.scalarExtend((a, b) -> if not equals(a, b) then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
         when '≡' # Same ( x y -- ? )
           # Note: No scalar extension
-          Op.mergeReduce(((a, b) -> if a == b then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
+          Op.mergeReduce(((a, b) -> if equals(a, b) then -1 else 0), ((a, b) -> a & b), this, state, {'zero': -1})
         ### METAPROGRAMMING ###
         when "s" # Get stack frame
                  # (Numerical argument determines how deep to go; n=0 is current)
@@ -103,7 +112,32 @@ export class SimpleCmd extends AST
           state.push(frame)
         when "{", "⚐" # Sentinel value
           state.push(new SentinelValue(@token.text))
-        ### ARRAYS ###
+        when "⚑" # Construct ⚐ sentinel ( fn deffn -- fn )
+          # Constructs a handler for the ⚐ sentinel. The resulting
+          # function will call deffn if the top value of the stack is
+          # ⚐ (popping ⚐), or will call fn otherwise (without popping
+          # anything off the stack a priori). This is useful for
+          # providing a "default" value to fold (/) in the case of an
+          # empty list.
+          #
+          # For instance, [`+ `999 ⚑ /] is a function which sums a
+          # list, but returns 999 rather than 0 if the list is empty.
+          [fn, deffn] = state.pop(2)
+          state.push(
+            new FunctionLit([
+              new SimpleCmd(new Token(":")),
+              new SimpleCmd(new Token("⚐")),
+              new SimpleCmd(new Token("≡")),
+              new FunctionLit([
+                new SimpleCmd(new Token('%')),
+                deffn,
+                new SimpleCmd(new Token('$')),
+              ]),
+              fn,
+              new SimpleCmd(new Token("i")),
+            ])
+          )
+        ### ARRAY LITERALS ###
         when "}" # End array (pops until sentinel value is hit)
           arr = []
           value = state.pop()
@@ -111,13 +145,35 @@ export class SimpleCmd extends AST
             arr.push(value)
             value = state.pop()
           state.push(new ArrayLit(arr.reverse()))
+        ### ARRAY OPERATIONS ###
+        when '/' # Fold ( ..a list ( ..a x y -- ..b z ) -- ..b t )
+          # This one bears a bit of explanation. If the list is
+          # nonempty, it acts like a traditional fold, applying the
+          # binary operation between all elements of the list,
+          # associating to the left. If the list is empty, it pushes
+          # the special sentinel value ⚐ to the stack then calls the
+          # function once. Built-in functions like + and × know to
+          # check for the ⚐ and will return their identity (0 and 1,
+          # resp.) in that case. If you provide your own function, you
+          # can deal with the empty case by checking for ⚐.
+          [list, func] = state.pop(2)
+          throw new TypeError("Array", list) unless list instanceof ArrayLit
+          if list.length <= 0
+            state.push(new SentinelValue("⚐"))
+            tryCall(func, state)
+          else
+            acc = list.data[0]
+            state.push(acc)
+            for i in [1..list.length-1] by 1
+              state.push(list.data[i])
+              tryCall(func, state)
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)
           if (typeof(c) != 'number') or (c != 0)
             tryCall(t, state)
           else
-            tryCall(f, state);
+            tryCall(f, state)
         when "$" # Call ( ..a ( ..a -- ..b ) -- ..b )
           fn = state.pop()
           tryCall(fn, state)
@@ -206,3 +262,11 @@ readAndParseInt = (state) ->
     next = state.peekInput()
   throw new Error.InvalidInput() unless valid
   sign(v)
+
+export equals = (a, b) ->
+  return true if a == b
+  if a instanceof SentinelValue and b instanceof SentinelValue
+    return true if a.type == b.type
+  if a instanceof ArrayLit and b instanceof ArrayLit
+    return true if arrayEq(a.data, b.data, equals)
+  false
