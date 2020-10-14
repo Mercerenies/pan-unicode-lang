@@ -228,6 +228,25 @@ export class SimpleCmd extends AST
             for i in [1..list.length-1] by 1
               state.push(list.data[i])
               tryCall(func, state)
+        when '⌿' # Filter ( ..a list ( ..a x -- ..a ? ) -- ..a list )
+          # The filter "function" can either be a function or a list
+          # with the same length as the list, which acts as a mask. In
+          # either case, the absolute value of the result at each
+          # position is used to determine the number of times to repeat the value
+          [list, func] = state.pop(2)
+          mask = if func instanceof ArrayLit
+            if func.length != list.length
+              throw new Error.IncompatibleArrayLengths()
+            func.data
+          else
+            for x in list.data
+              state.push(x)
+              tryCall(func, state)
+              state.pop()
+          arr = []
+          for i in [0..list.length - 1] by 1
+            arr.push(list.data[i]) for _ in [1..Math.abs(mask[i])] by 1
+          state.push new ArrayLit(arr)
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)
