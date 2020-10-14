@@ -77,9 +77,8 @@ runFilter = (depth, list, func, state) ->
     [new ArrayLit(result)]
 
 # Map (¨). Takes two arguments: a list and a function. Like filter,
-# the numerical argument determines the depth. Unlike filter, the
-# function is actually always a function. Default numerical argument
-# is 1.
+# the numerical argument determines the depth. The function can be a
+# function or an arbitrary nested list of functions.
 #
 # Examples:
 #
@@ -105,5 +104,10 @@ runMap = (depth, list, func, state) ->
     tryCall(func, state)
     state.pop()
   else
-    result = (runMap(depth - 1, list.data[i], func, state) for i in [0..list.length-1])
+    mask = if func instanceof ArrayLit
+      throw new Error.IncompatibleArrayLengths() if func.length != list.length
+      func.data
+    else
+      Array(list.length).fill(func)
+    result = (runMap(depth - 1, list.data[i], mask[i], state) for i in [0..list.length-1])
     new ArrayLit(result)
