@@ -7,6 +7,7 @@ export class Evaluator
   constructor: () ->
     @stack = []
     @callStack = []
+    @globalVars = {}
 
   eval: (arg) ->
     if Array.isArray(arg)
@@ -69,6 +70,12 @@ export class Evaluator
   peekInput: () ->
     # Read one character from input but don't consume.
     undefined
+
+  getGlobal: (k) ->
+    @globalVars[k] ? new AST.SentinelValue("ε")
+
+  setGlobal: (k, v) ->
+    @globalVars[k] = v
 
   stackToString: () ->
     @stack.join " "

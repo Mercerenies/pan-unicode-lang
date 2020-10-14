@@ -1,6 +1,6 @@
 
-import { Token } from './token.js'
-import { SimpleCmd, FunctionLit } from './ast.js'
+import { Token, TokenType } from './token.js'
+import { SimpleCmd, FunctionLit, AssignToVar, ReadFromVar } from './ast.js'
 import * as Error from './error.js'
 import * as Modifier from './modifier.js'
 
@@ -74,6 +74,26 @@ class Parser
           else
             throw new Error.UnexpectedEOF()
         new FunctionLit([inner])
+      when '→'
+        @index += 1
+        inner = this.at()
+        if inner?.tokenType() == TokenType.Command
+          @index += 1
+          new AssignToVar(inner)
+        else if this.at()?
+          throw new Error.UnexpectedParseError(this.at())
+        else
+          throw new Error.UnexpectedEOF()
+      when '←'
+        @index += 1
+        inner = this.at()
+        if inner?.tokenType() == TokenType.Command
+          @index += 1
+          new ReadFromVar(inner)
+        else if this.at()?
+          throw new Error.UnexpectedParseError(this.at())
+        else
+          throw new Error.UnexpectedEOF()
       else
         @index += 1
         new SimpleCmd(curr)

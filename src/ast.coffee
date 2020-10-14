@@ -171,7 +171,7 @@ export class SimpleCmd extends AST
           mod = this.getNumMod(0)
           frame = state.getFromCallStack(mod)
           state.push(frame)
-        when "{", "⚐" # Sentinel value
+        when "{", "⚐", "ε" # Sentinel value
           state.push(new SentinelValue(@token.text))
         when "⚑" # Construct ⚐ sentinel ( fn deffn -- fn )
           # Constructs a handler for the ⚐ sentinel. The resulting
@@ -271,6 +271,26 @@ export class SimpleCmd extends AST
   toString: () ->
     @token.toString() + @modifiers.join("")
 
+export class AssignToVar extends AST
+
+  constructor: (@target) -> super()
+
+  eval: (state) ->
+    state.setGlobal @target, state.pop()
+
+  toString: () ->
+    "→" + @target
+
+export class ReadFromVar extends AST
+
+  constructor: (@target) -> super()
+
+  eval: (state) ->
+    state.push state.getGlobal(@target)
+
+  toString: () ->
+    "←" + @target
+
 export class FunctionLit extends AST
 
   constructor: (@body) -> super()
@@ -286,6 +306,7 @@ export class FunctionLit extends AST
 # Types
 # "{" - Array start
 # "⚐" - Empty fold argument
+# "ε" - Null value
 export class SentinelValue extends AST
 
   constructor: (@type) -> super()
