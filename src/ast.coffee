@@ -264,6 +264,14 @@ export class SimpleCmd extends AST
         when "$" # Call ( ..a ( ..a -- ..b ) -- ..b )
           fn = state.pop()
           tryCall(fn, state)
+        ### HIGHER ORDER FUNCTIONS ###
+        when "●" # Curry ( ..a x ( ..a x -- ..b ) -- ( ..a -- ..b ) )
+          Op.op state, this,
+            function: (x, f) -> new CurriedFunction(x, f)
+            extension: Op.binaryRight
+            scalarExtend: false
+            defaultModifier: 1
+            modifierAdjustment: (x) -> x + 1
         ### STACK COMBINATORS ###
         when "D" # Dip ( ..a x ( ..a -- ..b ) -- ..b x )
                  # (Numerical modifier determines arity)
@@ -316,6 +324,23 @@ export class FunctionLit extends AST
 
   toString: () ->
     "[ #{@body.join(" ")} ]#{@modifiers.join("")}"
+
+export class CurriedFunction extends AST
+
+  constructor: (@arg, @function) -> super()
+
+  eval: (state) -> state.push(this)
+
+  call: (state) ->
+    state.push(@arg)
+    tryCall(@function, state)
+
+  toString: () ->
+    # toString "lies" a bit, in that it prints as a FunctionLit
+    # quotation. If you try to read this representation back in, you
+    # will get a FunctionLit, not a CurriedFunction. But it's accurate
+    # enough for most purposes.
+    "[ #{@arg} #{@function} $ ]#{@modifiers.join("")}"
 
 # Types
 # "{" - Array start

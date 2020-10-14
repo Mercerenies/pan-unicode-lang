@@ -126,6 +126,7 @@ export DEFAULT_TRANSLATION_TABLE =
   ".1": "¨"
   "\\\"": "¨"
   "\\\"{}": "¨"
+  "\\cib": "●"
   "\\flqq": "«"
   "\\\"<": "«"
   "\\frqq": "»"

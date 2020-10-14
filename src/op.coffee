@@ -16,7 +16,8 @@ import { zip } from './util.js';
 # - If two or more are given, the arguments are folded starting
 #   with the deepest on the stack.
 export binaryReduce = (fn, term, state, opts = {}) ->
-  mod = term.getNumMod 2
+  adjustment = opts.modifierAdjustment ? (x) -> x
+  mod = adjustment(term.getNumMod(opts.defaultModifier ? 2))
   if mod == 0
     if opts.zero?
       state.push opts.zero()
@@ -29,6 +30,21 @@ export binaryReduce = (fn, term, state, opts = {}) ->
     arr = state.pop(mod)
     state.push arr.reduce(fn)
 
+export binaryReduceRight = (fn, term, state, opts = {}) ->
+  adjustment = opts.modifierAdjustment ? (x) -> x
+  mod = adjustment(term.getNumMod(opts.defaultModifier ? 2))
+  if mod == 0
+    if opts.zero?
+      state.push opts.zero()
+    else
+      throw new Error.InvalidModifier(term)
+  else if mod == 1 and opts.one?
+    top = state.pop()
+    state.push opts.one(top)
+  else
+    arr = state.pop(mod)
+    state.push arr.slice().reverse().reduce((x, y) -> fn(y, x))
+
 # Takes a binary function and constructs an operation which takes any
 # number of arguments (determined by numerical modifier).
 #
@@ -39,7 +55,8 @@ export binaryReduce = (fn, term, state, opts = {}) ->
 # - If two or more are given, every adjacent pair is compared
 #   using the binary function, and the results are reduced.
 export mergeReduce = (fn, reduce, term, state, opts = {}) ->
-  mod = term.getNumMod 2
+  adjustment = opts.modifierAdjustment ? (x) -> x
+  mod = adjustment(term.getNumMod(opts.defaultModifier ? 2))
   if mod == 0
     if opts.zero?
       state.push opts.zero
@@ -104,6 +121,21 @@ export binary = (fn, term, state, opts = {}) ->
   binaryReduce fn, term, state,
     zero: zero
     one: one
+    modifierAdjustment: opts.modifierAdjustment
+    defaultModifier: opts.defaultModifier
+
+# binary but associate to the right
+export binaryRight = (fn, term, state, opts = {}) ->
+  zero = opts.zero
+  one = opts.one
+  zero = (() -> opts.zero) if zero? and typeof zero != 'function'
+  one = ((_) -> opts.one) if one? and typeof one != 'function'
+  one = scalarExtendUnary(one) if opts.scalarExtend and one?
+  binaryReduceRight fn, term, state,
+    zero: zero
+    one: one
+    modifierAdjustment: opts.modifierAdjustment
+    defaultModifier: opts.defaultModifier
 
 export merge = (reduce) -> (fn, term, state, opts = {}) ->
   if opts.scalarExtend
@@ -116,6 +148,8 @@ export merge = (reduce) -> (fn, term, state, opts = {}) ->
   mergeReduce fn, reduce, term, state,
     zero: zero
     one: one
+    modifierAdjustment: opts.modifierAdjustment
+    defaultModifier: opts.defaultModifier
 
 export WhiteFlag =
   # Inherit from the zero argument, if provided. If not, behaves like
@@ -153,7 +187,13 @@ export boolToInt = (x) ->
 #   one-argument result after extension.
 #
 # - whiteFlag (optional) - How to handle the white flag, usually one
-# - of the WhiteFlag.* constants. Defaults to WhiteFlag.inherit.
+#   of the WhiteFlag.* constants. Defaults to WhiteFlag.inherit.
+#
+# - modifierAdjustment (optional) - A unary function to apply to the
+#   numerical modifier before interpreting it as arity. Defaults to
+#   the identity function.
+#
+# - defaultModifier (optional) - Default modifier. Defaults to 2.
 export op = (state, term, opts = {}) ->
   func = opts.function
   if opts.postProcess
