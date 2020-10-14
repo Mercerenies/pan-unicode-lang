@@ -70,6 +70,14 @@ export scalarExtend = (f) ->
       f(x, y)
   f1
 
+export scalarExtendUnary = (f) ->
+  f1 = (x) ->
+    if x instanceof ArrayLit
+      new ArrayLit(f1(curr) for curr in x.data)
+    else
+      f(x)
+  f1
+
 export handleWhiteFlag = (state, term, default_, f) ->
   mod = term.getNumMod 2
   if mod > 0
@@ -92,6 +100,7 @@ export binary = (fn, term, state, opts = {}) ->
   one = opts.one
   zero = (() -> opts.zero) if zero? and typeof zero != 'function'
   one = ((_) -> opts.one) if one? and typeof one != 'function'
+  one = scalarExtendUnary(one) if opts.scalarExtend and one?
   binaryReduce fn, term, state,
     zero: zero
     one: one
@@ -103,6 +112,7 @@ export merge = (reduce) -> (fn, term, state, opts = {}) ->
   one = opts.one
   zero = (() -> opts.zero) if zero? and typeof zero != 'function'
   one = ((_) -> opts.one) if one? and typeof one != 'function'
+  one = scalarExtendUnary(one) if opts.scalarExtend and one?
   mergeReduce fn, reduce, term, state,
     zero: zero
     one: one

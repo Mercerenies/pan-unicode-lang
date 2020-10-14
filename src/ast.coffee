@@ -94,7 +94,7 @@ export class SimpleCmd extends AST
             function: (a, b) -> (a % b + b) % b # "True" mod
             scalarExtend: true
         when '_' # Negate ( x -- y )
-          state.push(- state.pop())
+          state.push Op.scalarExtendUnary((x) -> - x)(state.pop())
         when '∧' # Bitwise Conjunction ( x y -- z )
           Op.op state, this,
             function: (a, b) -> a & b
@@ -233,6 +233,8 @@ export class SimpleCmd extends AST
           # with the same length as the list, which acts as a mask. In
           # either case, the absolute value of the result at each
           # position is used to determine the number of times to repeat the value
+          #
+          # ///// Numeric modifier to control depth?
           [list, func] = state.pop(2)
           mask = if func instanceof ArrayLit
             if func.length != list.length
