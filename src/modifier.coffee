@@ -16,3 +16,5 @@ export toNumModifier = (tok) ->
     new NumModifier(result)
   else
     undefined
+
+export MAX_NUM_MODIFIER = 20

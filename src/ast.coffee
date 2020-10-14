@@ -3,6 +3,7 @@ import * as Error from './error.js'
 import { stringify } from './pretty.js'
 import * as Modifier from './modifier.js'
 import * as Op from './op.js'
+import * as ListOp from './list_op.js'
 import { arrayEq } from './util.js'
 import { Token } from './token.js'
 
@@ -232,23 +233,11 @@ export class SimpleCmd extends AST
           # The filter "function" can either be a function or a list
           # with the same length as the list, which acts as a mask. In
           # either case, the absolute value of the result at each
-          # position is used to determine the number of times to repeat the value
-          #
-          # ///// Numeric modifier to control depth?
-          [list, func] = state.pop(2)
-          mask = if func instanceof ArrayLit
-            if func.length != list.length
-              throw new Error.IncompatibleArrayLengths()
-            func.data
-          else
-            for x in list.data
-              state.push(x)
-              tryCall(func, state)
-              state.pop()
-          arr = []
-          for i in [0..list.length - 1] by 1
-            arr.push(list.data[i]) for _ in [1..Math.abs(mask[i])] by 1
-          state.push new ArrayLit(arr)
+          # position is used to determine the number of times to
+          # repeat the value. Numerical argument (default=1)
+          # determines how many nested lists to go. See documentation
+          # for ListOp.filter for more specific details.
+          ListOp.filter this, state
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)
