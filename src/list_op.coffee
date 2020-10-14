@@ -75,3 +75,35 @@ runFilter = (depth, list, func, state) ->
     for i in [0..mask.length-1]
       result = result.concat(runFilter(depth - 1, list.data[i], mask[i], state))
     [new ArrayLit(result)]
+
+# Map (¨). Takes two arguments: a list and a function. Like filter,
+# the numerical argument determines the depth. Unlike filter, the
+# function is actually always a function. Default numerical argument
+# is 1.
+#
+# Examples:
+#
+# {1 {1} {{1}}} [1≡] ¨⓪ evaluates to 0
+#
+# {1 {1} {{1}}} [1≡] ¨① evaluates to {-1 0 0}
+#
+# {1 {1} {{1}}} [1≡] ¨② evaluates to {-1 {-1} {0}}
+#
+# {1 {1} {{1}}} [1≡] ¨③ evaluates to {-1 {-1} {{-1}}}
+#
+# Note that ¨⓪ is just $.
+export map = (term, state) ->
+  depth = term.getNumMod(1)
+  depth = Infinity if depth == MAX_NUM_MODIFIER
+  [list, func] = state.pop(2)
+  result = runMap(depth, list, func, state)
+  state.push(result)
+
+runMap = (depth, list, func, state) ->
+  if depth <= 0 or not (list instanceof ArrayLit)
+    state.push(list)
+    tryCall(func, state)
+    state.pop()
+  else
+    result = (runMap(depth - 1, list.data[i], func, state) for i in [0..list.length-1])
+    new ArrayLit(result)

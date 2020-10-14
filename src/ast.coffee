@@ -238,6 +238,10 @@ export class SimpleCmd extends AST
           # determines how many nested lists to go. See documentation
           # for ListOp.filter for more specific details.
           ListOp.filter this, state
+        when '¨' # Map ( ..a list ( ..a x -- ..a y ) -- ..a list )
+          # Nests arbitrarily deep with a numerical argument, like
+          # filter. See ListOp.map for full details.
+          ListOp.map this, state
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)
