@@ -1,5 +1,9 @@
 
-import { FunctionLit } from './ast.js'
+import { StringLit } from './ast.js'
 
 export stringify = (value) ->
-  value.toString()
+  switch
+    when value instanceof StringLit
+      value.text
+    else
+      value.toString()

@@ -128,6 +128,15 @@ export class SimpleCmd extends AST
             zero: -1
             extension: Op.binary
             scalarExtend: true
+        ### STRING OPERATIONS ###
+        when '⋄' # Concatenate ( x y -- z )
+                 # (Numerical modifier determines arity)
+          # No scalar extension. Works on lists and on strings.
+          Op.op state, this,
+            function: catenate
+            zero: new StringLit("")
+            extension: Op.binary
+            scalarExtend: false
         ### COMPARISONS ###
         # TODO For now, comparison is really just designed for numbers. Generalize.
         when '=' # Equal ( x y -- ? )
@@ -233,7 +242,7 @@ export class SimpleCmd extends AST
           # resp.) in that case. If you provide your own function, you
           # can deal with the empty case by checking for ⚐.
           [list, func] = state.pop(2)
-          throw new TypeError("Array", list) unless list instanceof ArrayLit
+          throw new Error.TypeError("Array", list) unless list instanceof ArrayLit
           if list.length <= 0
             state.push(new SentinelValue("⚐"))
             tryCall(func, state)
@@ -441,3 +450,11 @@ export equals = (a, b) ->
 
 export isTruthy = (c) ->
   (typeof(c) != 'number') or (c != 0)
+
+export catenate = (a, b) ->
+  if a instanceof ArrayLit and b instanceof ArrayLit
+    new ArrayLit(a.data.concat(b.data))
+  else if a instanceof StringLit and b instanceof StringLit
+    new StringLit(a.text + b.text)
+  else
+    throw new Error.TypeError("arrays or strings", new ArrayLit([a, b]))
