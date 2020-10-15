@@ -33,6 +33,13 @@ export class AST
     else
       result
 
+  getPrimeMod: () ->
+    n = 0
+    for mod from @modifiers
+      if mod instanceof Modifier.PrimeModifier
+        n += 1
+    n
+
 export class SimpleCmd extends AST
 
   constructor: (@token) -> super()

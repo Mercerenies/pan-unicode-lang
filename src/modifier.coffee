@@ -10,6 +10,9 @@ export class NumModifier extends Modifier
   toString: ->
     NUMS.charAt @value
 
+export class PrimeModifier extends Modifier
+  toString: -> "′"
+
 export toNumModifier = (tok) ->
   result = NUMS.indexOf(tok.text)
   if result >= 0

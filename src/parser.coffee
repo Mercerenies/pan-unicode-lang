@@ -135,6 +135,9 @@ class Parser
     if num?
       @index += 1
       num
+    else if curr.text.toString() == "′"
+      @index += 1
+      new Modifier.PrimeModifier()
     else
       undefined
 
