@@ -53,6 +53,23 @@ export class SimpleCmd extends AST
           state.print stringify(state.pop());
         when ',' # Read integer from input
           state.push readAndParseInt(state)
+        when '📜' # Read character from input
+          char = state.readInput()
+          if char?
+            state.push(new StringLit(char))
+          else
+            state.push(new SentinelValue(Str.fromString("ε")))
+        when "📖" # Read line from input
+          result = ""
+          loop
+            curr = state.readInput()
+            break if curr == undefined
+            result += curr
+            break if curr == '\n'
+          if result != ""
+            state.push(new StringLit(result))
+          else
+            state.push(new SentinelValue(Str.fromString("ε")))
         ### STACK SHUFFLING ###
         when ':' # Duplicate ( x -- x x )
                  # (Numerical modifier determines number of things to duplicate)
@@ -363,7 +380,9 @@ export class ReadFromVar extends AST
 
 export class StringLit extends AST
 
-  constructor: (@text) -> super()
+  constructor: (@text) ->
+    super()
+    @text = Str.fromString(@text) if typeof(@text) == 'string'
 
   eval: (state) -> state.push(this)
 
@@ -405,7 +424,9 @@ export class CurriedFunction extends AST
 # "ε" - Null value
 export class SentinelValue extends AST
 
-  constructor: (@type) -> super()
+  constructor: (@type) ->
+    super()
+    @type = Str.fromString(@type) if typeof(@type) == 'string'
 
   toString: () ->
     @type + @modifiers.join("")
