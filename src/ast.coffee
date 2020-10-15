@@ -360,6 +360,13 @@ export class SimpleCmd extends AST
             result = state.pop()
             break unless isTruthy(result)
             tryCall(body, state)
+        when "W" # While ( ..a ( ..a -- ..a ? ) -- ..b )
+          # Like w but with no explicit body.
+          cond = state.pop()
+          loop
+            tryCall(cond, state)
+            result = state.pop()
+            break unless isTruthy(result)
         when "⍳" # Repeat N times ( ..a n ( ..a i -- ..a ) -- ..a )
           [n, body] = state.pop(2)
           for i in [0..n-1] by 1
