@@ -295,6 +295,10 @@ export class SimpleCmd extends AST
           # Nests arbitrarily deep with a numerical argument, like
           # filter. See ListOp.map for full details.
           ListOp.map this, state
+        when 'n' # Nested Query ( list index -- result )
+          # Works on lists or strings. See ListOp.nestedQuery
+          # for details.
+          ListOp.nestedQuery this, state
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)

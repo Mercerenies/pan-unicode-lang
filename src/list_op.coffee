@@ -1,6 +1,6 @@
 
 import * as Error from './error.js';
-import { ArrayLit, FunctionLit, tryCall } from './ast.js';
+import { ArrayLit, FunctionLit, StringLit, SentinelValue, tryCall } from './ast.js';
 import { MAX_NUM_MODIFIER } from './modifier.js';
 
 # Filter (⌿) always takes exactly two arguments off the stack. Its
@@ -133,3 +133,32 @@ runMap = (depth, args, func, state) ->
       newArgs = args.map((v) -> if v instanceof ArrayLit then v.data[i] else v)
       result.push runMap(depth - 1, newArgs, mask[i], state)
     new ArrayLit(result)
+
+# Nested query (n) Takes two arguments: a list/string and an index,
+# which can be either a number or a list. The index is traversed in
+# order, taking the nth element of the list/string at each step.
+export nestedQuery = (term, state) ->
+  [list, index] = state.pop(2)
+  index = switch
+    when typeof(index) == 'number' then [index]
+    when index instanceof ArrayLit then index.data
+    else throw new Error.TypeError("number or array", index)
+  result = list
+  for idx in index
+    result = nth(result, idx)
+  if result?
+    state.push(result)
+  else
+    state.push(new SentinelValue("ε"))
+
+nth = (value, index) ->
+  switch
+    when value instanceof StringLit
+      result = value.text.charAt(index)
+      if result?
+        new StringLit(result)
+      else
+        undefined
+    when value instanceof ArrayLit
+      value.data[index]
+    else value
