@@ -331,6 +331,10 @@ export class SimpleCmd extends AST
           # Nests arbitrarily deep with a numerical argument, like
           # filter. See ListOp.map for full details.
           ListOp.map this, state
+        when 'e' # Each ( ..a list ( ..a x -- ..a ) -- ..a )
+          # Nests arbitrarily deep with a numerical argument, like
+          # filter. See ListOp.each for full details.
+          ListOp.each this, state
         when 'n' # Nested Query ( list index -- result )
           # Works on lists or strings. See ListOp.nestedQuery
           # for details.

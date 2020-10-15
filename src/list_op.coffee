@@ -137,6 +137,28 @@ runMap = (depth, args, func, state) ->
       result.push runMap(depth - 1, newArgs, mask[i], state)
     new ArrayLit(result)
 
+# Just like map but doesn't expect a result of any kind.
+export each = (term, state) ->
+  [argCount, depth] = term.getNumMod(1, 1)
+  depth = Infinity if depth == MAX_NUM_MODIFIER
+  [args..., func] = [state.pop(argCount + 1)...]
+  result = runEach(depth, args, func, state)
+
+runEach = (depth, args, func, state) ->
+  len = getNodeLength(args)
+  if depth <= 0 or len == undefined
+    state.push(...args)
+    tryCall(func, state)
+  else
+    mask = if func instanceof ArrayLit
+      throw new Error.IncompatibleArrayLengths() if func.length != len
+      func.data
+    else
+      Array(len).fill(func)
+    for i in [0..len-1]
+      newArgs = args.map((v) -> if v instanceof ArrayLit then v.data[i] else v)
+      runEach(depth - 1, newArgs, mask[i], state)
+
 # Nested query (n) Takes two arguments: a list/string and an index,
 # which can be either a number or a list. The index is traversed in
 # order, taking the nth element of the list/string at each step.
