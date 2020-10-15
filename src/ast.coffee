@@ -4,6 +4,7 @@ import { stringify } from './pretty.js'
 import * as Modifier from './modifier.js'
 import * as Op from './op.js'
 import * as ListOp from './list_op.js'
+import * as StackOp from './stack_op.js'
 import { arrayEq } from './util.js'
 import { Token } from './token.js'
 
@@ -295,6 +296,9 @@ export class SimpleCmd extends AST
           preserve = state.peek(mod)
           tryCall(fn, state)
           state.push(preserve...)
+        when "⇉" # "Spread" combinators, in Factor parlance
+          # See StackOp.spread for details.
+          StackOp.spread this, state
         else
           throw new Error.UnknownCommandError(@token)
 

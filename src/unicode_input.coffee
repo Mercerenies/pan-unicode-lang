@@ -142,6 +142,8 @@ export DEFAULT_TRANSLATION_TABLE =
   "\\\"": "¨"
   "\\\"{}": "¨"
   "\\cib": "●"
+  "\\r-2": "⇉"
+  "\\rightrightarrows": "⇉"
   "\\flqq": "«"
   "\\\"<": "«"
   "\\frqq": "»"
