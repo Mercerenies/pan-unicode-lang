@@ -21,6 +21,21 @@ export tokenize = (str) ->
         num += str.charAt idx
         idx += 1
       arr.push(new Token(parseInt num, 10))
+    else if ch == '"'
+      # String literal; parse whole string
+      idx += 1
+      result = ""
+      while idx < len and str.charAt(idx) != '"'
+        if str.charAt(idx) == '\\'
+          idx += 1
+          break if idx >= len
+          result += str.charAt(idx)
+        else
+          result += str.charAt(idx)
+        idx += 1
+      throw new Error.UnexpectedEOF() unless idx < len and str.charAt(idx) == '"'
+      arr.push(new Token(result, true))
+      idx += 1
     else if ch == '«'
       # Comment; skip until next matching »
       nested = 1
@@ -52,6 +67,9 @@ class Parser
   parseTermNoMod: () ->
     curr = this.at()
     return undefined unless curr?
+    if curr.isString
+      @index += 1
+      return new SimpleCmd(curr)
     switch curr.text
       when '['
         @index += 1

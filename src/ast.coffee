@@ -6,7 +6,7 @@ import * as Op from './op.js'
 import * as ListOp from './list_op.js'
 import * as StackOp from './stack_op.js'
 import { arrayEq } from './util.js'
-import { Token } from './token.js'
+import { Token, TokenType, escapeString } from './token.js'
 
 export class AST
 
@@ -35,11 +35,16 @@ export class SimpleCmd extends AST
   constructor: (@token) -> super()
 
   isNumberLit: () ->
-    typeof(@token.text) == 'number'
+    @token.tokenType() == TokenType.Number
+
+  isStringLit: () ->
+    @token.tokenType() == TokenType.String
 
   eval: (state) ->
     if this.isNumberLit()
       state.push @token.text
+    else if this.isStringLit()
+      state.push new StringLit(@token.text)
     else
       switch @token.text
         ### IO ####
@@ -333,6 +338,15 @@ export class ReadFromVar extends AST
 
   toString: () ->
     "←" + @target
+
+export class StringLit extends AST
+
+  constructor: (@text) -> super()
+
+  eval: (state) -> state.push(this)
+
+  toString: () ->
+    escapeString @text
 
 export class FunctionLit extends AST
 

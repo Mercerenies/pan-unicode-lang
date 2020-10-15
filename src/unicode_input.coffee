@@ -154,6 +154,7 @@ export DEFAULT_TRANSLATION_TABLE =
   "\\dr": "↘"
   "\\dr-": "↘"
   "\\searrow": "↘"
+  "\\\\": "\\"
   "\\flqq": "«"
   "\\\"<": "«"
   "\\frqq": "»"
