@@ -45,19 +45,19 @@ export cross = (term, state) ->
   [a, b, f] = term.getNumMod(1, 2, 2)
   doCross state, a, b, f
 
-# ↘ (Cleave) is ⤨ but with F=1 automatically. Cleave takes two
+# ↘ (Apply) is ⤨ but with F=1 automatically. Cleave takes two
 # numerical arguments: A and B. A defaults to 1 and B defaults to 2.
 #
 # Mnemonic: We pass several argument groups down to one function.
-export cleave = (term, state) ->
+export apply = (term, state) ->
   [a, b] = term.getNumMod(1, 2)
   doCross state, a, b, 1
 
-# ↗ (Apply) is ⤨ but with B=1 automatically. Apply takes two numerical
+# ↗ (Cleave) is ⤨ but with B=1 automatically. Apply takes two numerical
 # arguments: A and F. A defaults to 1 and F defaults to 2.
 #
 # Mnemonic: We pass a single argument group up to several functions.
-export apply = (term, state) ->
+export cleave = (term, state) ->
   [a, f] = term.getNumMod(1, 2)
   doCross state, a, 1, f
 

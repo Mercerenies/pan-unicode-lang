@@ -329,12 +329,12 @@ export class SimpleCmd extends AST
         when "⤨" # "Cross" combinator
           # See StackOp.cross for details
           StackOp.cross this, state
-        when "↘" # "Cleave" combinator
+        when "↘" # "Apply" combinator
           # See StackOp.cleave for details
-          StackOp.cleave this, state
-        when "↗" # "Apply" combinator
-          # See StackOp.apply for details
           StackOp.apply this, state
+        when "↗" # "Cleave" combinator
+          # See StackOp.apply for details
+          StackOp.cleave this, state
         else
           throw new Error.UnknownCommandError(@token)
 
