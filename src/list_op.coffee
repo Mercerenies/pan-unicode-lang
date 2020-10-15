@@ -2,6 +2,7 @@
 import * as Error from './error.js';
 import { ArrayLit, FunctionLit, StringLit, SentinelValue, tryCall } from './ast.js';
 import { MAX_NUM_MODIFIER } from './modifier.js';
+import Str from './str.js'
 
 # Filter (⌿) always takes exactly two arguments off the stack. Its
 # behavior is very general. The numerical modifier determines the
@@ -150,6 +151,34 @@ export nestedQuery = (term, state) ->
     state.push(result)
   else
     state.push(new SentinelValue("ε"))
+
+# Select (⊇) takes two arguments: a list/string and an index. The
+# index can either be a number or a list. If it's a number, it's
+# treated a a singleton list. A new list/string is formed by taking
+# the elements at the given positions. Any invalid indices are
+# ignored.
+export select = (term, state) ->
+  [list, index] = state.pop(2)
+  index = switch
+    when typeof(index) == 'number' then [index]
+    when index instanceof ArrayLit then index.data
+    else throw new Error.TypeError("number or array", index)
+  unless (list instanceof StringLit) or (list instanceof ArrayLit)
+    throw new Error.TypeError("array or string", list)
+  results = []
+  for idx in index
+    curr = nth(list, idx)
+    results.push(curr) if curr?
+  state.push rebuild(list, results)
+
+rebuild = (model, values) ->
+  switch
+    when model instanceof StringLit
+      new StringLit(new Str(values.map((x) -> x.text.toString())))
+    when model instanceof ArrayLit
+      new ArrayLit(values)
+    else
+      new SentinelValue("ε") # Meh.
 
 nth = (value, index) ->
   switch

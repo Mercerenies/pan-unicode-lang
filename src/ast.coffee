@@ -299,6 +299,10 @@ export class SimpleCmd extends AST
           # Works on lists or strings. See ListOp.nestedQuery
           # for details.
           ListOp.nestedQuery this, state
+        when '⊇' # Select ( list index -- result )
+          # Works on lists or strings. See ListOp.select
+          # for details.
+          ListOp.select this, state
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)
