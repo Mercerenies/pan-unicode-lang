@@ -137,6 +137,19 @@ export class SimpleCmd extends AST
             zero: new StringLit("")
             extension: Op.binary
             scalarExtend: false
+        when '💬' # Chr / Ord ( x -- y )
+          # ///// UTF-16 problems >.< (then test this function as I haven't done that yet)
+          arg = state.pop()
+          arg = [arg] if typeof(arg) == 'number'
+          switch
+            when arg instanceof ArrayLit
+              res = (String.fromCharCode(c) for c in arg.data).join("")
+              state.push new StringLit(res)
+            when arg instanceof StringLit
+              res = (arg.text.codePointAt(i) for i in [0..arg.text.length-1])
+              state.push new ArrayLit(res)
+            else
+              throw new TypeError("Array or string", arg)
         ### COMPARISONS ###
         # TODO For now, comparison is really just designed for numbers. Generalize.
         when '=' # Equal ( x y -- ? )
