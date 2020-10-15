@@ -17,5 +17,8 @@ export isNumber = checkOrThrow "number", (v) -> typeof(v) == 'number'
 
 export isString = checkOrThrow "string", (v) -> v instanceof StringLit
 
+export isList =
+  checkOrThrow "list", (v) -> v instanceof ArrayLit
+
 export isStringOrList =
   checkOrThrow "string or list", (v) -> v instanceof StringLit or v instanceof ArrayLit

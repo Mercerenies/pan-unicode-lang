@@ -321,6 +321,9 @@ export class SimpleCmd extends AST
           # Works on lists or strings. See ListOp.select
           # for details.
           ListOp.select this, state
+        when "⍋" # Grade Up
+          # Sorting function. See ListOp.gradeUp for full details.
+          ListOp.gradeUp this, state
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)

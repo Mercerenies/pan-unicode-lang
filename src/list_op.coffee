@@ -1,8 +1,10 @@
 
 import * as Error from './error.js';
-import { ArrayLit, FunctionLit, StringLit, SentinelValue, tryCall } from './ast.js';
+import { ArrayLit, FunctionLit, StringLit, SentinelValue, tryCall, isTruthy } from './ast.js';
 import { MAX_NUM_MODIFIER } from './modifier.js';
 import Str from './str.js'
+import { compare, Ordering } from './comparison.js'
+import { isList } from './type_check.js'
 
 # Filter (⌿) always takes exactly two arguments off the stack. Its
 # behavior is very general. The numerical modifier determines the
@@ -191,3 +193,32 @@ nth = (value, index) ->
     when value instanceof ArrayLit
       value.data[index]
     else value
+
+# By default, gradeUp takes one argument: a list. It returns a list of
+# indices which indicates the permutation placing the list into
+# ascending order. With a prime modifier, this will pop a function
+# (before popping the list) that will be used as the "less than"
+# operator for comparison. Returns a list of indices which indicate
+# the permutation of the list after sorting.
+export gradeUp = (term, state) ->
+  [list, func] = if term.getPrimeMod() > 0
+    [list, func0] = state.pop(2)
+    func = (x, y) ->
+      state.push(x, y)
+      tryCall(func0, state)
+      isTruthy(state.pop())
+    [list, func]
+  else
+    list = state.pop()
+    func = (x, y) -> compare(x, y) == Ordering.LT
+    [list, func]
+  isList(list)
+  indices = [0..list.length-1]
+  indices.sort (a, b) ->
+    if func(list.data[a], list.data[b])
+      -1
+    else if func(list.data[b], list.data[a])
+      1
+    else
+      0
+  state.push(new ArrayLit(indices))
