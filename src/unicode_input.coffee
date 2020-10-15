@@ -6,6 +6,7 @@ export class InputManager
   constructor: () ->
     @element = null
     @handler = null
+    @downHandler = null
     @translations = compileTranslationTable DEFAULT_TRANSLATION_TABLE
     @currentTranslation = null
     @currentString = ""
@@ -16,13 +17,27 @@ export class InputManager
       this.unregister()
     @element = element
     @handler = (event) => this.onInput(event)
+    @downHandler = (event) => this.onKeyDown(event)
     element.addEventListener('input', @handler)
+    element.addEventListener('keypress', @downHandler)
+    element.addEventListener('keydown', @downHandler)
 
   unregister: () ->
     if @element?
       @element.removeEventListener('input', @handler)
+      @element.removeEventListener('keypress', @downHandler)
+      @element.removeEventListener('keydown', @downHandler)
       @element = null
       @handler = null
+      @downHandler = null
+
+  onKeyDown: (event) ->
+    if event.isComposing or event.keyCode == 229
+      # MDN says to do this :)
+      return
+    if event.keyCode == 13 and event.shiftKey
+      document.querySelector("#run-button").click()
+      event.preventDefault()
 
   onInput: (event) ->
     if event.inputType == "insertText"
