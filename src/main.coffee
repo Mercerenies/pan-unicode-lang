@@ -52,3 +52,4 @@ export run = ->
 export initInputMgr = ->
   inputManager = new InputManager()
   inputManager.register(document.querySelector("#code"))
+

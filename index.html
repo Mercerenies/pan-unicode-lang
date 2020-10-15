@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
+    <noscript><div>
+      Note: Your browser has disabled Javascript. Without
+      Javascript, you can't run my interpreter below.
+    </div></noscript>
     Code:
     <br/>
     <textarea id="code" rows="10" cols="80"></textarea>
@@ -25,6 +29,14 @@
     Final Stack:
     <br/>
     <div id="stack"></div>
+
+    <br/><br/>
+    <hr>
+    <div id="compatibility-box">
+      Note: This page has been mainly tested on recent versions of
+      Mozilla Firefox and Google Chrome. If you're having trouble, I
+      recommend using one of those two browsers.
+    </div><br/>
 
     <script type="module">
      import * as Main from './js/main.js';
