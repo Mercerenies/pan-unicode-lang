@@ -344,6 +344,14 @@ export class SimpleCmd extends AST
             scalarExtend: false
             defaultModifier: 1
             modifierAdjustment: (x) -> x + 1
+        ### BOXING / UNBOXING ###
+        when "⊂" # Box ( x -- box )
+          value = state.pop()
+          state.push new Box(value)
+        when "⊃" # Unbox ( box -- x )
+          # No effect if value is not boxed
+          value = state.pop()
+          state.push(if value instanceof Box then value.value else value)
         ### STACK COMBINATORS ###
         when "D" # Dip ( ..a x ( ..a -- ..b ) -- ..b x )
                  # (Numerical modifier determines arity)
@@ -449,6 +457,13 @@ export class SentinelValue extends AST
 
   toString: () ->
     @type + @modifiers.join("")
+
+export class Box extends AST
+
+  constructor: (@value) -> super()
+
+  toString: () ->
+    "#{@value} ⊂#{@modifiers.join("")}"
 
 export class ArrayLit extends AST
 

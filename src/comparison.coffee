@@ -1,5 +1,5 @@
 
-import { SentinelValue, ArrayLit, StringLit } from './ast.js'
+import { SentinelValue, ArrayLit, StringLit, Box } from './ast.js'
 import { IncomparableValues } from './error.js'
 
 export Ordering =
@@ -20,6 +20,8 @@ export equals = (a, b) ->
     return true if arrayEq(a.data, b.data, equals)
   if a instanceof StringLit and b instanceof StringLit
     return true if a.text.toString() == b.text.toString()
+  if a instanceof Box and b instanceof Box
+    return true if equals(a.value, b.value)
   false
 
 # Unlike equality, comparison WILL throw an error if given
@@ -28,9 +30,6 @@ export compare = (a, b) ->
   switch
     when typeof(a) == 'number' and typeof(b) == 'number'
       toOrdering(a - b)
-    # TODO This case doesn't trigger right now, because scalar
-    # extension takes precedent. We need a way to selectively disable
-    # scalar extension.
     when a instanceof ArrayLit and b instanceof ArrayLit
       for i in [0..Math.min(a.length, b.length)-1]
         result = compare(a.data[i], b.data[i])
@@ -43,5 +42,7 @@ export compare = (a, b) ->
         when a < b then Ordering.LT
         when a > b then Ordering.GT
         else            Ordering.EQ
+    when a instanceof Box and b instanceof Box
+      compare(a.value, b.value)
     else
       throw new IncomparableValues(a, b)
