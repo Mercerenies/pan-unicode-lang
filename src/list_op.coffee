@@ -76,38 +76,60 @@ runFilter = (depth, list, func, state) ->
       result = result.concat(runFilter(depth - 1, list.data[i], mask[i], state))
     [new ArrayLit(result)]
 
-# Map (¨). Takes two arguments: a list and a function. Like filter,
-# the numerical argument determines the depth. The function can be a
-# function or an arbitrary nested list of functions.
+# Map (¨). Takes two arguments: a list and a function. The first
+# numerical argument controls the number of lists to pop (Map will
+# always pop one more total argument than its first numerical
+# argument, as it also pops the function). The second numerical
+# argument determines the depth in the same way as filter's depth
+# argument. Both numerical arguments default to 1. The function can be
+# a function or an arbitrary nested list of functions.
 #
 # Examples:
 #
-# {1 {1} {{1}}} [1≡] ¨⓪ evaluates to 0
+# {1 {1} {{1}}} [1≡] ¨①⓪ evaluates to 0
 #
-# {1 {1} {{1}}} [1≡] ¨① evaluates to {-1 0 0}
+# {1 {1} {{1}}} [1≡] ¨①① evaluates to {-1 0 0}
 #
-# {1 {1} {{1}}} [1≡] ¨② evaluates to {-1 {-1} {0}}
+# {1 {1} {{1}}} [1≡] ¨①② evaluates to {-1 {-1} {0}}
 #
-# {1 {1} {{1}}} [1≡] ¨③ evaluates to {-1 {-1} {{-1}}}
+# {1 {1} {{1}}} [1≡] ¨①③ evaluates to {-1 {-1} {{-1}}}
 #
-# Note that ¨⓪ is just $.
+# Note that ¨①⓪ is just $ and ¨⓪① will simply pop the function and
+# call it once with no arguments.
 export map = (term, state) ->
-  depth = term.getNumMod(1)
+  [argCount, depth] = term.getNumMod(1, 1)
   depth = Infinity if depth == MAX_NUM_MODIFIER
-  [list, func] = state.pop(2)
-  result = runMap(depth, list, func, state)
+  [args..., func] = [state.pop(argCount + 1)...]
+  result = runMap(depth, args, func, state)
   state.push(result)
 
-runMap = (depth, list, func, state) ->
-  if depth <= 0 or not (list instanceof ArrayLit)
-    state.push(list)
+getNodeLength = (args) ->
+  length = undefined
+  for arg in args
+    if arg instanceof ArrayLit
+      switch
+        when not length?
+          length = arg.length
+        when length == arg.length
+          # Pass
+        else
+          throw new Error.IncompatibleArrayLengths()
+  length
+
+runMap = (depth, args, func, state) ->
+  len = getNodeLength(args)
+  if depth <= 0 or len == undefined
+    state.push(...args)
     tryCall(func, state)
     state.pop()
   else
     mask = if func instanceof ArrayLit
-      throw new Error.IncompatibleArrayLengths() if func.length != list.length
+      throw new Error.IncompatibleArrayLengths() if func.length != len
       func.data
     else
-      Array(list.length).fill(func)
-    result = (runMap(depth - 1, list.data[i], mask[i], state) for i in [0..list.length-1])
+      Array(len).fill(func)
+    result = []
+    for i in [0..len-1]
+      newArgs = args.map((v) -> if v instanceof ArrayLit then v.data[i] else v)
+      result.push runMap(depth - 1, newArgs, mask[i], state)
     new ArrayLit(result)
