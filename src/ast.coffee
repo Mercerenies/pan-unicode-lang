@@ -247,6 +247,14 @@ export class SimpleCmd extends AST
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: false
+        when '≢' # Not Same ( x y -- ? )
+          # Note: No scalar extension
+          Op.op state, this,
+            function: (a, b) -> not equals(a, b)
+            postProcess: Op.boolToInt
+            zero: -1
+            extension: Op.merge (a, b) -> a & b
+            scalarExtend: false
         ### METAPROGRAMMING ###
         when "s" # Get stack frame
                  # (Numerical argument determines how deep to go; n=0 is current)
