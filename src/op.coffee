@@ -96,7 +96,7 @@ export scalarExtendUnary = (f) ->
   f1
 
 export handleWhiteFlag = (state, term, default_, f) ->
-  mod = term.getNumMod 2
+  mod = term.getNumMod(2)
   if mod > 0
     top = state.peek()
     if top instanceof SentinelValue and top.type == '⚐'

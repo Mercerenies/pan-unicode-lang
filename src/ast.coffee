@@ -15,11 +15,19 @@ export class AST
   call: (state) ->
     throw new Error.CallNonFunction(this)
 
-  getNumMod: (default_) ->
+  getNumMod: (args...) ->
+    args = [undefined] if args.length == 0
+    result = []
     for mod from @modifiers
       if mod instanceof Modifier.NumModifier
-        return mod.value
-    default_
+        result.push(mod.value)
+        break if result.length >= args.length
+    while result.length < args.length
+      result.push args[result.length]
+    if result.length == 1
+      result[0]
+    else
+      result
 
 export class SimpleCmd extends AST
 
