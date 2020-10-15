@@ -9,6 +9,7 @@ import * as StackOp from './stack_op.js'
 import { arrayEq } from './util.js'
 import { Token, TokenType, escapeString } from './token.js'
 import Str from './str.js'
+import { equals, compare, Ordering } from './comparison.js'
 
 export class AST
 
@@ -188,28 +189,28 @@ export class SimpleCmd extends AST
             scalarExtend: true
         when '<' # LT ( x y -- ? )
           Op.op state, this,
-            function: (a, b) -> a < b
+            function: (a, b) -> compare(a, b) == Ordering.LT
             postProcess: Op.boolToInt
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
         when '>' # GT ( x y -- ? )
           Op.op state, this,
-            function: (a, b) -> a > b
+            function: (a, b) -> compare(a, b) == Ordering.GT
             postProcess: Op.boolToInt
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
         when '≤' # LE ( x y -- ? )
           Op.op state, this,
-            function: (a, b) -> a <= b
+            function: (a, b) -> compare(a, b) != Ordering.GT
             postProcess: Op.boolToInt
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
         when '≥' # GE ( x y -- ? )
           Op.op state, this,
-            function: (a, b) -> a >= b
+            function: (a, b) -> compare(a, b) != Ordering.LT
             postProcess: Op.boolToInt
             zero: -1
             extension: Op.merge (a, b) -> a & b
@@ -491,16 +492,6 @@ readAndParseInt = (state) ->
     next = state.peekInput()
   throw new Error.InvalidInput() unless valid
   sign(v)
-
-export equals = (a, b) ->
-  return true if a == b
-  if a instanceof SentinelValue and b instanceof SentinelValue
-    return true if a.type.toString() == b.type.toString()
-  if a instanceof ArrayLit and b instanceof ArrayLit
-    return true if arrayEq(a.data, b.data, equals)
-  if a instanceof StringLit and b instanceof StringLit
-    return true if a.text.toString() == b.text.toString()
-  false
 
 export isTruthy = (c) ->
   (typeof(c) != 'number') or (c != 0)

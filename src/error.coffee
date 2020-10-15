@@ -40,3 +40,7 @@ export class TypeError extends Error
 export class StrEncodingError extends Error
   constructor: (@str) -> super()
   toString: () -> "String encoding error (#{@str})"
+
+export class IncomparableValues extends Error
+  constructor: (@lhs, @rhs) -> super()
+  toString: () -> "Attempt to compare #{@lhs} and #{@rhs}"
