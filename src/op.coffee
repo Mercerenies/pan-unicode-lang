@@ -99,7 +99,7 @@ export handleWhiteFlag = (state, term, default_, f) ->
   mod = term.getNumMod(2)
   if mod > 0
     top = state.peek()
-    if top instanceof SentinelValue and top.type == '⚐'
+    if top instanceof SentinelValue and top.type.toString() == '⚐'
       state.pop() # Pop the sentinel
       if typeof default_ == 'function'
         state.push(default_())

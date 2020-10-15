@@ -7,6 +7,7 @@ import * as ListOp from './list_op.js'
 import * as StackOp from './stack_op.js'
 import { arrayEq } from './util.js'
 import { Token, TokenType, escapeString } from './token.js'
+import Str from './str.js'
 
 export class AST
 
@@ -46,7 +47,7 @@ export class SimpleCmd extends AST
     else if this.isStringLit()
       state.push new StringLit(@token.text)
     else
-      switch @token.text
+      switch @token.text.toString()
         ### IO ####
         when '.' # Pretty print ( x -- )
           state.print stringify(state.pop());
@@ -138,12 +139,11 @@ export class SimpleCmd extends AST
             extension: Op.binary
             scalarExtend: false
         when '💬' # Chr / Ord ( x -- y )
-          # ///// UTF-16 problems >.< (then test this function as I haven't done that yet)
           arg = state.pop()
-          arg = [arg] if typeof(arg) == 'number'
+          arg = new ArrayLit([arg]) if typeof(arg) == 'number'
           switch
             when arg instanceof ArrayLit
-              res = (String.fromCharCode(c) for c in arg.data).join("")
+              res = new Str(String.fromCodePoint(c) for c in arg.data)
               state.push new StringLit(res)
             when arg instanceof StringLit
               res = (arg.text.codePointAt(i) for i in [0..arg.text.length-1])
@@ -239,7 +239,7 @@ export class SimpleCmd extends AST
         when "}" # End array (pops until sentinel value is hit)
           arr = []
           value = state.pop()
-          while not (value instanceof SentinelValue) or value.type != "{"
+          while not (value instanceof SentinelValue) or value.type.toString() != "{"
             arr.push(value)
             value = state.pop()
           state.push(new ArrayLit(arr.reverse()))
@@ -456,7 +456,7 @@ readAndParseInt = (state) ->
 export equals = (a, b) ->
   return true if a == b
   if a instanceof SentinelValue and b instanceof SentinelValue
-    return true if a.type == b.type
+    return true if a.type.toString() == b.type.toString()
   if a instanceof ArrayLit and b instanceof ArrayLit
     return true if arrayEq(a.data, b.data, equals)
   false
@@ -468,6 +468,6 @@ export catenate = (a, b) ->
   if a instanceof ArrayLit and b instanceof ArrayLit
     new ArrayLit(a.data.concat(b.data))
   else if a instanceof StringLit and b instanceof StringLit
-    new StringLit(a.text + b.text)
+    new StringLit(a.text.concat(b.text))
   else
     throw new Error.TypeError("arrays or strings", new ArrayLit([a, b]))

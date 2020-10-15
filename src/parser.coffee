@@ -3,8 +3,11 @@ import { Token, TokenType } from './token.js'
 import { SimpleCmd, FunctionLit, AssignToVar, ReadFromVar } from './ast.js'
 import * as Error from './error.js'
 import * as Modifier from './modifier.js'
+import Str from './str.js'
 
+# Takes an Str
 export tokenize = (str) ->
+  str = Str.fromString(str) if typeof(str) == 'string'
   arr = []
   idx = 0
   len = str.length
@@ -70,11 +73,11 @@ class Parser
     if curr.isString
       @index += 1
       return new SimpleCmd(curr)
-    switch curr.text
+    switch curr.text.toString()
       when '['
         @index += 1
         inner = this.parse()
-        if not this.at()? or this.at().text != ']'
+        if not this.at()? or this.at().text.toString() != ']'
           if this.at()?
             throw new Error.UnexpectedParseError(this.at())
           else

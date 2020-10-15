@@ -1,6 +1,9 @@
 
+import Str from './str.js'
+
 export class Token
   constructor: (@text, isString) ->
+    @text = Str.fromString(@text) if typeof(@text) == 'string'
     # Normalize to Boolean
     @isString = !!isString
 
@@ -22,6 +25,7 @@ export TokenType =
   Command: "TokenType.Command"
 
 export escapeString = (s) ->
+  s = s.toString()
   contents = ""
   for ch in s
     if ch == '"'

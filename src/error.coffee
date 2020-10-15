@@ -36,3 +36,7 @@ export class InvalidInput extends Error
 export class TypeError extends Error
   constructor: (@expected, @value) -> super()
   toString: () -> "Type error (Expected #{@expected} got #{@value})"
+
+export class StrEncodingError extends Error
+  constructor: (@str) -> super()
+  toString: () -> "String encoding error (#{@str})"

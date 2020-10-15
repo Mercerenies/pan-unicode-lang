@@ -4,6 +4,9 @@ import { Evaluator } from './eval.js'
 import { Error } from './error.js'
 import { FunctionLit } from './ast.js'
 import { InputManager } from './unicode_input.js'
+import Str from './str.js'
+
+DEBUG_MODE = false
 
 inputManager = null
 
@@ -11,7 +14,7 @@ export class InteractiveEvaluator extends Evaluator
 
   constructor: () ->
     super()
-    @input = document.querySelector("#input").value
+    @input = Str.fromString(document.querySelector("#input").value)
     @inputPos = 0
 
   print: (value) ->
@@ -43,7 +46,7 @@ export run = ->
     evaluator.eval parsed
     evaluator.popCall()
   catch e
-    if e instanceof Error
+    if e instanceof Error and not DEBUG_MODE
       document.querySelector("#output").innerText += "\n\n" + e.toString() + "\n"
     else
       throw e
