@@ -141,7 +141,7 @@ export class SimpleCmd extends AST
             preProcess: TypeCheck.isNumber
             scalarExtend: true
         when '_' # Negate ( x -- y )
-          state.push Op.scalarExtendUnary((x) -> - x)(TypeCheck.isNumber(state.pop()))
+          state.push Op.scalarExtendUnary((x) -> TypeCheck.isNumber(- x))(state.pop())
         when '∧' # Bitwise Conjunction ( x y -- z )
           Op.op state, this,
             function: (a, b) -> a & b
@@ -185,6 +185,16 @@ export class SimpleCmd extends AST
               state.push new ArrayLit(res)
             else
               throw new TypeError("string or list", arg)
+        when "🍴" # Chomp ( x -- y )
+          # Removes the last character if it's a newline. Subject to scalar extension.
+          chomp = (x) ->
+            x = x.text
+            result = if x.charAt(x.length - 1) == '\n'
+              Str.fromString(x.toString().slice(0, x.length - 1))
+            else
+              x
+            new StringLit(result)
+          state.push Op.scalarExtendUnary((x) -> chomp(TypeCheck.isString(x)))(state.pop())
         ### COMPARISONS ###
         # TODO For now, comparison is really just designed for numbers. Generalize.
         when '=' # Equal ( x y -- ? )

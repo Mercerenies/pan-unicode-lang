@@ -183,6 +183,8 @@ export DEFAULT_TRANSLATION_TABLE =
   ".$": "⍋"
   "\\gradeup": "⍋"
   "\\sort": "⍋"
+  "\\forkandknife": "🍴"
+  "\\chomp": "🍴"
   "\\\\": "\\"
   "\\flqq": "«"
   "\\\"<": "«"
