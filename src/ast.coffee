@@ -2,6 +2,7 @@
 import * as Error from './error.js'
 import { stringify } from './pretty.js'
 import * as Modifier from './modifier.js'
+import * as TypeCheck from './type_check.js'
 import * as Op from './op.js'
 import * as ListOp from './list_op.js'
 import * as StackOp from './stack_op.js'
@@ -100,24 +101,28 @@ export class SimpleCmd extends AST
                  # (Numerical modifier determines arity)
           Op.op state, this,
             function: (a, b) -> a + b
+            preProcess: TypeCheck.isNumber
             zero: 0
             extension: Op.binary
             scalarExtend: true
         when '-' # Subtract ( x y -- z )
           Op.op state, this,
             function: (a, b) -> a - b
+            preProcess: TypeCheck.isNumber
             one: (a) -> - a
             extension: Op.binary
             scalarExtend: true
         when '×' # Multiply ( x y -- z )
           Op.op state, this,
             function: (a, b) -> a * b
+            preProcess: TypeCheck.isNumber
             zero: 1
             extension: Op.binary
             scalarExtend: true
         when '÷' # Divide ( x y -- z )
           Op.op state, this,
             function: (a, b) -> a / b
+            preProcess: TypeCheck.isNumber
             one: (a) -> 1 / a
             extension: Op.binary
             scalarExtend: true
@@ -125,24 +130,28 @@ export class SimpleCmd extends AST
           # This does not extend with modifier; it only scalar extends
           Op.op state, this,
             function: (a, b) -> (a % b + b) % b # "True" mod
+            preProcess: TypeCheck.isNumber
             scalarExtend: true
         when '_' # Negate ( x -- y )
-          state.push Op.scalarExtendUnary((x) -> - x)(state.pop())
+          state.push Op.scalarExtendUnary((x) -> - x)(TypeCheck.isNumber(state.pop()))
         when '∧' # Bitwise Conjunction ( x y -- z )
           Op.op state, this,
             function: (a, b) -> a & b
+            preProcess: TypeCheck.isNumber
             zero: -1
             extension: Op.binary
             scalarExtend: true
         when '∨' # Bitwise Disjunction ( x y -- z )
           Op.op state, this,
             function: (a, b) -> a | b
+            preProcess: TypeCheck.isNumber
             zero: 0
             extension: Op.binary
             scalarExtend: true
         when '⊕' # Bitwise Exclusive Or ( x y -- z )
           Op.op state, this,
             function: (a, b) -> a ^ b
+            preProcess: TypeCheck.isNumber
             zero: -1
             extension: Op.binary
             scalarExtend: true
@@ -152,6 +161,7 @@ export class SimpleCmd extends AST
           # No scalar extension. Works on lists and on strings.
           Op.op state, this,
             function: catenate
+            preProcess: TypeCheck.isStringOrList
             zero: new StringLit("")
             extension: Op.binary
             scalarExtend: false
@@ -166,7 +176,7 @@ export class SimpleCmd extends AST
               res = (arg.text.codePointAt(i) for i in [0..arg.text.length-1])
               state.push new ArrayLit(res)
             else
-              throw new TypeError("Array or string", arg)
+              throw new TypeError("string or list", arg)
         ### COMPARISONS ###
         # TODO For now, comparison is really just designed for numbers. Generalize.
         when '=' # Equal ( x y -- ? )
@@ -488,6 +498,8 @@ export equals = (a, b) ->
     return true if a.type.toString() == b.type.toString()
   if a instanceof ArrayLit and b instanceof ArrayLit
     return true if arrayEq(a.data, b.data, equals)
+  if a instanceof StringLit and b instanceof StringLit
+    return true if a.text.toString() == b.text.toString()
   false
 
 export isTruthy = (c) ->

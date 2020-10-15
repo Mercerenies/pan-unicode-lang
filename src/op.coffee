@@ -172,6 +172,10 @@ export boolToInt = (x) ->
 # - postProcess (optional) - Unary function; runs after the original
 #   function. Defaults to the identity function.
 #
+# - preProcess (optional) - Unary function; runs on each argument to
+# - the original function. Generally, this is a type check of some
+# - variety.
+#
 # - extension (optional) - If provided, this should be one of Op.none,
 #   Op.binary, or Op.merge(...). It determines how to reduce the
 #   function along more arguments.
@@ -197,8 +201,11 @@ export boolToInt = (x) ->
 export op = (state, term, opts = {}) ->
   func = opts.function
   if opts.postProcess
-    unprocessedFunc = func
-    func = (a, b) -> opts.postProcess(unprocessedFunc(a, b))
+    unpostprocessedFunc = func
+    func = (a, b) -> opts.postProcess(unpostprocessedFunc(a, b))
+  if opts.preProcess
+    unpreprocessedFunc = func
+    func = (a, b) -> unpreprocessedFunc(opts.preProcess(a), opts.preProcess(b))
   if opts.scalarExtend
     func = scalarExtend(func)
   operation = -> (opts.extension ? noExtension)(func, term, state, opts)
