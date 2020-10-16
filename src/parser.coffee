@@ -16,7 +16,7 @@ export tokenize = (str) ->
     if /\s/.test(ch)
       # Whitespace; skip
       idx += 1
-    else if /[0-9]/.test(ch)
+    else if /[0-9]/.test(ch) or (ch == "-" and idx < len - 1 and /[0-9]/.test(str.charAt(idx + 1)))
       # Number; parse whole number
       num = ch
       idx += 1
