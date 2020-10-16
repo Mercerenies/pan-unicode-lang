@@ -3,7 +3,7 @@ import * as Error from './error.js';
 import { ArrayLit, FunctionLit, StringLit, SentinelValue, tryCall, isTruthy } from './ast.js';
 import { MAX_NUM_MODIFIER } from './modifier.js';
 import Str from './str.js'
-import { compare, Ordering } from './comparison.js'
+import { customLT, defaultLT } from './comparison.js'
 import { isList } from './type_check.js'
 
 # Filter (⌿) always takes exactly two arguments off the stack. Its
@@ -226,16 +226,11 @@ nth = (value, index) ->
 # indicate the permutation of the list after sorting.
 export gradeUp = (term, state) ->
   [list, func] = if term.getPrimeMod() > 0
-    [list, func0] = state.pop(2)
-    func = (x, y) ->
-      state.push(x, y)
-      tryCall(func0, state)
-      isTruthy(state.pop())
-    [list, func]
+    [list, func] = state.pop(2)
+    [list, customLT(state, func)]
   else
     list = state.pop()
-    func = (x, y) -> compare(x, y) == Ordering.LT
-    [list, func]
+    [list, defaultLT]
   isList(list)
   indices = [0..list.length-1]
   indices.sort (a, b) ->

@@ -1,5 +1,5 @@
 
-import { SentinelValue, ArrayLit, StringLit, Box } from './ast.js'
+import { SentinelValue, ArrayLit, StringLit, Box, isTruthy, tryCall } from './ast.js'
 import { IncomparableValues } from './error.js'
 
 export Ordering =
@@ -46,3 +46,12 @@ export compare = (a, b) ->
       compare(a.value, b.value)
     else
       throw new IncomparableValues(a, b)
+
+export defaultLT = (x, y) ->
+  compare(x, y) == Ordering.LT
+
+export customLT = (state, fn) ->
+  (x, y) ->
+    state.push(x, y)
+    tryCall(fn, state)
+    isTruthy(state.pop())

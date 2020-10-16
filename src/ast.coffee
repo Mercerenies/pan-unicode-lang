@@ -9,7 +9,7 @@ import * as StackOp from './stack_op.js'
 import { arrayEq } from './util.js'
 import { Token, TokenType, escapeString } from './token.js'
 import Str from './str.js'
-import { equals, compare, Ordering } from './comparison.js'
+import { equals, compare, Ordering, defaultLT, customLT } from './comparison.js'
 
 export class AST
 
@@ -206,7 +206,6 @@ export class SimpleCmd extends AST
             new StringLit(result)
           state.push Op.scalarExtendUnary((x) -> chomp(TypeCheck.isString(x)))(state.pop())
         ### COMPARISONS ###
-        # TODO For now, comparison is really just designed for numbers. Generalize.
         when '=' # Equal ( x y -- ? )
           Op.op state, this,
             function: (a, b) -> equals(a, b)
@@ -265,6 +264,32 @@ export class SimpleCmd extends AST
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: false
+        when '⌈' # Max
+          # With prime, pops a function and uses it instead of
+          # default less-than.
+          #
+          # TODO: Negative infinity default if mod is zero or white flag
+          func = if this.getPrimeMod() > 0
+            customLT(state, state.pop())
+          else
+            defaultLT
+          Op.op state, this,
+            function: (a, b) -> if func(b, a) then a else b
+            extension: Op.binary
+            scalarExtend: true
+        when '⌊' # Min
+          # With prime, pops a function and uses it instead of
+          # default less-than.
+          #
+          # TODO: Negative infinity default if mod is zero or white flag
+          func = if this.getPrimeMod() > 0
+            customLT(state, state.pop())
+          else
+            defaultLT
+          Op.op state, this,
+            function: (a, b) -> if func(a, b) then a else b
+            extension: Op.binary
+            scalarExtend: true
         ### METAPROGRAMMING ###
         when "s" # Get stack frame
                  # (Numerical argument determines how deep to go; n=0 is current)
