@@ -216,12 +216,12 @@ nth = (value, index) ->
       value.data[index]
     else value
 
-# By default, gradeUp takes one argument: a list. It returns a list of
-# indices which indicates the permutation placing the list into
-# ascending order. With a prime modifier, this will pop a function
-# (before popping the list) that will be used as the "less than"
-# operator for comparison. Returns a list of indices which indicate
-# the permutation of the list after sorting.
+# (⍋) By default, gradeUp takes one argument: a list. It returns a
+# list of indices which indicates the permutation placing the list
+# into ascending order. With a prime modifier, this will pop a
+# function (before popping the list) that will be used as the "less
+# than" operator for comparison. Returns a list of indices which
+# indicate the permutation of the list after sorting.
 export gradeUp = (term, state) ->
   [list, func] = if term.getPrimeMod() > 0
     [list, func0] = state.pop(2)
@@ -244,3 +244,25 @@ export gradeUp = (term, state) ->
     else
       0
   state.push(new ArrayLit(indices))
+
+# (⍪) Flattens nested lists. Numerical argument (default=1) determines
+# how many layers to flatten. Numerical argument of 20 is treated as
+# infinity. Numerical argument of 0 results in no change to the list.
+export ravel = (term, state) ->
+  depth = term.getNumMod(1)
+  depth = Infinity if depth == MAX_NUM_MODIFIER
+  list = state.pop()
+  isList(list)
+  state.push new ArrayLit(doRavel(depth, list.data))
+
+export doRavel = (depth, list) ->
+  if depth <= 0
+    list
+  else
+    result = []
+    for elem in list
+      if elem instanceof ArrayLit
+        result = result.concat(doRavel(depth-1, elem.data))
+      else
+        result.push(elem)
+    result

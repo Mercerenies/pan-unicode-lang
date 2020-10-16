@@ -346,6 +346,9 @@ export class SimpleCmd extends AST
         when "⍋" # Grade Up
           # Sorting function. See ListOp.gradeUp for full details.
           ListOp.gradeUp this, state
+        when "⍪" # Ravel / Flatten
+          # Flattens lists. See ListOp.ravel for full details.
+          ListOp.ravel this, state
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)
