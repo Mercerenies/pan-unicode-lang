@@ -1,5 +1,5 @@
 
-import { Token, TokenType } from './token.js'
+import { Token, TokenType, translateEscape } from './token.js'
 import { SimpleCmd, FunctionLit, AssignToVar, ReadFromVar } from './ast.js'
 import * as Error from './error.js'
 import * as Modifier from './modifier.js'
@@ -32,7 +32,7 @@ export tokenize = (str) ->
         if str.charAt(idx) == '\\'
           idx += 1
           break if idx >= len
-          result += str.charAt(idx)
+          result += translateEscape(str.charAt(idx))
         else
           result += str.charAt(idx)
         idx += 1

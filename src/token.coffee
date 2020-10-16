@@ -28,9 +28,14 @@ export escapeString = (s) ->
   s = s.toString()
   contents = ""
   for ch in s
-    if ch == '"'
-      contents += '\\"'
-    else
-      contents += ch
+    contents +=
+      switch ch
+        when '"' then '\\"'
+        when '\n' then '\\n'
+        else ch
   "\"#{contents}\""
 
+export translateEscape = (ch) ->
+  switch ch
+    when 'n' then '\n'
+    else ch
