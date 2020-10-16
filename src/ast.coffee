@@ -544,6 +544,7 @@ readAndParseInt = (state) ->
     state.readInput()
     v = v * 10 + parseInt(next, 10)
     next = state.peekInput()
+  return new SentinelValue("ε") if state.peekInput() == undefined and valid == false
   throw new Error.InvalidInput() unless valid
   sign(v)
 
