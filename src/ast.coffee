@@ -349,6 +349,9 @@ export class SimpleCmd extends AST
         when "⍪" # Ravel / Flatten
           # Flattens lists. See ListOp.ravel for full details.
           ListOp.ravel this, state
+        when "⊗" # Outer Product
+          # Outer product of lists under some operation. See ListOp.outerProduct.
+          ListOp.outerProduct this, state
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)

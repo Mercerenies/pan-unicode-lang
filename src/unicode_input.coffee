@@ -104,6 +104,8 @@ export DEFAULT_TRANSLATION_TABLE =
   "\\vee": "∨"
   "\\o+": "⊕"
   "\\oplus": "⊕"
+  "\\ox": "⊗"
+  "\\otimes": "⊗"
   ".7": "<"
   ".3": ">"
   ".4": "≤"

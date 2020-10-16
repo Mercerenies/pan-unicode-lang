@@ -266,3 +266,54 @@ export doRavel = (depth, list) ->
       else
         result.push(elem)
     result
+
+# Outer product (⊗) takes one numerical argument N, which defaults to
+# 1. It pops N+1 values, where the top value should be a function and
+# the rest should be lists. The function will be called with one
+# argument from each list, for every possible combination of such
+# arguments.
+#
+# Examples:
+#
+# {"a" "b"} {"A" "B"} `⋄ ⊗ equals {{"aA" "aB"} {"bA" "bB"}}
+#
+# {"a" "b"} {"A" "B"} `⋄ ⊗② equals {{"aA" "aB"} {"bA" "bB"}}
+#
+# Note that ⊗① simply maps over a list, and ⊗⓪ simply calls the
+# function once.
+#
+# If you wish to get a flat result structure (rather than the nested
+# one that ⊗ produces, you should call Flatten (⍪) on the result, with
+# a numerical argument one smaller than the one passed to ⊗.
+export outerProduct = (term, state) ->
+  argCount = term.getNumMod(2)
+  [args..., func] = state.pop(argCount + 1)
+  arglists = []
+  for arg in args
+    isList(arg)
+    arglists.push arg.data
+  state.push doOuterProduct(state, func, arglists, 0, [])
+
+export doOuterProduct = (state, func, arglists, n, prefix) ->
+  if n >= arglists.length
+    state.push(prefix...)
+    tryCall(func, state)
+    state.pop()
+  else
+    result = []
+    for elem in arglists[n]
+      curr = doOuterProduct(state, func, arglists, n + 1, prefix.concat([elem]))
+      result.push(curr)
+    new ArrayLit(result)
+
+export cartesianProduct = (lists) ->
+  yield from cartesianProductRec lists, 0, []
+  return
+
+cartesianProductRec = (lists, n, prefix) ->
+  if n >= lists.length
+    yield prefix
+  else
+    for elem in lists[n]
+      yield from cartesianProductRec lists, n + 1, prefix.concat([elem])
+  return
