@@ -382,13 +382,20 @@ export class SimpleCmd extends AST
           fn = state.pop()
           tryCall(fn, state)
         ### HIGHER ORDER FUNCTIONS ###
-        when "●" # Curry ( ..a x ( ..a x -- ..b ) -- ( ..a -- ..b ) )
+        when "●" # Curry ( x ( ..a x -- ..b ) -- ( ..a -- ..b ) )
           Op.op state, this,
             function: (x, f) -> new CurriedFunction(x, f)
             extension: Op.binaryRight
             scalarExtend: false
             defaultModifier: 1
             modifierAdjustment: (x) -> x + 1
+        when "○" # Compose ( ( ..a -- ..b ) ( ..b -- ..c ) -- ( ..a -- ..c ) )
+          Op.op state, this,
+            function: (f, g) -> new ComposedFunction(f, g)
+            extension: Op.binaryRight
+            scalarExtend: false
+            zero: () -> new FunctionLit([])
+            defaultModifier: 2
         ### BOXING / UNBOXING ###
         when "⊂" # Box ( x -- box )
           value = state.pop()
@@ -489,6 +496,23 @@ export class CurriedFunction extends AST
     # will get a FunctionLit, not a CurriedFunction. But it's accurate
     # enough for most purposes.
     "[ #{@arg} #{@function} $ ]#{@modifiers.join("")}"
+
+export class ComposedFunction extends AST
+
+  constructor: (@first, @second) -> super()
+
+  eval: (state) -> state.push(this)
+
+  call: (state) ->
+    tryCall(@first, state)
+    tryCall(@second, state)
+
+  toString: () ->
+    # toString "lies" a bit, in that it prints as a FunctionLit
+    # quotation. If you try to read this representation back in, you
+    # will get a FunctionLit, not a CurriedFunction. But it's accurate
+    # enough for most purposes.
+    "[ #{@first} $ #{@second} $ ]#{@modifiers.join("")}"
 
 # Types
 # "{" - Array start
