@@ -207,12 +207,14 @@ rebuild = (model, values) ->
 nth = (value, index) ->
   switch
     when value instanceof StringLit
+      index += value.text.length if index < 0
       result = value.text.charAt(index)
       if result?
         new StringLit(result)
       else
         undefined
     when value instanceof ArrayLit
+      index += value.length if index < 0
       value.data[index]
     else value
 
