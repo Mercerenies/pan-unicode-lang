@@ -38,10 +38,10 @@ export run = ->
   text = document.querySelector("#code").value
   evaluator = new InteractiveEvaluator()
   try
-    tokens = tokenize text
-    parsed = parse tokens
     document.querySelector("#output").innerText = ""
     document.querySelector("#stack").innerText = ""
+    tokens = tokenize text
+    parsed = parse tokens
     evaluator.pushCall new FunctionLit(parsed)
     evaluator.eval parsed
     evaluator.popCall()

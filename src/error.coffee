@@ -1,46 +1,49 @@
 
 export class Error
-  toString: () -> "Error"
+  constructor: () ->
+  message: () -> "Error"
+  toString: () ->
+    this.message()
 
 export class UnknownCommandError extends Error
   constructor: (@token) -> super()
-  toString: () -> "Unknown command #{@token}"
+  message: () -> "Unknown command #{@token}"
 
 export class StackUnderflowError extends Error
-  toString: () -> "Stack underflow"
+  message: () -> "Stack underflow"
 
 export class CallStackUnderflowError extends Error
-  toString: () -> "Call stack underflow"
+  message: () -> "Call stack underflow"
 
 export class UnexpectedEOF extends Error
-  toString: () -> "Unexpected EOF"
+  message: () -> "Unexpected EOF"
 
 export class UnexpectedParseError extends Error
   constructor: (@token) -> super()
-  toString: () -> "Unexpected token #{@token}"
+  message: () -> "Unexpected token #{@token}"
 
 export class CallNonFunction extends Error
   constructor: (@object) -> super()
-  toString: () -> "Attempt to call non-function #{@object}"
+  message: () -> "Attempt to call non-function #{@object}"
 
 export class InvalidModifier extends Error
   constructor: (@token) -> super()
-  toString: () -> "Invalid modifier(s) on #{@token}"
+  message: () -> "Invalid modifier(s) on #{@token}"
 
 export class IncompatibleArrayLengths extends Error
-  toString: () -> "Incompatible array lengths"
+  message: () -> "Incompatible array lengths"
 
 export class InvalidInput extends Error
-  toString: () -> "Invalid input"
+  message: () -> "Invalid input"
 
 export class TypeError extends Error
   constructor: (@expected, @value) -> super()
-  toString: () -> "Type error (Expected #{@expected} got #{@value})"
+  message: () -> "Type error (Expected #{@expected} got #{@value})"
 
 export class StrEncodingError extends Error
   constructor: (@str) -> super()
-  toString: () -> "String encoding error (#{@str})"
+  message: () -> "String encoding error (#{@str})"
 
 export class IncomparableValues extends Error
   constructor: (@lhs, @rhs) -> super()
-  toString: () -> "Attempt to compare #{@lhs} and #{@rhs}"
+  message: () -> "Attempt to compare #{@lhs} and #{@rhs}"
