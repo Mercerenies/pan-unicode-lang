@@ -306,7 +306,7 @@ export class SimpleCmd extends AST
             arr.push(value)
             value = state.pop()
           state.push(new ArrayLit(arr.reverse()))
-        ### ARRAY OPERATIONS ###
+        ### LIST OPERATIONS ###
         when '/' # Fold ( ..a list ( ..a x y -- ..b z ) -- ..b t )
           # This one bears a bit of explanation. If the list is
           # nonempty, it acts like a traditional fold, applying the
@@ -362,6 +362,23 @@ export class SimpleCmd extends AST
         when "⊗" # Outer Product
           # Outer product of lists under some operation. See ListOp.outerProduct.
           ListOp.outerProduct this, state
+        when "∷" # Prepend / Append
+          if this.getPrimeMod() == 0
+            # With no prime, prepends some number of elements to a list
+            Op.op state, this,
+              function: (x, list) -> new ArrayLit([x].concat(TypeCheck.isList(list).data))
+              extension: Op.binaryRight
+              scalarExtend: false
+              defaultModifier: 1
+              modifierAdjustment: (x) -> x + 1
+          else
+            # With prime, appends some number of elements to a list
+            Op.op state, this,
+              function: (x, list) -> new ArrayLit(TypeCheck.isList(list).data.concat([x]))
+              extension: Op.binaryRight
+              scalarExtend: false
+              defaultModifier: 1
+              modifierAdjustment: (x) -> x + 1
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)

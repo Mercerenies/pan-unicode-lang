@@ -203,6 +203,7 @@ export DEFAULT_TRANSLATION_TABLE =
   "\\flatten": "⍪"
   "\\?": "¿"
   "?`": "¿"
+  "\\::": "∷"
   "\\\\": "\\"
   "\\flqq": "«"
   "\\\"<": "«"
