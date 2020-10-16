@@ -531,7 +531,14 @@ export class NumberLit extends AST
   eval: (state) -> state.push(this)
 
   toString: () ->
-    @value.toString()
+    if @value == Infinity
+      "∞"
+    else if @value == -Infinity
+      "-∞"
+    else if @value != @value # NaN >.<
+      "👿"
+    else
+      @value.toString()
 
 export class FunctionLit extends AST
 

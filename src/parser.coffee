@@ -16,6 +16,16 @@ export tokenize = (str) ->
     if /\s/.test(ch)
       # Whitespace; skip
       idx += 1
+    else if ch == "👿"
+      arr.push(new Token(NaN))
+      idx += 1
+    else if ch == "∞" or (ch == "-" and idx < len - 1 and str.charAt(idx + 1) == "∞")
+      if ch == "∞"
+        arr.push(new Token(Infinity))
+        idx += 1
+      else
+        arr.push(new Token(-Infinity))
+        idx += 2
     else if /[0-9]/.test(ch) or (ch == "-" and idx < len - 1 and /[0-9]/.test(str.charAt(idx + 1)))
       # Number; parse whole number
       num = ch
