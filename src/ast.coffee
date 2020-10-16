@@ -146,6 +146,10 @@ export class SimpleCmd extends AST
           state.push Op.scalarExtendUnary((x) -> Math.ceil TypeCheck.isNumber(x).value)(state.pop())
         when '⌋' # Floor ( x -- y )
           state.push Op.scalarExtendUnary((x) -> Math.floor TypeCheck.isNumber(x).value)(state.pop())
+        when 'A' # Absolute value ( x -- y )
+          state.push Op.scalarExtendUnary((x) -> Math.abs TypeCheck.isNumber(x).value)(state.pop())
+        when 'a' # Signum ( x -- y )
+          state.push Op.scalarExtendUnary((x) -> Math.sign TypeCheck.isNumber(x).value)(state.pop())
         when '∧' # Bitwise Conjunction ( x y -- z )
           Op.op state, this,
             function: (a, b) -> a.value & b.value
