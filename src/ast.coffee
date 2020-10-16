@@ -52,7 +52,7 @@ export class SimpleCmd extends AST
 
   eval: (state) ->
     if this.isNumberLit()
-      state.push @token.text
+      state.push new NumberLit(@token.text)
     else if this.isStringLit()
       state.push new StringLit(@token.text)
     else
@@ -108,67 +108,67 @@ export class SimpleCmd extends AST
         when '+' # Add ( x y -- z )
                  # (Numerical modifier determines arity)
           Op.op state, this,
-            function: (a, b) -> a + b
+            function: (a, b) -> new NumberLit(a.value + b.value)
             preProcess: TypeCheck.isNumber
             zero: 0
             extension: Op.binary
             scalarExtend: true
         when '-' # Subtract ( x y -- z )
           Op.op state, this,
-            function: (a, b) -> a - b
+            function: (a, b) -> new NumberLit(a.value - b.value)
             preProcess: TypeCheck.isNumber
-            one: (a) -> - a
+            one: (a) -> new NumberLit(- a.value)
             extension: Op.binary
             scalarExtend: true
         when '×' # Multiply ( x y -- z )
           Op.op state, this,
-            function: (a, b) -> a * b
+            function: (a, b) -> new NumberLit(a.value * b.value)
             preProcess: TypeCheck.isNumber
             zero: 1
             extension: Op.binary
             scalarExtend: true
         when '÷' # Divide ( x y -- z )
           Op.op state, this,
-            function: (a, b) -> a / b
+            function: (a, b) -> new NumberLit(a.value / b.value)
             preProcess: TypeCheck.isNumber
-            one: (a) -> 1 / a
+            one: (a) -> new NumberLit(1 / a.value)
             extension: Op.binary
             scalarExtend: true
         when '|' # Remainder ( x y -- z )
           # This does not extend with modifier; it only scalar extends
           Op.op state, this,
-            function: (a, b) -> (a % b + b) % b # "True" mod
+            function: (a, b) -> new NumberLit((a.value % b.value + b.value) % b.value) # "True" mod
             preProcess: TypeCheck.isNumber
             scalarExtend: true
         when '_' # Negate ( x -- y )
-          state.push Op.scalarExtendUnary((x) -> - TypeCheck.isNumber(x))(state.pop())
+          state.push Op.scalarExtendUnary((x) -> - TypeCheck.isNumber(x).value)(state.pop())
         when '⌉' # Ceiling ( x -- y )
-          state.push Op.scalarExtendUnary((x) -> Math.ceil TypeCheck.isNumber(x))(state.pop())
+          state.push Op.scalarExtendUnary((x) -> Math.ceil TypeCheck.isNumber(x).value)(state.pop())
         when '⌋' # Floor ( x -- y )
-          state.push Op.scalarExtendUnary((x) -> Math.floor TypeCheck.isNumber(x))(state.pop())
+          state.push Op.scalarExtendUnary((x) -> Math.floor TypeCheck.isNumber(x).value)(state.pop())
         when '∧' # Bitwise Conjunction ( x y -- z )
           Op.op state, this,
-            function: (a, b) -> a & b
+            function: (a, b) -> a.value & b.value
             preProcess: TypeCheck.isNumber
             zero: -1
             extension: Op.binary
             scalarExtend: true
         when '∨' # Bitwise Disjunction ( x y -- z )
           Op.op state, this,
-            function: (a, b) -> a | b
+            function: (a, b) -> a.value | b.value
             preProcess: TypeCheck.isNumber
             zero: 0
             extension: Op.binary
             scalarExtend: true
         when '⊕' # Bitwise Exclusive Or ( x y -- z )
           Op.op state, this,
-            function: (a, b) -> a ^ b
+            function: (a, b) -> a.value ^ b.value
             preProcess: TypeCheck.isNumber
             zero: -1
             extension: Op.binary
             scalarExtend: true
         when '¬' # Bitwise Negate ( x -- y )
-          state.push Op.scalarExtendUnary((x) -> ~ TypeCheck.isNumber(x))(state.pop())
+          state.push Op.scalarExtendUnary((x) -> ~ TypeCheck.isNumber(x).value)(state.pop())
         when "¿" # Defined-or ( x y -- z )
           # Returns the first argument unless it's ε, in which
           # case it returns the second.
@@ -192,10 +192,10 @@ export class SimpleCmd extends AST
           arg = new ArrayLit([arg]) if typeof(arg) == 'number'
           switch
             when arg instanceof ArrayLit
-              res = new Str(String.fromCodePoint(c) for c in arg.data)
+              res = new Str(String.fromCodePoint(c.value) for c in arg.data)
               state.push new StringLit(res)
             when arg instanceof StringLit
-              res = (arg.text.codePointAt(i) for i in [0..arg.text.length-1])
+              res = (new NumberLit(arg.text.codePointAt(i)) for i in [0..arg.text.length-1])
               state.push new ArrayLit(res)
             else
               throw new TypeError("string or list", arg)
@@ -524,6 +524,15 @@ export class StringLit extends AST
   toString: () ->
     escapeString @text
 
+export class NumberLit extends AST
+
+  constructor: (@value) -> super()
+
+  eval: (state) -> state.push(this)
+
+  toString: () ->
+    @value.toString()
+
 export class FunctionLit extends AST
 
   constructor: (@body) -> super()
@@ -636,10 +645,10 @@ readAndParseInt = (state) ->
     next = state.peekInput()
   return SentinelValue.null if state.peekInput() == undefined and valid == false
   throw new Error.InvalidInput() unless valid
-  sign(v)
+  new NumberLit(sign(v))
 
 export isTruthy = (c) ->
-  (typeof(c) != 'number') or (c != 0)
+  !(c instanceof NumberLit) or (c.value != 0)
 
 export catenate = (a, b) ->
   if a instanceof ArrayLit and b instanceof ArrayLit

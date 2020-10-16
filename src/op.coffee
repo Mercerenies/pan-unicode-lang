@@ -1,6 +1,6 @@
 
 import * as Error from './error.js';
-import { ArrayLit, SentinelValue } from './ast.js';
+import { NumberLit, ArrayLit, SentinelValue } from './ast.js';
 import { zip } from './util.js';
 
 # Helper functions for producing operations on the stack
@@ -161,7 +161,7 @@ export WhiteFlag =
   ignore: (opts) -> undefined
 
 export boolToInt = (x) ->
-  if x then -1 else 0
+  new NumberLit(if x then -1 else 0)
 
 # This function is an attempt to summarize all of the above, providing
 # all of that functionality as keyword arguments. The available

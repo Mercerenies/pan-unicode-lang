@@ -1,5 +1,5 @@
 
-import { SentinelValue, ArrayLit, StringLit, Box, isTruthy, tryCall } from './ast.js'
+import { SentinelValue, ArrayLit, StringLit, NumberLit, Box, isTruthy, tryCall } from './ast.js'
 import { IncomparableValues } from './error.js'
 
 export Ordering =
@@ -20,6 +20,8 @@ export equals = (a, b) ->
     return true if arrayEq(a.data, b.data, equals)
   if a instanceof StringLit and b instanceof StringLit
     return true if a.text.toString() == b.text.toString()
+  if a instanceof NumberLit and b instanceof NumberLit
+    return true if a.value == b.value
   if a instanceof Box and b instanceof Box
     return true if equals(a.value, b.value)
   false
@@ -30,6 +32,8 @@ export compare = (a, b) ->
   switch
     when typeof(a) == 'number' and typeof(b) == 'number'
       toOrdering(a - b)
+    when a instanceof NumberLit and b instanceof NumberLit
+      toOrdering(a.value - b.value)
     when a instanceof ArrayLit and b instanceof ArrayLit
       for i in [0..Math.min(a.length, b.length)-1]
         result = compare(a.data[i], b.data[i])

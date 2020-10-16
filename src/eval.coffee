@@ -1,6 +1,7 @@
 
 import * as AST from './ast.js'
 import * as Error from './error.js'
+import Str from './str.js'
 
 export class Evaluator
 
@@ -18,7 +19,16 @@ export class Evaluator
       # TODO Throw some kind of (non-caught) error here
 
   push: (vs...) ->
-    @stack.push(vs...)
+    for v in vs
+      # Wrap any primitives
+      v = switch
+        when typeof(v) == 'number'
+          new AST.NumberLit(v)
+        when typeof(v) == 'string' or v instanceof Str
+          new AST.StringLit(v)
+        else
+          v
+      @stack.push v
 
   pop: (n) ->
     if n?

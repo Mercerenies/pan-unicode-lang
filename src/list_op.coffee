@@ -1,6 +1,6 @@
 
 import * as Error from './error.js';
-import { ArrayLit, FunctionLit, StringLit, SentinelValue, tryCall, isTruthy } from './ast.js';
+import { ArrayLit, FunctionLit, NumberLit, StringLit, SentinelValue, tryCall, isTruthy } from './ast.js';
 import { MAX_NUM_MODIFIER } from './modifier.js';
 import Str from './str.js'
 import { customLT, defaultLT } from './comparison.js'
@@ -54,14 +54,14 @@ export filter = (term, state) ->
   state.push(result...)
 
 filterTestFunc = (value, func, state) ->
-  if typeof(func) == 'number'
-    throw new Error.TypeError("integer", func) unless Number.isInteger(func)
+  if func instanceof NumberLit
+    throw new Error.TypeError("integer", func) unless Number.isInteger(func.value)
     Math.abs(func)
   else
     state.push(value)
     tryCall(func, state)
     result = state.pop()
-    throw new Error.TypeError("integer", result) unless Number.isInteger(result)
+    throw new Error.TypeError("integer", result) unless Number.isInteger(result.value)
     Math.abs(result)
 
 runFilter = (depth, list, func, state) ->
