@@ -174,7 +174,7 @@ export nestedQuery = (term, state) ->
   if result?
     state.push(result)
   else
-    state.push(new SentinelValue("ε"))
+    state.push(SentinelValue.null)
 
 # Select (⊇) takes two arguments: a list/string and an index. The
 # index can either be a number or a list. If it's a number, it's
@@ -202,7 +202,7 @@ rebuild = (model, values) ->
     when model instanceof ArrayLit
       new ArrayLit(values)
     else
-      new SentinelValue("ε") # Meh.
+      SentinelValue.null # Meh.
 
 nth = (value, index) ->
   switch

@@ -67,7 +67,7 @@ export class SimpleCmd extends AST
           if char?
             state.push(new StringLit(char))
           else
-            state.push(new SentinelValue(Str.fromString("ε")))
+            state.push(SentinelValue.null)
         when "📖" # Read line from input
           result = ""
           loop
@@ -78,7 +78,7 @@ export class SimpleCmd extends AST
           if result != ""
             state.push(new StringLit(result))
           else
-            state.push(new SentinelValue(Str.fromString("ε")))
+            state.push(SentinelValue.null)
         ### STACK SHUFFLING ###
         when ':' # Duplicate ( x -- x x )
                  # (Numerical modifier determines number of things to duplicate)
@@ -169,8 +169,8 @@ export class SimpleCmd extends AST
           # Returns the first argument unless it's ε, in which
           # case it returns the second.
           Op.op state, this,
-            function: (a, b) -> if equals(a, new SentinelValue("ε")) then b else a
-            zero: new SentinelValue("ε")
+            function: (a, b) -> if equals(a, SentinelValue.null) then b else a
+            zero: SentinelValue.null
             extension: Op.binary
             scalarExtend: false
         ### STRING OPERATIONS ###
@@ -302,7 +302,7 @@ export class SimpleCmd extends AST
         when "}" # End array (pops until sentinel value is hit)
           arr = []
           value = state.pop()
-          while not (value instanceof SentinelValue) or value.type.toString() != "{"
+          until equals(value, SentinelValue.arrayStart)
             arr.push(value)
             value = state.pop()
           state.push(new ArrayLit(arr.reverse()))
@@ -320,7 +320,7 @@ export class SimpleCmd extends AST
           [list, func] = state.pop(2)
           throw new Error.TypeError("Array", list) unless list instanceof ArrayLit
           if list.length <= 0
-            state.push(new SentinelValue("⚐"))
+            state.push(SentinelValue.whiteFlag)
             tryCall(func, state)
           else
             acc = list.data[0]
@@ -537,6 +537,10 @@ export class SentinelValue extends AST
   toString: () ->
     @type + @modifiers.join("")
 
+  @null: new SentinelValue("ε")
+  @whiteFlag: new SentinelValue("⚐")
+  @arrayStart: new SentinelValue("{")
+
 export class Box extends AST
 
   constructor: (@value) -> super()
@@ -584,7 +588,7 @@ readAndParseInt = (state) ->
     state.readInput()
     v = v * 10 + parseInt(next, 10)
     next = state.peekInput()
-  return new SentinelValue("ε") if state.peekInput() == undefined and valid == false
+  return SentinelValue.null if state.peekInput() == undefined and valid == false
   throw new Error.InvalidInput() unless valid
   sign(v)
 
