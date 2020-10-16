@@ -165,6 +165,14 @@ export class SimpleCmd extends AST
             scalarExtend: true
         when '¬' # Bitwise Negate ( x -- y )
           state.push Op.scalarExtendUnary((x) -> ~ TypeCheck.isNumber(x))(state.pop())
+        when "¿" # Defined-or ( x y -- z )
+          # Returns the first argument unless it's ε, in which
+          # case it returns the second.
+          Op.op state, this,
+            function: (a, b) -> if equals(a, new SentinelValue("ε")) then b else a
+            zero: new SentinelValue("ε")
+            extension: Op.binary
+            scalarExtend: false
         ### STRING OPERATIONS ###
         when '⋄' # Concatenate ( x y -- z )
                  # (Numerical modifier determines arity)
