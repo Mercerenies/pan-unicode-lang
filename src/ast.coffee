@@ -142,6 +142,10 @@ export class SimpleCmd extends AST
             scalarExtend: true
         when '_' # Negate ( x -- y )
           state.push Op.scalarExtendUnary((x) -> - TypeCheck.isNumber(x))(state.pop())
+        when '⌉' # Ceiling ( x -- y )
+          state.push Op.scalarExtendUnary((x) -> Math.ceil TypeCheck.isNumber(x))(state.pop())
+        when '⌋' # Floor ( x -- y )
+          state.push Op.scalarExtendUnary((x) -> Math.floor TypeCheck.isNumber(x))(state.pop())
         when '∧' # Bitwise Conjunction ( x y -- z )
           Op.op state, this,
             function: (a, b) -> a & b
