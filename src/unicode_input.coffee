@@ -102,6 +102,8 @@ export DEFAULT_TRANSLATION_TABLE =
   ".9": "∨"
   "\\or": "∨"
   "\\vee": "∨"
+  "\\neg": "¬"
+  "\\lnot": "¬"
   "\\o+": "⊕"
   "\\oplus": "⊕"
   "\\ox": "⊗"

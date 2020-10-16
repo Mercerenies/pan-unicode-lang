@@ -141,7 +141,7 @@ export class SimpleCmd extends AST
             preProcess: TypeCheck.isNumber
             scalarExtend: true
         when '_' # Negate ( x -- y )
-          state.push Op.scalarExtendUnary((x) -> TypeCheck.isNumber(- x))(state.pop())
+          state.push Op.scalarExtendUnary((x) -> - TypeCheck.isNumber(x))(state.pop())
         when '∧' # Bitwise Conjunction ( x y -- z )
           Op.op state, this,
             function: (a, b) -> a & b
@@ -163,6 +163,8 @@ export class SimpleCmd extends AST
             zero: -1
             extension: Op.binary
             scalarExtend: true
+        when '¬' # Bitwise Negate ( x -- y )
+          state.push Op.scalarExtendUnary((x) -> ~ TypeCheck.isNumber(x))(state.pop())
         ### STRING OPERATIONS ###
         when '⋄' # Concatenate ( x y -- z )
                  # (Numerical modifier determines arity)
