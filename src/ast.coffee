@@ -263,7 +263,7 @@ export class SimpleCmd extends AST
               res = (new NumberLit(arg.text.codePointAt(i)) for i in [0..arg.text.length-1])
               state.push new ArrayLit(res)
             else
-              throw new TypeError("string or list", arg)
+              throw new Error.TypeError("string or list", arg)
         when "🍴" # Chomp ( x -- y )
           # Removes the last character if it's a newline. Subject to scalar extension.
           chomp = (x) ->
