@@ -134,6 +134,35 @@ export class SimpleCmd extends AST
             one: (a) -> new NumberLit(1 / a.value)
             extension: Op.binary
             scalarExtend: true
+        when '*' # Power ( x y -- z )
+          Op.op state, this,
+            function: (a, b) -> new NumberLit(a.value ** b.value)
+            preProcess: TypeCheck.isNumber
+            zero: 1
+            extension: Op.binaryRight
+            scalarExtend: true
+        when 'ê' # e^x ( x -- y )
+          state.push Op.scalarExtendUnary((x) -> Math.exp TypeCheck.isNumber(x).value)(state.pop())
+        when '🌳' # ln(x) ( x -- y )
+          # With prime modifier, it's log_b(a) ( a b -- y )
+          if this.getPrimeMod() > 0
+            Op.op state, this,
+              function: (a, b) -> new NumberLit(Math.log(a.value) / Math.log(b.value))
+              preProcess: TypeCheck.isNumber
+              extension: Op.binary
+              scalarExtend: true
+          else
+            state.push Op.scalarExtendUnary((x) -> Math.log TypeCheck.isNumber(x).value)(state.pop())
+        when '√' # sqrt(x) ( x -- y )
+          # With prime modifier, it's (a ** (1/b)) ( a b -- y )
+          if this.getPrimeMod() > 0
+            Op.op state, this,
+              function: (a, b) -> new NumberLit(a.value ** (1 / b.value))
+              preProcess: TypeCheck.isNumber
+              extension: Op.binary
+              scalarExtend: true
+          else
+            state.push Op.scalarExtendUnary((x) -> Math.sqrt TypeCheck.isNumber(x).value)(state.pop())
         when '|' # Remainder ( x y -- z )
           # This does not extend with modifier; it only scalar extends
           Op.op state, this,
@@ -181,6 +210,31 @@ export class SimpleCmd extends AST
             zero: SentinelValue.null
             extension: Op.binary
             scalarExtend: false
+        ### TRIGONOMETRY ###
+        when '◐'
+          state.push Op.scalarExtendUnary((x) -> Math.sin TypeCheck.isNumber(x).value)(state.pop())
+        when '◑'
+          state.push Op.scalarExtendUnary((x) -> Math.asin TypeCheck.isNumber(x).value)(state.pop())
+        when '◒'
+          state.push Op.scalarExtendUnary((x) -> Math.cos TypeCheck.isNumber(x).value)(state.pop())
+        when '◓'
+          state.push Op.scalarExtendUnary((x) -> Math.acos TypeCheck.isNumber(x).value)(state.pop())
+        when '◔'
+          state.push Op.scalarExtendUnary((x) -> Math.tan TypeCheck.isNumber(x).value)(state.pop())
+        when '◕'
+          state.push Op.scalarExtendUnary((x) -> Math.atan TypeCheck.isNumber(x).value)(state.pop())
+        when '◖'
+          state.push Op.scalarExtendUnary((x) -> Math.sinh TypeCheck.isNumber(x).value)(state.pop())
+        when '◗'
+          state.push Op.scalarExtendUnary((x) -> Math.asinh TypeCheck.isNumber(x).value)(state.pop())
+        when '◌'
+          state.push Op.scalarExtendUnary((x) -> Math.cosh TypeCheck.isNumber(x).value)(state.pop())
+        when '◍'
+          state.push Op.scalarExtendUnary((x) -> Math.acosh TypeCheck.isNumber(x).value)(state.pop())
+        when '◎'
+          state.push Op.scalarExtendUnary((x) -> Math.tanh TypeCheck.isNumber(x).value)(state.pop())
+        when '◉'
+          state.push Op.scalarExtendUnary((x) -> Math.atanh TypeCheck.isNumber(x).value)(state.pop())
         ### NUMERICAL CONSTANTS ###
         when 'π'
           state.push Math.PI
