@@ -6,7 +6,7 @@ import * as TypeCheck from './type_check.js'
 import * as Op from './op.js'
 import * as ListOp from './list_op.js'
 import * as StackOp from './stack_op.js'
-import { arrayEq } from './util.js'
+import { arrayEq, gcd, lcm } from './util.js'
 import { Token, TokenType, escapeString } from './token.js'
 import Str from './str.js'
 import { equals, compare, Ordering, defaultLT, customLT } from './comparison.js'
@@ -168,6 +168,20 @@ export class SimpleCmd extends AST
           Op.op state, this,
             function: (a, b) -> new NumberLit((a.value % b.value + b.value) % b.value) # "True" mod
             preProcess: TypeCheck.isNumber
+            scalarExtend: true
+        when '⩑'
+          Op.op state, this,
+            function: (a, b) -> new NumberLit(lcm(a.value, b.value))
+            preProcess: TypeCheck.isNumber
+            zero: 1
+            extension: Op.binary
+            scalarExtend: true
+        when '⩒' # GCD ( x y -- z )
+          Op.op state, this,
+            function: (a, b) -> new NumberLit(gcd(a.value, b.value))
+            preProcess: TypeCheck.isNumber
+            zero: 0
+            extension: Op.binary
             scalarExtend: true
         when '_' # Negate ( x -- y )
           state.push Op.scalarExtendUnary((x) -> - TypeCheck.isNumber(x).value)(state.pop())

@@ -11,3 +11,15 @@ export arrayEq = (a, b, fn = (x, y) -> x == y) ->
 
 export spliceStr = (str, sub, a, b) ->
   str.substring(0, a) + sub + str.substring(b)
+
+export gcd = (a, b) ->
+  while b != 0
+    [a, b] = [b, (a % b + b) % b]
+  a
+
+export lcm = (a, b) ->
+  d = gcd(a, b)
+  if d == 0
+    0
+  else
+    a * b / d
