@@ -151,6 +151,8 @@ export DEFAULT_TRANSLATION_TABLE =
   "\\map": "¨"
   "\\\"": "¨"
   "\\\"{}": "¨"
+  "\\.e": "ė"
+  "\\.{e}": "ė"
   "\\cib": "●"
   "\\curry": "●"
   "\\ciw": "○"

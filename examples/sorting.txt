@@ -1,4 +1,4 @@
 « Sorting function »
 « Takes any number of lines as input, sorts them, and prints them out »
 
-{ [📖: ε≢]W % } `🍴¨ :⍋⊇ `.e
+{ [📖: ε≢]W % } `🍴¨ :⍋⊇ `.ė

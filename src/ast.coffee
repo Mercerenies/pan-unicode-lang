@@ -186,8 +186,8 @@ export class SimpleCmd extends AST
           state.push Math.PI
         when 'τ'
           state.push 2 * Math.PI
-        #when 'e' # ///// Using e for each right now. Maybe change each to E?
-        #  state.push Math.E
+        when 'e'
+          state.push Math.E
         ### STRING OPERATIONS ###
         when '⋄' # Concatenate ( x y -- z )
                  # (Numerical modifier determines arity)
@@ -381,7 +381,7 @@ export class SimpleCmd extends AST
           # Nests arbitrarily deep with a numerical argument, like
           # filter. See ListOp.map for full details.
           ListOp.map this, state
-        when 'e' # Each ( ..a list ( ..a x -- ..a ) -- ..a )
+        when 'ė' # Each ( ..a list ( ..a x -- ..a ) -- ..a )
           # Nests arbitrarily deep with a numerical argument, like
           # filter. See ListOp.each for full details.
           ListOp.each this, state
