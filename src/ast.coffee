@@ -181,6 +181,13 @@ export class SimpleCmd extends AST
             zero: SentinelValue.null
             extension: Op.binary
             scalarExtend: false
+        ### NUMERICAL CONSTANTS ###
+        when 'π'
+          state.push Math.PI
+        when 'τ'
+          state.push 2 * Math.PI
+        #when 'e' # ///// Using e for each right now. Maybe change each to E?
+        #  state.push Math.E
         ### STRING OPERATIONS ###
         when '⋄' # Concatenate ( x y -- z )
                  # (Numerical modifier determines arity)
