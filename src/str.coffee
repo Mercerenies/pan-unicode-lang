@@ -13,10 +13,10 @@ export default class Str
     data = []
     i = 0
     while i < text.length
-      if text[i].charCodeAt(0) & 0xD800
+      if isHighSurrogate text[i].charCodeAt(0)
         # High surrogate
         i += 1
-        if i >= text.length or not (text[i].charCodeAt(0) & 0xDC00)
+        if i >= text.length or not isLowSurrogate text[i].charCodeAt(0)
           throw new StrEncodingError(text)
         data.push(text.slice(i - 1, i + 1))
       else
@@ -41,3 +41,9 @@ export default class Str
 
 Object.defineProperty Str.prototype, 'length',
   get: -> @data.length
+
+isHighSurrogate = (n) ->
+  (n & 0xFC00) == 0xD800
+
+isLowSurrogate = (n) ->
+  (n & 0xFC00) == 0xDC00
