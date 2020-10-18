@@ -47,3 +47,7 @@ export class StrEncodingError extends Error
 export class IncomparableValues extends Error
   constructor: (@lhs, @rhs) -> super()
   message: () -> "Attempt to compare #{@lhs} and #{@rhs}"
+
+export class UserError extends Error
+  constructor: (@value) -> super()
+  message: () -> "User error #{@value}"

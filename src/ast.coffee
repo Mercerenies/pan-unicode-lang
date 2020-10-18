@@ -58,7 +58,7 @@ export class SimpleCmd extends AST
       state.push new StringLit(@token.text)
     else
       switch @token.text.toString()
-        ### IO ####
+        ### IO ###
         when '.' # Pretty print ( x -- )
           state.print stringify(state.pop());
         when ',' # Read integer from input
@@ -69,6 +69,8 @@ export class SimpleCmd extends AST
             state.push(new StringLit(char))
           else
             state.push(SentinelValue.null)
+        when '😱' # Panic and throw error ( err -- )
+          throw new Error.UserError(state.pop())
         when "📖" # Read line from input
           result = ""
           loop
@@ -543,6 +545,30 @@ export class SimpleCmd extends AST
           num = this.getNumMod(1)
           arr = new ArrayLit(state.pop(num))
           state.push arr
+        when '◁' # Take (left) ( list n -- list )
+          [list, n] = state.pop(2)
+          TypeCheck.isList(list)
+          TypeCheck.isNumber(n)
+          n = Math.abs(n.value)
+          state.push new ArrayLit(list.data.slice(0, n))
+        when '▷' # Take (right) ( list n -- list )
+          [list, n] = state.pop(2)
+          TypeCheck.isList(list)
+          TypeCheck.isNumber(n)
+          n = Math.abs(n.value)
+          state.push new ArrayLit(list.data.slice(- n))
+        when '⧏' # Drop (left) ( list n -- list )
+          [list, n] = state.pop(2)
+          TypeCheck.isList(list)
+          TypeCheck.isNumber(n)
+          n = Math.abs(n.value)
+          state.push new ArrayLit(list.data.slice(n))
+        when '⧐' # Drop (right) ( list n -- list )
+          [list, n] = state.pop(2)
+          TypeCheck.isList(list)
+          TypeCheck.isNumber(n)
+          n = Math.abs(n.value)
+          state.push new ArrayLit(list.data.slice(0, - n))
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)
