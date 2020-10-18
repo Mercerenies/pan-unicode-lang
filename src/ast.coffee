@@ -335,7 +335,7 @@ export class SimpleCmd extends AST
           s = state.pop()
           TypeCheck.isString(s)
           state.push new StringLit(s.text).markAsRegexp()
-        when '¶' # Split string ( s delim -- s )
+        when '¶' # Split string ( s delim -- arr )
           # Delimiter can be either string or regexp
           [s, delim] = state.pop(2)
           TypeCheck.isString(delim)
@@ -347,6 +347,13 @@ export class SimpleCmd extends AST
           TypeCheck.isString(s)
           result = s.text.toString().split(delim).map((x) -> new StringLit(Str.fromString(x)))
           state.push new ArrayLit(result)
+        when '⁋' # Join string ( arr delim -- s )
+          # Delimiter should be a string. Other argument should be list of strings.
+          [arr, delim] = state.pop(2)
+          TypeCheck.isList(arr)
+          delim = stringify(delim)
+          result = new StringLit(arr.data.map(stringify).join(delim))
+          state.push(result)
         ### COMPARISONS ###
         when '=' # Equal ( x y -- ? )
           Op.op state, this,
