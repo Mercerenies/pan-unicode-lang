@@ -69,8 +69,6 @@ export class SimpleCmd extends AST
             state.push(new StringLit(char))
           else
             state.push(SentinelValue.null)
-        when '😱' # Panic and throw error ( err -- )
-          throw new Error.UserError(state.pop())
         when '📖' # Read line from input
           result = ""
           loop
@@ -82,6 +80,18 @@ export class SimpleCmd extends AST
             state.push(new StringLit(result))
           else
             state.push(SentinelValue.null)
+        when "📚" # Read all remaining from input
+          result = ""
+          loop
+            curr = state.readInput()
+            break if curr == undefined
+            result += curr
+          if result != ""
+            state.push(new StringLit(result))
+          else
+            state.push(SentinelValue.null)
+        when '😱' # Panic and throw error ( err -- )
+          throw new Error.UserError(state.pop())
         ### STACK SHUFFLING ###
         when ':' # Duplicate ( x -- x x )
                  # (Numerical modifier determines number of things to duplicate)
