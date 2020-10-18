@@ -597,6 +597,46 @@ export class SimpleCmd extends AST
           TypeCheck.isNumber(n)
           n = Math.abs(n.value)
           state.push new ArrayLit(list.data.slice(0, - n))
+        when '◂' # Take while (left) ( list f -- list )
+          [list, f] = state.pop(2)
+          TypeCheck.isList(list)
+          result = []
+          for elem in list.data
+            state.push(elem)
+            tryCall(f, state)
+            curr = isTruthy state.pop()
+            break unless curr
+            result.push elem
+          state.push new ArrayLit(result)
+        when '▸' # Take while (right) ( list f -- list )
+          [list, f] = state.pop(2)
+          TypeCheck.isList(list)
+          result = []
+          for elem in list.data.slice().reverse()
+            state.push(elem)
+            tryCall(f, state)
+            curr = isTruthy state.pop()
+            break unless curr
+            result.push elem
+          state.push new ArrayLit(result.reverse())
+        when '◄' # Drop while (left) ( list f -- list )
+          [list, f] = state.pop(2)
+          TypeCheck.isList(list)
+          for elem, i in list.data
+            state.push(elem)
+            tryCall(f, state)
+            curr = isTruthy state.pop()
+            break unless curr
+          state.push new ArrayLit(list.data.slice(i))
+        when '►' # Drop while (right) ( list f -- list )
+          [list, f] = state.pop(2)
+          TypeCheck.isList(list)
+          for elem, i in list.data.slice().reverse()
+            state.push(elem)
+            tryCall(f, state)
+            curr = isTruthy state.pop()
+            break unless curr
+          state.push new ArrayLit(list.data.slice(0, list.length - i))
         when 'ɹ' # Reverse ( list -- list )
           list = state.pop()
           TypeCheck.isList(list)
