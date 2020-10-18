@@ -573,6 +573,17 @@ export class SimpleCmd extends AST
           fn = state.pop()
           tryCall(fn, state)
         ### HIGHER ORDER FUNCTIONS ###
+        when "ī" # Push identity function
+          state.push(new FunctionLit([]))
+        when "c" # Make constant function ( x -- ( -- x ) )
+          # Numerical argument (defaults to zero) determines number to
+          # pop in resulting function.
+          num = this.getNumMod(0)
+          x = state.pop()
+          dropCmd = new SimpleCmd(new Token("%"))
+          dropCmd.modifiers.push(new Modifier.NumModifier(num))
+          dropper = new FunctionLit([dropCmd])
+          state.push(new ComposedFunction(dropper, new CurriedFunction(x, new FunctionLit([]))))
         when "●" # Curry ( x ( ..a x -- ..b ) -- ( ..a -- ..b ) )
           Op.op state, this,
             function: (x, f) -> new CurriedFunction(x, f)
