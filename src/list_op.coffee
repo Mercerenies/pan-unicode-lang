@@ -165,7 +165,7 @@ runEach = (depth, args, func, state) ->
 export nestedQuery = (term, state) ->
   [list, index] = state.pop(2)
   index = switch
-    when typeof(index) == 'number' then [index]
+    when index instanceof NumberLit then [index.value]
     when index instanceof ArrayLit then index.data
     else throw new Error.TypeError("number or array", index)
   result = list
@@ -184,7 +184,7 @@ export nestedQuery = (term, state) ->
 export select = (term, state) ->
   [list, index] = state.pop(2)
   index = switch
-    when typeof(index) == 'number' then [index]
+    when index instanceof NumberLit then [index.value]
     when index instanceof ArrayLit then index.data
     else throw new Error.TypeError("number or array", index)
   unless (list instanceof StringLit) or (list instanceof ArrayLit)
