@@ -14,7 +14,8 @@ export class PrimeModifier extends Modifier
   toString: -> "′"
 
 export toNumModifier = (tok) ->
-  result = NUMS.indexOf(tok.text)
+  return undefined if tok.text.toString() == ""
+  result = NUMS.indexOf(tok.text.toString())
   if result >= 0
     new NumModifier(result)
   else
