@@ -354,6 +354,10 @@ export class SimpleCmd extends AST
           delim = stringify(delim)
           result = new StringLit(arr.data.map(stringify).join(delim))
           state.push(result)
+        when 'p' # Prettify ( x -- s )
+          # Converts the value to a string. No-op if given a string.
+          x = state.pop()
+          state.push new StringLit(stringify x)
         ### COMPARISONS ###
         when '=' # Equal ( x y -- ? )
           Op.op state, this,
