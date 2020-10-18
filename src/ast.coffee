@@ -10,6 +10,7 @@ import { arrayEq, gcd, lcm } from './util.js'
 import { Token, TokenType, escapeString } from './token.js'
 import Str from './str.js'
 import { equals, compare, Ordering, defaultLT, customLT } from './comparison.js'
+import * as SuperSub from './super_sub.js'
 
 export class AST
 
@@ -487,6 +488,10 @@ export class SimpleCmd extends AST
               scalarExtend: false
               defaultModifier: 1
               modifierAdjustment: (x) -> x + 1
+        when '⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'
+          state.push ListOp.nth(state.pop(), SuperSub.toNumber(@token.text))
+        when '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'
+          state.push ListOp.nth(state.pop(), -SuperSub.toNumber(@token.text))
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)

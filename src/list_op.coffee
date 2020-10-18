@@ -204,7 +204,7 @@ rebuild = (model, values) ->
     else
       SentinelValue.null # Meh.
 
-nth = (value, index) ->
+export nth = (value, index) ->
   switch
     when value instanceof StringLit
       index += value.text.length if index < 0
