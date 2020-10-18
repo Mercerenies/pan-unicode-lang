@@ -532,6 +532,9 @@ export class SimpleCmd extends AST
           state.push(ListOp.nth(state.pop(), SuperSub.toNumber(@token.text)) ? SentinelValue.null)
         when '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'
           state.push(ListOp.nth(state.pop(), -SuperSub.toNumber(@token.text)) ? SentinelValue.null)
+        when '∈' # Member ( list x -- idx )
+          # List membership. See ListOp.member for details
+          ListOp.member this, state
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)

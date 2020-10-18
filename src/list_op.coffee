@@ -3,7 +3,7 @@ import * as Error from './error.js';
 import { ArrayLit, FunctionLit, NumberLit, StringLit, SentinelValue, tryCall, isTruthy } from './ast.js';
 import { MAX_NUM_MODIFIER } from './modifier.js';
 import Str from './str.js'
-import { customLT, defaultLT } from './comparison.js'
+import { customLT, defaultLT, equals } from './comparison.js'
 import { isList } from './type_check.js'
 
 # Filter (⌿) always takes exactly two arguments off the stack. Its
@@ -314,3 +314,28 @@ cartesianProductRec = (lists, n, prefix) ->
     for elem in lists[n]
       yield from cartesianProductRec lists, n + 1, prefix.concat([elem])
   return
+
+# ∈ (Member). By default, it takes two arguments: the first is a list
+# and the second is an element to search for. Returns all of the
+# indices at which the element can be found in the list. If used with
+# a prime modifier, the search element is instead a unary function,
+# which is called for each position.
+export member = (term, state) ->
+  [list, func] = if term.getPrimeMod() > 0
+    [list, func0] = state.pop(2)
+    func = (x) ->
+      state.push(x)
+      tryCall(func0, state)
+      isTruthy state.pop()
+    [list, func]
+  else
+    [list, elem] = state.pop(2)
+    func = (x) ->
+      equals(x, elem)
+    [list, func]
+  isList(list)
+  result = []
+  for v, i in list.data
+    if func(v)
+      result.push(new NumberLit(i))
+  state.push new ArrayLit(result)
