@@ -335,6 +335,18 @@ export class SimpleCmd extends AST
           s = state.pop()
           TypeCheck.isString(s)
           state.push new StringLit(s.text).markAsRegexp()
+        when '¶' # Split string ( s delim -- s )
+          # Delimiter can be either string or regexp
+          [s, delim] = state.pop(2)
+          TypeCheck.isString(delim)
+          delim = delim.toReOrStr()
+          if delim == ""
+            # Awkward hack for UTF-16 support (we don't want to pass
+            # empty string to split function)
+            delim = new RegExp("", "u")
+          TypeCheck.isString(s)
+          result = s.text.toString().split(delim).map((x) -> new StringLit(Str.fromString(x)))
+          state.push new ArrayLit(result)
         ### COMPARISONS ###
         when '=' # Equal ( x y -- ? )
           Op.op state, this,
@@ -791,6 +803,12 @@ export class StringLit extends AST
     @regexp
 
   eval: (state) -> state.push(this)
+
+  toReOrStr: () ->
+    if this.isRegexp()
+      new RegExp(this.text.toString(), "u")
+    else
+      this.text.toString()
 
   toString: () ->
     escapeString(@text) + if this.isRegexp() then "r" else ""
