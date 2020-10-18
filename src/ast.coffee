@@ -540,6 +540,15 @@ export class SimpleCmd extends AST
         when '#' # Length ( list -- n )
           # List length. See ListOp.length for details
           ListOp.length this, state
+        when '🗋' # Empty ( list -- ? )
+          # With prime modifier, flattens before checking
+          if this.getPrimeMod() > 0
+            newTerm = new SimpleCmd(new Token('⍪'))
+            newTerm.modifiers.push(new Modifier.NumModifier(Modifier.MAX_NUM_MODIFIER))
+            ListOp.ravel(newTerm, state)
+          list = state.pop()
+          TypeCheck.isList(list)
+          state.push Op.boolToInt(list.length == 0)
         when 'ℓ' # List constructor
           # Takes as many arguments as numerical modifier (default=1) specifies
           num = this.getNumMod(1)

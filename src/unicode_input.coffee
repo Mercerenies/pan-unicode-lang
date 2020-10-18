@@ -287,6 +287,8 @@ export DEFAULT_TRANSLATION_TABLE =
   "\\throw": "😱"
   "\\panic": "😱"
   "\\error": "😱"
+  "\\empty": "🗋"
+  "\\blank": "🗋"
   "\\\\": "\\"
   "\\flqq": "«"
   "\\\"<": "«"
