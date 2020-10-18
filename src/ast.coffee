@@ -643,8 +643,11 @@ export class SimpleCmd extends AST
           state.push new ArrayLit(list.data.slice(0, list.length - i))
         when 'ɹ' # Reverse ( list -- list )
           list = state.pop()
-          TypeCheck.isList(list)
-          state.push new ArrayLit(list.data.slice().reverse())
+          TypeCheck.isStringOrList(list)
+          if list instanceof ArrayLit
+            state.push new ArrayLit(list.data.slice().reverse())
+          else
+            state.push new StringLit(new Str(list.text.data.slice().reverse()))
         when '⍴' # Reshape ( list shape -- list )
           # See ListOp.reshape
           ListOp.reshape this, state
