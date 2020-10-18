@@ -186,6 +186,8 @@ export class SimpleCmd extends AST
             scalarExtend: true
         when '_' # Negate ( x -- y )
           state.push Op.scalarExtendUnary((x) -> - TypeCheck.isNumber(x).value)(state.pop())
+        when '⅟' # Reciprocal ( x -- y )
+          state.push Op.scalarExtendUnary((x) -> 1 / TypeCheck.isNumber(x).value)(state.pop())
         when '⌉' # Ceiling ( x -- y )
           state.push Op.scalarExtendUnary((x) -> Math.ceil TypeCheck.isNumber(x).value)(state.pop())
         when '⌋' # Floor ( x -- y )
@@ -257,6 +259,44 @@ export class SimpleCmd extends AST
           state.push 2 * Math.PI
         when 'e'
           state.push Math.E
+        when '¼'
+          state.push 1 / 4
+        when '½'
+          state.push 1 / 2
+        when '¾'
+          state.push 3 / 4
+        when '⅐'
+          state.push 1 / 7
+        when '⅑'
+          state.push 1 / 9
+        when '⅒'
+          state.push 1 / 10
+        when '⅓'
+          state.push 1 / 3
+        when '⅔'
+          state.push 2 / 3
+        when '⅕'
+          state.push 1 / 5
+        when '⅖'
+          state.push 2 / 5
+        when '⅗'
+          state.push 3 / 5
+        when '⅘'
+          state.push 4 / 5
+        when '⅙'
+          state.push 1 / 6
+        when '⅚'
+          state.push 5 / 6
+        when '⅛'
+          state.push 1 / 8
+        when '⅜'
+          state.push 3 / 8
+        when '⅝'
+          state.push 5 / 8
+        when '⅞'
+          state.push 7 / 8
+        when '↉'
+          state.push 0 / 3
         ### STRING OPERATIONS ###
         when '⋄' # Concatenate ( x y -- z )
                  # (Numerical modifier determines arity)
