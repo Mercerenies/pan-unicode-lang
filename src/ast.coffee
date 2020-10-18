@@ -529,9 +529,9 @@ export class SimpleCmd extends AST
               defaultModifier: 1
               modifierAdjustment: (x) -> x + 1
         when '⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'
-          state.push ListOp.nth(state.pop(), SuperSub.toNumber(@token.text))
+          state.push(ListOp.nth(state.pop(), SuperSub.toNumber(@token.text)) ? SentinelValue.null)
         when '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'
-          state.push ListOp.nth(state.pop(), -SuperSub.toNumber(@token.text))
+          state.push(ListOp.nth(state.pop(), -SuperSub.toNumber(@token.text)) ? SentinelValue.null)
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)
