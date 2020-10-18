@@ -331,6 +331,10 @@ export class SimpleCmd extends AST
               x
             new StringLit(result)
           state.push Op.scalarExtendUnary((x) -> chomp(TypeCheck.isString(x)))(state.pop())
+        when 'r' # Mark as regexp ( s -- s )
+          s = state.pop()
+          TypeCheck.isString(s)
+          state.push new StringLit(s.text).markAsRegexp()
         ### COMPARISONS ###
         when '=' # Equal ( x y -- ? )
           Op.op state, this,
@@ -774,11 +778,19 @@ export class StringLit extends AST
   constructor: (@text) ->
     super()
     @text = Str.fromString(@text) if typeof(@text) == 'string'
+    @regexp = false
+
+  markAsRegexp: () ->
+    @regexp = true
+    this
+
+  isRegexp: () ->
+    @regexp
 
   eval: (state) -> state.push(this)
 
   toString: () ->
-    escapeString @text
+    escapeString(@text) + if this.isRegexp() then "r" else ""
 
 export class NumberLit extends AST
 
