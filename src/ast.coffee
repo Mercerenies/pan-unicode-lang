@@ -538,6 +538,11 @@ export class SimpleCmd extends AST
         when '#' # Length ( list -- n )
           # List length. See ListOp.length for details
           ListOp.length this, state
+        when 'ℓ' # List constructor
+          # Takes as many arguments as numerical modifier (default=1) specifies
+          num = this.getNumMod(1)
+          arr = new ArrayLit(state.pop(num))
+          state.push arr
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)

@@ -160,6 +160,7 @@ export DEFAULT_TRANSLATION_TABLE =
   ".e": "∈"
   "\\in": "∈"
   "\\member": "∈"
+  "\\ell": "ℓ"
   "\\.e": "ė"
   "\\.{e}": "ė"
   "\\^e": "ê"
