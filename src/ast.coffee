@@ -469,7 +469,7 @@ export class SimpleCmd extends AST
           # resp.) in that case. If you provide your own function, you
           # can deal with the empty case by checking for ⚐.
           [list, func] = state.pop(2)
-          throw new Error.TypeError("Array", list) unless list instanceof ArrayLit
+          TypeCheck.isList(list)
           if list.length <= 0
             state.push(SentinelValue.whiteFlag)
             tryCall(func, state)
@@ -479,6 +479,25 @@ export class SimpleCmd extends AST
             for i in [1..list.length-1] by 1
               state.push(list.data[i])
               tryCall(func, state)
+        when '\\' # Scan ( ..a list ( ..a x y -- ..b z ) -- ..b t )
+          # This works just like fold (/) except that it returns a
+          # list of all the intermediate results. The ⚐ caveat does
+          # not apply, for if the empty list is given as input, then
+          # the empty list is produced as output.
+          [list, func] = state.pop(2)
+          TypeCheck.isList(list)
+          if list.length <= 0
+            state.push(new ArrayLit([]))
+          else
+            acc = list.data[0]
+            state.push(acc)
+            result = []
+            for i in [1..list.length-1] by 1
+              result.push state.peek()
+              state.push list.data[i]
+              tryCall(func, state)
+            result.push state.pop()
+            state.push new ArrayLit(result)
         when '⌿' # Filter ( ..a list ( ..a x -- ..a ? ) -- ..a list )
           # The filter "function" can either be a function or a list
           # with the same length as the list, which acts as a mask. In
@@ -578,6 +597,13 @@ export class SimpleCmd extends AST
           TypeCheck.isNumber(n)
           n = Math.abs(n.value)
           state.push new ArrayLit(list.data.slice(0, - n))
+        when 'ɹ' # Reverse ( list -- list )
+          list = state.pop()
+          TypeCheck.isList(list)
+          state.push new ArrayLit(list.data.slice().reverse())
+        when '⍴' # Reshape ( list shape -- list )
+          # See ListOp.reshape
+          ListOp.reshape this, state
         ### CONTROL FLOW ###
         when 'i' # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)
@@ -604,6 +630,15 @@ export class SimpleCmd extends AST
           for i in [0..n-1] by 1
             state.push(i)
             tryCall(body, state)
+        when '⍸' # Repeat N times and accumulate ( ..a x n ( ..a x i -- ..a x ) -- ..a list )
+          [n, body] = state.pop(2)
+          result = [state.peek()]
+          for i in [0..n-1] by 1
+            state.push(i)
+            tryCall(body, state)
+            result.push(state.peek())
+          state.pop()
+          state.push new ArrayLit(result)
         when '$' # Call ( ..a ( ..a -- ..b ) -- ..b )
           fn = state.pop()
           tryCall(fn, state)

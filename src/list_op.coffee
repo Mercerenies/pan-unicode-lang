@@ -358,3 +358,36 @@ export length = (term, state) ->
   list = state.pop()
   isList(list)
   state.push(list.length)
+
+# Reshape (⍴) takes two arguments: a list and a shape. Its numerical
+# argument defaults to 20 (which equates to infinity). The first thing
+# it does is ravel the list to the depth of its own numerical
+# argument. Then it produces a new list of the specified shape, where
+# the shape should either be a number or a list of numbers.
+export reshape = (term, state) ->
+  shape = state.pop()
+  shape = new ArrayLit([shape]) unless shape instanceof ArrayLit
+  depth = term.getNumMod(MAX_NUM_MODIFIER)
+  depth = Infinity if depth == MAX_NUM_MODIFIER
+  newTerm = new SimpleCmd(new Token('⍪'))
+  newTerm.modifiers.push(new NumModifier(depth))
+  ravel(newTerm, state)
+  list = state.pop()
+  isList(list)
+  throw new Error.TypeError("nonempty list", list) if list.length == 0
+  list = list.data
+  result = doReshape(shape.data, 0, list, [0])
+  state.push result
+
+# listPos is a 1-element array (cheap and nasty ref cell)
+export doReshape = (shape, shapePos, list, listPos) ->
+  if shapePos >= shape.length
+    result = list[listPos[0] % list.length]
+    listPos[0] += 1
+    result
+  else
+    dim = shape[shapePos]
+    result = []
+    for i in [0..dim-1] by 1
+      result.push doReshape(shape, shapePos+1, list, listPos)
+    new ArrayLit(result)
