@@ -71,7 +71,7 @@ export class SimpleCmd extends AST
             state.push(SentinelValue.null)
         when '😱' # Panic and throw error ( err -- )
           throw new Error.UserError(state.pop())
-        when "📖" # Read line from input
+        when '📖' # Read line from input
           result = ""
           loop
             curr = state.readInput()
@@ -93,14 +93,14 @@ export class SimpleCmd extends AST
                  # (Numerical modifier determines amount to pop)
           mod = this.getNumMod(1)
           state.pop(mod)
-        when "@" # Swap/Rotate ( x y -- y x )
+        when '@' # Swap/Rotate ( x y -- y x )
                  # (Numerical modifier determines how deep to lift)
           mod = this.getNumMod(1)
           store = state.pop(mod)
           lift = state.pop()
           state.push(store...)
           state.push(lift)
-        when "ø" # Over ( x y -- x y x )
+        when 'ø' # Over ( x y -- x y x )
                  # (Numerical modifier determines how deep to go)
           mod = this.getNumMod(1)
           store = state.pop(mod)
@@ -221,7 +221,7 @@ export class SimpleCmd extends AST
             scalarExtend: true
         when '¬' # Bitwise Negate ( x -- y )
           state.push Op.scalarExtendUnary((x) -> ~ TypeCheck.isNumber(x).value)(state.pop())
-        when "¿" # Defined-or ( x y -- z )
+        when '¿' # Defined-or ( x y -- z )
           # Returns the first argument unless it's ε, in which
           # case it returns the second.
           Op.op state, this,
@@ -321,7 +321,7 @@ export class SimpleCmd extends AST
               state.push new ArrayLit(res)
             else
               throw new Error.TypeError("string or list", arg)
-        when "🍴" # Chomp ( x -- y )
+        when '🍴' # Chomp ( x -- y )
           # Removes the last character if it's a newline. Subject to scalar extension.
           chomp = (x) ->
             x = x.text
@@ -417,14 +417,14 @@ export class SimpleCmd extends AST
             extension: Op.binary
             scalarExtend: true
         ### METAPROGRAMMING ###
-        when "s" # Get stack frame
+        when 's' # Get stack frame
                  # (Numerical argument determines how deep to go; n=0 is current)
           mod = this.getNumMod(0)
           frame = state.getFromCallStack(mod)
           state.push(frame)
-        when "{", "⚐", "ε" # Sentinel value
+        when '{', '⚐', 'ε' # Sentinel value
           state.push(new SentinelValue(@token.text))
-        when "⚑" # Construct ⚐ sentinel ( fn deffn -- fn )
+        when '⚑' # Construct ⚐ sentinel ( fn deffn -- fn )
           # Constructs a handler for the ⚐ sentinel. The resulting
           # function will call deffn if the top value of the stack is
           # ⚐ (popping ⚐), or will call fn otherwise (without popping
@@ -450,7 +450,7 @@ export class SimpleCmd extends AST
             ])
           )
         ### ARRAY LITERALS ###
-        when "}" # End array (pops until sentinel value is hit)
+        when '}' # End array (pops until sentinel value is hit)
           arr = []
           value = state.pop()
           until equals(value, SentinelValue.arrayStart)
@@ -504,16 +504,16 @@ export class SimpleCmd extends AST
           # Works on lists or strings. See ListOp.select
           # for details.
           ListOp.select this, state
-        when "⍋" # Grade Up
+        when '⍋' # Grade Up
           # Sorting function. See ListOp.gradeUp for full details.
           ListOp.gradeUp this, state
-        when "⍪" # Ravel / Flatten
+        when '⍪' # Ravel / Flatten
           # Flattens lists. See ListOp.ravel for full details.
           ListOp.ravel this, state
-        when "⊗" # Outer Product
+        when '⊗' # Outer Product
           # Outer product of lists under some operation. See ListOp.outerProduct.
           ListOp.outerProduct this, state
-        when "∷" # Prepend / Append
+        when '∷' # Prepend / Append
           if this.getPrimeMod() == 0
             # With no prime, prepends some number of elements to a list
             Op.op state, this,
@@ -579,38 +579,38 @@ export class SimpleCmd extends AST
           n = Math.abs(n.value)
           state.push new ArrayLit(list.data.slice(0, - n))
         ### CONTROL FLOW ###
-        when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
+        when 'i' # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)
           if isTruthy(c)
             tryCall(t, state)
           else
             tryCall(f, state)
-        when "w" # While ( ..a ( ..a -- ..b ? ) ( ..b -- ..a ) -- ..b )
+        when 'w' # While ( ..a ( ..a -- ..b ? ) ( ..b -- ..a ) -- ..b )
           [cond, body] = state.pop(2)
           loop
             tryCall(cond, state)
             result = state.pop()
             break unless isTruthy(result)
             tryCall(body, state)
-        when "W" # While ( ..a ( ..a -- ..a ? ) -- ..b )
+        when 'W' # While ( ..a ( ..a -- ..a ? ) -- ..b )
           # Like w but with no explicit body.
           cond = state.pop()
           loop
             tryCall(cond, state)
             result = state.pop()
             break unless isTruthy(result)
-        when "⍳" # Repeat N times ( ..a n ( ..a i -- ..a ) -- ..a )
+        when '⍳' # Repeat N times ( ..a n ( ..a i -- ..a ) -- ..a )
           [n, body] = state.pop(2)
           for i in [0..n-1] by 1
             state.push(i)
             tryCall(body, state)
-        when "$" # Call ( ..a ( ..a -- ..b ) -- ..b )
+        when '$' # Call ( ..a ( ..a -- ..b ) -- ..b )
           fn = state.pop()
           tryCall(fn, state)
         ### HIGHER ORDER FUNCTIONS ###
-        when "ī" # Push identity function
+        when 'ī' # Push identity function
           state.push(new FunctionLit([]))
-        when "c" # Make constant function ( x -- ( -- x ) )
+        when 'c' # Make constant function ( x -- ( -- x ) )
           # Numerical argument (defaults to zero) determines number to
           # pop in resulting function.
           num = this.getNumMod(0)
@@ -619,14 +619,14 @@ export class SimpleCmd extends AST
           dropCmd.modifiers.push(new Modifier.NumModifier(num))
           dropper = new FunctionLit([dropCmd])
           state.push(new ComposedFunction(dropper, new CurriedFunction(x, new FunctionLit([]))))
-        when "●" # Curry ( x ( ..a x -- ..b ) -- ( ..a -- ..b ) )
+        when '●' # Curry ( x ( ..a x -- ..b ) -- ( ..a -- ..b ) )
           Op.op state, this,
             function: (x, f) -> new CurriedFunction(x, f)
             extension: Op.binaryRight
             scalarExtend: false
             defaultModifier: 1
             modifierAdjustment: (x) -> x + 1
-        when "○" # Compose ( ( ..a -- ..b ) ( ..b -- ..c ) -- ( ..a -- ..c ) )
+        when '○' # Compose ( ( ..a -- ..b ) ( ..b -- ..c ) -- ( ..a -- ..c ) )
           Op.op state, this,
             function: (f, g) -> new ComposedFunction(f, g)
             extension: Op.binaryRight
@@ -634,38 +634,38 @@ export class SimpleCmd extends AST
             zero: () -> new FunctionLit([])
             defaultModifier: 2
         ### BOXING / UNBOXING ###
-        when "⊂" # Box ( x -- box )
+        when '⊂' # Box ( x -- box )
           value = state.pop()
           state.push new Box(value)
-        when "⊃" # Unbox ( box -- x )
+        when '⊃' # Unbox ( box -- x )
           # No effect if value is not boxed
           value = state.pop()
           state.push(if value instanceof Box then value.value else value)
         ### STACK COMBINATORS ###
-        when "D" # Dip ( ..a x ( ..a -- ..b ) -- ..b x )
+        when 'D' # Dip ( ..a x ( ..a -- ..b ) -- ..b x )
                  # (Numerical modifier determines arity)
           mod = this.getNumMod(1)
           fn = state.pop()
           preserve = state.pop(mod)
           tryCall(fn, state)
           state.push(preserve...)
-        when "K" # Keep ( ..a x ( ..a x -- ..b ) -- ..b x )
+        when 'K' # Keep ( ..a x ( ..a x -- ..b ) -- ..b x )
                  # (Numerical modifier determines arity)
           mod = this.getNumMod(1)
           fn = state.pop()
           preserve = state.peek(mod)
           tryCall(fn, state)
           state.push(preserve...)
-        when "⇉" # "Spread" combinator, in Factor parlance
+        when '⇉' # "Spread" combinator, in Factor parlance
           # See StackOp.spread for details.
           StackOp.spread this, state
-        when "⤨" # "Cross" combinator
+        when '⤨' # "Cross" combinator
           # See StackOp.cross for details
           StackOp.cross this, state
-        when "↘" # "Apply" combinator
+        when '↘' # "Apply" combinator
           # See StackOp.cleave for details
           StackOp.apply this, state
-        when "↗" # "Cleave" combinator
+        when '↗' # "Cleave" combinator
           # See StackOp.apply for details
           StackOp.cleave this, state
         else
