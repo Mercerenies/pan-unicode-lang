@@ -535,6 +535,9 @@ export class SimpleCmd extends AST
         when '∈' # Member ( list x -- idx )
           # List membership. See ListOp.member for details
           ListOp.member this, state
+        when '#' # Length ( list -- n )
+          # List length. See ListOp.length for details
+          ListOp.length this, state
         ### CONTROL FLOW ###
         when "i" # If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
           [c, t, f] = state.pop(3)

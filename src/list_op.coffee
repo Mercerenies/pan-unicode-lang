@@ -1,10 +1,11 @@
 
 import * as Error from './error.js';
-import { ArrayLit, FunctionLit, NumberLit, StringLit, SentinelValue, tryCall, isTruthy } from './ast.js';
-import { MAX_NUM_MODIFIER } from './modifier.js';
+import { ArrayLit, FunctionLit, NumberLit, StringLit, SentinelValue, tryCall, isTruthy, SimpleCmd } from './ast.js';
+import { NumModifier, MAX_NUM_MODIFIER } from './modifier.js';
 import Str from './str.js'
 import { customLT, defaultLT, equals } from './comparison.js'
 import { isList } from './type_check.js'
+import { Token } from './token.js'
 
 # Filter (⌿) always takes exactly two arguments off the stack. Its
 # behavior is very general. The numerical modifier determines the
@@ -339,3 +340,21 @@ export member = (term, state) ->
     if func(v)
       result.push(new NumberLit(i))
   state.push new ArrayLit(result)
+
+# Length (#). By default, returns the length of the list. With a
+# numerical modifier, this will happily nested deeper and count the
+# length of sublists as well. Numerical argument of 20 is treated as
+# infinity.
+export length = (term, state) ->
+  num = term.getNumMod(1)
+  if num == 0
+    # There's one thing, if we ignore all depth. Simple and dumb result.
+    state.pop()
+    state.push(1)
+    return
+  newTerm = new SimpleCmd(new Token('⍪'))
+  newTerm.modifiers.push(new NumModifier(if num == MAX_NUM_MODIFIER or num == 0 then num else num - 1))
+  ravel(newTerm, state)
+  list = state.pop()
+  isList(list)
+  state.push(list.length)
