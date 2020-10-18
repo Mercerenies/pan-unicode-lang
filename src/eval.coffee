@@ -32,7 +32,7 @@ export class Evaluator
 
   pop: (n) ->
     if n?
-      arr = (this.pop() for i in [0..n-1])
+      arr = (this.pop() for i in [0..n-1] by 1)
       arr.reverse()
       arr
     else
