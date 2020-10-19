@@ -9,3 +9,21 @@ or dive straight in to the [online
 interpreter](https://mercerenies.github.io/pan-unicode-lang/index.html).
 Note that the language is a work-in-progress, so expect some changes,
 and in particular more thorough documentation is coming soon.
+
+In the meantime, here are some examples.
+
+## Hello World
+
+    "Hello, world!" .
+
+## Factorial (Recursive)
+
+    , [ s ø 0 > [ [ : 1 - ] D $ × ] [ %② 1 ] i ] $ .
+
+## Factorial (Iterative)
+
+    { , [ ] ⍳ } 1 + `× / .
+
+## Fibonacci Sequence
+
+    { 0 1 , 2 - [ % :② + ] ⍳ } .
