@@ -10,3 +10,20 @@ textarea {
 body {
     color: #fff;
 }
+
+a {
+    color: lightblue;
+}
+
+.input-table td {
+    text-align: center;
+}
+
+.input-table th {
+    text-align: center;
+}
+
+.pancode-snippet {
+    background-color: #444;
+    padding: 7px;
+}

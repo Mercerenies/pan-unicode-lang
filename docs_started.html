@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Pancode Language - Docs</title>
+    <script src="js/main.js" type="module"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body style="width: 50%; margin: auto">
+    <h1>Pancode</h1>
+    <p>
+      Welcome to the Pancode tutorial! If you're reading this, you're
+      probably at least a little interested in esoteric programming
+      languages. If you're looking for a language to use for your next
+      big production project, then you should probably keep looking.
+      If you're a project manager and your developers sent you to this
+      page, then you're either being pranked or they're <em>very</em>
+      confused. Pancode is a language made for fun. It's probably not
+      even that great for golfing, at least if you're counting bytes
+      rather than characters.
+    </p>
+    <p>
+      Pancode is an esoteric stack-based programming language designed
+      to heavily utilize many of the Unicode glyphs. If you're editing
+      your code in the <a href="index.html">online interpreter</a>,
+      then there are several <a href="docs_input.html">keyboard shortcuts</a> for
+      inputting the many characters used in this language, which I'll
+      mention during this tutorial.
+    </p>
+    <p>
+      First, let's start with everybody's favorite: the obligatory
+      Hello World program.
+    </p>
+    <pre><code class="pancode-snippet">"Hello, world!" .</code></pre>
+    <p>
+      You can copy this line of code over to the <a href="index.html">interpreter</a> and
+      hit "Run" (or press SHIFT+ENTER in the code box). You should see
+      the output "Hello, world!" at the bottom of the screen.
+    </p>
+    <p>
+      As already mentioned, Pancode is a stack-based language. That
+      means that all commands run on a global value stack. In
+      particular, the above snippet has two such commands. The first
+      is a literal string <code>"Hello, world!"</code> which pushes
+      itself onto the stack when run, and the second <code>.</code> is
+      a built-in which pops and prints the top value of the stack.
+    </p>
+    <p>
+      Okay, that's pretty basic. Let's talk numbers. Any good language
+      needs a way to work with numbers. In Pancode, any literal
+      integer, possibly preceded by a minus sign, is a literal number
+      command which pushes itself when executed.
+    </p>
+    <pre><code class="pancode-snippet">1 2 3 . . .</code></pre>
+    <p>
+      The above snippet prints 3, 2, and 1 on separate lines. Note
+      that the values are printed in reverse, since <code>.</code> pops
+      the top value of the stack each time, and the top value is the
+      most recently pushed value. Also, you can simply remove the three <code>.</code> from
+      the end of the snippet and run it.
+    </p>
+    <pre><code class="pancode-snippet">1 2 3</code></pre>
+    <p>
+      Now you won't see any output, but you'll instead see the three
+      values in the "Final Stack" section below the code. This is
+      useful for debugging purposes, as the final stack will print out
+      even if your program crashes with an error.
+    </p>
+    <p>
+      Pancode has all of the usual arithmetic functions. <code>+</code> pops
+      two numbers and pushes their sum, and <code>-</code> pops two
+      numbers and pushes their difference. In the spirit of showing
+      Unicode some love, Pancode uses <code>×</code> for
+      multiplication and <code>÷</code> for division. You can input <code>×</code> by
+      typing <code>\times</code>, and you can input <code>÷</code> by typing <code>\div</code>.
+    </p>
+    <p>
+      As a side note, if you're comfortable with APL, you can also in
+      many cases use shortcuts derived from APL. Generally, if Pancode
+      uses a character that appears on an APL keyboard, you can type
+      it in the Pancode editor by preceding the APL key with a dot.
+      So, for instance, <code>×</code> appears on the <code>-</code> key
+      on an APL keyboard, so you can type it with <code>.-</code>.
+      Likewise, you can get <code>÷</code> with <code>.=</code>. If
+      you're not familiar with APL, you'll probably be more
+      comfortable with the LaTeX-style backslash shortcuts.
+    </p>
+    <p>
+      Let's do some arithmetic. Let's calculate <code>(3 + 4) × (2 - 3)</code>
+    </p>
+    <pre><code class="pancode-snippet">3 4 + 2 3 - ×</code></pre>
+    <p>
+      Your final stack should be <code>-7</code>. Note that
+      stack-based arithmetic starts to resemble reverse Polish
+      notation. In particular, we don't need any parentheses anymore.
+    </p>
+    <div>
+      <a href="docs.html">Documentation Index</a>
+    </div>
+  </body>
+</html>

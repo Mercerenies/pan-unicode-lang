@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Pancode Language - Docs</title>
+    <script src="js/main.js" type="module"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body style="width: 50%; margin: auto">
+    <h1>Pancode</h1>
+    <p>
+      You may have noticed Pancode uses a decent bit of Unicode, in
+      particular the language uses several characters you probably
+      don't have on your keyboard right now. The interpreter provided
+      on this site has several special input combinations to make it
+      easier for you to input these various characters. Many of these
+      combinations are taken from LaTeX (<code>\times</code> converts
+      to <code>×</code>), <a href="https://agda.readthedocs.io/en/v2.6.0.1/tools/emacs-mode.html"
+      target="_new">Agda Mode</a> (<code>\Gi</code> converts to <code>⍳</code>), and
+      <a href="https://github.com/lokedhs/gnu-apl-mode" target="_new">GNU APL Mode</a> (<code>.[</code> converts
+      to <code>←</code>), as well as whatever mnemonics make sense for
+      Pancode in particular.
+    </p>
+    <p>
+      What follows is a comprehensive list of these special input
+      combinations. Simply type any of the phrases on the right-hand
+      side to get the character on the left-hand side. This table is
+      generated dynamically from the Javascript interpreter, so it's
+      guaranteed to be up to date.
+    </p>
+    <div id="character-table">
+      <noscript>Note: Your browser has disabled Javascript. Without
+      Javascript, I can't generate the table of input.</noscript>
+    </div>
+    <div>
+      <a href="docs.html">Documentation Index</a>
+    </div>
+    <script type="module">
+     import { printTable } from "./js/input_documentation.js";
+     printTable(document.querySelector("#character-table"));
+    </script>
+  </body>
+</html>
