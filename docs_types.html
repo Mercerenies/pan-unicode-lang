@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Pancode Language - Docs</title>
+    <script src="js/main.js" type="module"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body style="width: 50%; margin: auto">
+    <h1>Pancode - Types</h1>
+    <p>
+      As in most programming languages, Pancode deals with different
+      types of data. Pancode is dynamically typed and has several
+      built-in types of data. The types in Pancode are: numbers,
+      strings, lists, functions, boxes, and sentinels. I'll discuss
+      each of these in detail below. There is no formal Boolean type
+      in Pancode: any value other than zero is truthy (although
+      conventionally -1 is used to represent the canonical "true"),
+      and zero is falsy.
+    </p>
+    <p>
+      First, a note on comparisons. Many of the comparison operators,
+      such as <code>=</code> and <code>≤</code>, take two arguments
+      and compare them, for equality, inequality, or some ambient
+      ordering. Equality never fails, in the sense that it always
+      returns either true or false. Two values of different types
+      always compare nonequal. Two values of the same type have
+      special rules to determine equality, which will be discussed
+      below. It's an error to attempt to order two values of different
+      types. Two values of the same type may have an ordering defined
+      on them, as discussed below.
+    </p>
+    <h2>Numbers</h2>
+    <p>
+      Numbers in Pancode are IEEE floating-point values. Equality and
+      ordering are defined as specified in the relevant IEEE standard.
+      Integers (both positive and negative) can be pushed onto the
+      stack using the literal integer itself (with a preceding minus
+      sign, when relevant). Note that this is one case in Pancode
+      where whitespace matters: <code>- 1</code> is a call to the <code>-</code> subtract
+      operator followed by the number one, whereas <code>-1</code> is
+      the literal number negative one.
+    </p>
+    <p>
+      The IEEE value infinity is written using <code>∞</code> (which can be typed using <code>\inf</code>).
+      Negative infinity is written using <code>-∞</code> (again, there
+      must be no space between the two characters). NaN (not a number) is written using <code>👿</code>
+      (<code>\nan</code> or <code>\devil</code>), because that's
+      usually how I feel when NaN shows up in my computations.
+    </p>
+    <h2>Strings</h2>
+    <p>
+      Strings are effectively arrays of characters. I make no
+      guarantee as to the encoding scheme used to store them, so for
+      all intents and purposes you should regard them as simply an
+      array of code points that is somehow distinct from the
+      general-purpose "list" type. Strings can be pushed using <code>"</code> quotation
+      marks. Currently, the only supported escape sequences which can
+      appear in a Pancode string are <code>\"</code> (for a quotation
+      mark), <code>\\</code> (for a literal backslash), and <code>\n</code> (for
+      a newline). Note that you are free to include literal newlines
+      in your strings, and they'll be preserved. <code>\n</code> is
+      merely provided as an, often cleaner, alternative.
+    </p>
+    <p>
+      Two strings compare equal if they have the same characters.
+      Strings are compared for ordering using standard dictionary
+      order on the code points.
+    </p>
+    <h2>Lists</h2>
+    <p>
+      Lists are finite sequences of Pancode values. Lists can contain
+      any Pancode data, including other lists. Lists are generally
+      constructed using curly braces <code>{1 2 3}</code> (Note that this is <em>not</em>)
+      special syntax; this is a call to the <code>{</code> command,
+      then three numbers, then a call to the <code>}</code> command),
+      and they print to the screen the same way.
+    </p>
+    <p>
+      Two lists are equal if they have the same length and all of
+      their values compare equal. Lists are ordered using dictionary
+      order, and their values are compared recursively.
+    </p>
+    <h2>Functions</h2>
+    <p>
+      Functions are blocks of code that can be run. A function can be
+      constructed using square brackets. For instance, <code>[1 +]</code> is
+      a function which, when called, runs the <code>1</code> command followed by the <code>+</code> command.
+      More succinctly, it is a function which adds one to its sole
+      argument. Functions can be called directly using <code>$</code>,
+      which pops a function off the stack and calls it. More often,
+      functions are called indirectly by various control flow commands.
+    </p>
+    <p>
+      It is an error to try to order two functions. Function equality
+      is undefined, in the sense that two functions may or may not
+      compare equal, regardless of their definitions, and this result
+      may change at any point.
+    </p>
+    <h2>Boxes</h2>
+    <p>
+      A box is a simple cell which contains a single Pancode value.
+      Boxes can be constructed using <code>⊂</code> and extracted
+      using <code>⊃</code>. Boxes are generally used to suppress
+      scalar extension on various commands, when we want a command to
+      run on a whole list rather than on each element.
+    </p>
+    <p>
+      Two boxes compare equal if and only if their contents do. The
+      order of two boxes is determined by their order of their
+      contents, and it is an error to attempt to order two boxes whose
+      contents are not orderable.
+    </p>
+    <h2>Sentinels</h2>
+    <p>
+      Sentinels are special singleton values which are used in various
+      places in the Pancode standard library to signal miscellaneous
+      things. Two sentinels compare equal if and only if they are the
+      same sentinel, and it is an error to try to order sentinels.
+    </p>
+    <p>
+      Currently, there are three sentinels defined in Pancode. Each
+      sentinel is represented by a single character, and that
+      character can also be used as a command to push the
+      corresponding sentinel to the stack.
+    </p>
+    <ul>
+      <li><code>{</code>, the array start sentinel, is used by the <code>}</code> command
+      to allow a natural array construction syntax in Pancode.</li>
+      <li><code>⚐</code>, the white flag sentinel, is passed to a fold
+      function to indicate that an empty list was provided. Generally, if given <code>⚐</code> as
+      an argument, a command will return its "neutral" or identity value, so <code>+</code> will
+      return 0, <code>×</code> will return 1, etc.</li>
+      <li><code>ε</code>, the null sentinel, is returned by many
+      commands in case there's no other reasonable value to return,
+      such as when trying to access an out-of-bounds list position, or
+      when trying to read from input when there is no input.</li>
+    </ul>
+    <div>
+      <a href="docs.html">Documentation Index</a>
+    </div>
+  </body>
+</html>
