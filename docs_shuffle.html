@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Pancode Language - Docs</title>
+    <script src="js/main.js" type="module"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body style="width: 50%; margin: auto">
+    <h1>Pancode - Commands - Stack Shuffling</h1>
+    <p>
+      The following commands shuffle the top few elements of the
+      stack. Many of these take
+      a <a href="docs_concepts.html#numerical-modifier">numerical
+      modifier</a> which specifies how deep within the stack to
+      operate.
+    </p>
+    <h2>Duplicate (<code>:</code>)</h2>
+    <p>
+      Duplicates the top element of the stack. If provided a numerical
+      modifier N, this command instead duplicates the top N elements
+      of the stack. For example,
+    </p>
+    <pre><code class="pancode-snippet">1 2 3 :③</code></pre>
+    <p>
+      The final stack will be <code>1 2 3 1 2 3</code>
+    </p>
+    <h2>Pop (<code>%</code>)</h2>
+    <p>
+      Pops a value off the stack and discards it. With a numerical
+      modifier N, pops N values off the stack and discards all of
+      them.
+    </p>
+    <h2>Swap / Rotate (<code>@</code>)</h2>
+    <p>
+      Pops two values off the stack and pushes them back in the
+      opposite order. If given a numerical modifier N, this command
+      instead rotates the top of the stack, taking the Nth element
+      (0-based) and placing it at the top of the stack. For example,
+    </p>
+    <pre><code class="pancode-snippet">1 2 3 4 @③</code></pre>
+    <p>
+      The final stack will be <code>2 3 4 1</code>.
+    </p>
+    <h2>Over (<code>ø</code>)</h2>
+    <p>
+      Pushes a copy of the second-from-the-top value of the stack onto
+      the top. Example:
+    </p>
+    <pre><code class="pancode-snippet">1 2 ø</code></pre>
+    <p>
+      The final stack will be <code>1 2 1</code>.
+    </p>
+    <p>
+      With a numerical modifier N, the command instead duplicates the
+      Nth element down the stack (0-based). Example:
+    </p>
+    <pre><code class="pancode-snippet">1 2 3 4 ø②</code></pre>
+    <p>
+      The final stack will be <code>1 2 3 4 2</code>.
+    </p>
+    <div>
+      <a href="docs.html">Documentation Index</a>
+    </div>
+  </body>
+</html>
