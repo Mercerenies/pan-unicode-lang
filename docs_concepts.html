@@ -67,6 +67,25 @@
       modifiers are provided, the excess ones will be ignored
       silently.
     </p>
+    <h2 id="prime-modifier">Prime Modifier</h2>
+    <p>
+      In addition to a numerical modifier, some commands may take a
+      prime modifier. A prime modifier is supplied by placing <code>′</code>
+      (<code>\prime</code>) after the command. Prime modifiers and
+      numerical modifiers may be specified in either order. If
+      supplied, the prime modifier will generally perform some
+      modified but similar version of the command. For instance, <code>⍋</code> sorts
+      a list using the default ordering, but <code>⍋′</code> takes a
+      custom sorting function and sorts the list according to that
+      function.
+    </p>
+    <p>
+      You may supply the prime modifier any number of times to a
+      command. Generally speaking, commands may offer different
+      variants depending on how many primes are provided, but as of
+      right now there are no commands which accept more than one prime
+      modifier.
+    </p>
     <h2 id="scalar-extension">Scalar Extension</h2>
     <p>
       Some commands provide scalar extension behavior. Effectively,

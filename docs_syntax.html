@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Pancode Language - Docs</title>
+    <script src="js/main.js" type="module"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body style="width: 50%; margin: auto">
+    <h1>Pancode - Syntax</h1>
+    <p>
+      Pancode is mostly whitespace-insensitive, as most commands are a
+      single character in length. Anything which is not subject to the
+      below rules is simply treated as an individual single-character
+      command. Note that this applies to characters which do not have
+      an assigned command yet, and in this case it is an error to
+      execute such a nonexistent command.
+    </p>
+    <h2>Whitespace</h2>
+    <p>
+      There are no commands whose name consists of whitespace. All
+      whitespace characters are skipped over during parsing.
+    </p>
+    <h2>Comments</h2>
+    <p>
+      Comments in Pancode begin with <code>«</code>
+      (<code>\flqq</code>) and end with <code>»</code>
+      (<code>\frqq</code>). The delimiting characters can be nested
+      within the comment. Any text inside a comment will be ignored.
+    </p>
+    <h2>Numbers</h2>
+    <p>
+      Integers may be written directly into Pancode and will resolve
+      to special commands which push themselves onto the stack. An
+      integer is defined to be an optional minus sign, followed by at
+      least one decimal digit. Note that the entire integer must be
+      contiguous and not contain whitespace within it, or else it will
+      be seen as multiple tokens by the parser.
+    </p>
+    <p>
+      There are also three special numerical constants: ∞ (for
+      infinity), -∞ (for negative infinity), and 👿 (for NaN).
+    </p>
+    <p>
+      There is currently no way to input literal non-integers into
+      Pancode source. This functionality may be added in the future.
+      In the meantime, there are several commands to push common
+      fractions (namely, the vulgar fraction characters such as ½).
+    </p>
+    <h2>Strings</h2>
+    <p>
+      String literals are denoted, as usual, with quotation
+      marks <code>"</code>. Between the quotation marks, everything on
+      the inside (including whitespace and newlines) is treated as
+      part of the string contents. Backslash escape sequences may be
+      used. Currently, <code>\n</code> (newline), <code>\"</code>
+      (literal quote), and <code>\\</code> (literal backslash) are the
+      only supported escape sequences.
+    </p>
+    <h2>Functions</h2>
+    <p>
+      Functions are provided by wrapping the relevant code in square
+      brackets <code>[</code> and <code>]</code>. A function, when
+      executed, pushes itself onto the stack. A function on the stack
+      can be called in several ways, the most direct being the
+      call <code>$</code> command.
+    </p>
+    <p>
+      Note that if you try to pretty-print a function (such as
+      with <code>.</code>), you will get a literal which, if run as
+      Pancode source, will behave identically when called to the
+      function used to produce it. However, the two functions may or
+      may not compare equal, especially in the case of functions
+      produced by <code>●</code> (curry) or <code>○</code> (compose),
+      which internally use more efficient representations.
+    </p>
+    <p>
+      As a special shortcut, if you want to construct a function which
+      consists of exactly one command, you may do so by preceding the
+      command with a backtick <code>`</code>. So, for
+      instance, <code>`×</code> is equivalent to <code>[×]</code>
+    </p>
+    <h2>Global Variable Commands</h2>
+    <p>
+      The two characters <code>→</code> and <code>←</code> are treated
+      specially. When one of these characters is encountered, the next
+      non-whitespace character is consumed as well and treated as a
+      variable name. Then a single command is created, which assigns
+      to or reads from the variable with the given name.
+    </p>
+    <p>
+      For technical reasons, the following characters cannot be used
+      as variable
+      names: <code>"</code>, <code>-</code>, <code>∞</code>, <code>👿</code>,
+      ASCII digits, whitespace, and comment delimiters (<code>«</code>
+      and <code>»</code>)
+    </p>
+    <h2>Modifiers</h2>
+    <p>
+      Every command is succeeded by zero or more modifiers, which in
+      some cases may change the behavior of the command. There are
+      currently two types of modifiers in Pancode. The first is
+      <a href="docs_concepts.html#numerical-modifier">numerical
+      modifiers</a>, supplied as numbers from 0 to 20 using the
+      characters ⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳. The second
+      is <a href="docs_concepts.html#prime-modifier">prime
+      modifiers</a>, supplied using the <code>′</code> character.
+    </p>
+    <div>
+      <a href="docs.html">Documentation Index</a>
+    </div>
+  </body>
+</html>
