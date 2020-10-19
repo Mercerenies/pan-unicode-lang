@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "util.js",
+  "sourceRoot": "..",
+  "sources": [
+    "src/util.coffee"
+  ],
+  "names": [],
+  "mappings": ";AACA,OAAA,IAAO,GAAA,GAAM,QAAA,CAAC,CAAD,EAAI,CAAJ,CAAA;SACX,CAAC,CAAC,GAAF,CAAM,QAAA,CAAC,CAAD,EAAI,CAAJ,CAAA;WAAU,CAAC,CAAD,EAAI,CAAC,CAAC,CAAD,CAAL;EAAV,CAAN;AADW;;AAGb,OAAA,IAAO,OAAA,GAAU,QAAA,CAAC,CAAD,EAAI,CAAJ,EAAO,KAAK,QAAA,CAAC,CAAD,EAAI,CAAJ,CAAA;WAAU,CAAA,KAAK;EAAf,CAAZ,CAAA;AACjB,MAAA,GAAA,EAAA,CAAA,EAAA,CAAA,EAAA;EAAE,MAAoB,KAAK,CAAC,OAAN,CAAc,CAAd,CAAA,IAAqB,KAAK,CAAC,OAAN,CAAc,CAAd,EAAzC;AAAA,WAAO,MAAP;;EACA,IAAoB,CAAC,CAAC,MAAF,KAAY,CAAC,CAAC,MAAlC;AAAA,WAAO,MAAP;;AACA;EAAA,KAAA,QAAA;IAAI,CAAC,CAAD,EAAI,CAAJ;IACF,KAAoB,EAAA,CAAG,CAAH,EAAM,CAAN,CAApB;AAAA,aAAO,MAAP;;EADF;SAEA;AALe;;AAOjB,OAAA,IAAO,SAAA,GAAY,QAAA,CAAC,GAAD,EAAM,GAAN,EAAW,CAAX,EAAc,CAAd,CAAA;SACjB,GAAG,CAAC,SAAJ,CAAc,CAAd,EAAiB,CAAjB,CAAA,GAAsB,GAAtB,GAA4B,GAAG,CAAC,SAAJ,CAAc,CAAd;AADX;;AAGnB,OAAA,IAAO,GAAA,GAAM,QAAA,CAAC,CAAD,EAAI,CAAJ,CAAA;AACX,SAAM,CAAA,KAAK,CAAX;IACE,CAAC,CAAD,EAAI,CAAJ,CAAA,GAAS,CAAC,CAAD,EAAI,CAAC,CAAA,GAAI,CAAJ,GAAQ,CAAT,CAAA,GAAc,CAAlB;EADX;SAEA;AAHW;;AAKb,OAAA,IAAO,GAAA,GAAM,QAAA,CAAC,CAAD,EAAI,CAAJ,CAAA;AACb,MAAA;EAAE,CAAA,GAAI,GAAA,CAAI,CAAJ,EAAO,CAAP;EACJ,IAAG,CAAA,KAAK,CAAR;WACE,EADF;GAAA,MAAA;WAGE,CAAA,GAAI,CAAJ,GAAQ,EAHV;;AAFW",
+  "sourcesContent": [
+    "\nexport zip = (a, b) ->\n  a.map((v, i) -> [v, b[i]])\n\nexport arrayEq = (a, b, fn = (x, y) -> x == y) ->\n  return false unless Array.isArray(a) and Array.isArray(b)\n  return false unless a.length == b.length\n  for [x, y] from zip(a, b)\n    return false unless fn(x, y)\n  true\n\nexport spliceStr = (str, sub, a, b) ->\n  str.substring(0, a) + sub + str.substring(b)\n\nexport gcd = (a, b) ->\n  while b != 0\n    [a, b] = [b, (a % b + b) % b]\n  a\n\nexport lcm = (a, b) ->\n  d = gcd(a, b)\n  if d == 0\n    0\n  else\n    a * b / d\n"
+  ]
+}

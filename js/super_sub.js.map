@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "super_sub.js",
+  "sourceRoot": "..",
+  "sources": [
+    "src/super_sub.coffee"
+  ],
+  "names": [],
+  "mappings": ";AACA,OAAO,GAAP,MAAA;;AAEA,OAAA,IAAO,QAAA,GAAW,QAAA,CAAC,EAAD,CAAA;AAChB,UAAO,EAAE,CAAC,MAAH,CAAU,CAAV,CAAP;AAAA,SACO,GADP;AAAA,SACY,GADZ;aACqB;AADrB,SAEO,GAFP;AAAA,SAEY,GAFZ;aAEqB;AAFrB,SAGO,GAHP;AAAA,SAGY,GAHZ;aAGqB;AAHrB,SAIO,GAJP;AAAA,SAIY,GAJZ;aAIqB;AAJrB,SAKO,GALP;AAAA,SAKY,GALZ;aAKqB;AALrB,SAMO,GANP;AAAA,SAMY,GANZ;aAMqB;AANrB,SAOO,GAPP;AAAA,SAOY,GAPZ;aAOqB;AAPrB,SAQO,GARP;AAAA,SAQY,GARZ;aAQqB;AARrB,SASO,GATP;AAAA,SASY,GATZ;aASqB;AATrB,SAUO,GAVP;AAAA,SAUY,GAVZ;aAUqB;AAVrB;aAWO;AAXP;AADgB;;AAclB,OAAA,IAAO,KAAA,GAAQ,QAAA,CAAC,CAAD,CAAA;AACb,UAAO,CAAP;AAAA,SACO,CADP;aACc;AADd,SAEO,CAFP;aAEc;AAFd,SAGO,CAHP;aAGc;AAHd,SAIO,CAJP;aAIc;AAJd,SAKO,CALP;aAKc;AALd,SAMO,CANP;aAMc;AANd,SAOO,CAPP;aAOc;AAPd,SAQO,CARP;aAQc;AARd,SASO,CATP;aASc;AATd,SAUO,CAVP;aAUc;AAVd;aAWO;AAXP;AADa;;AAcf,OAAA,IAAO,OAAA,GAAU,QAAA,CAAC,CAAD,CAAA;AACf,UAAO,CAAP;AAAA,SACO,CADP;aACc;AADd,SAEO,CAFP;aAEc;AAFd,SAGO,CAHP;aAGc;AAHd,SAIO,CAJP;aAIc;AAJd,SAKO,CALP;aAKc;AALd,SAMO,CANP;aAMc;AANd,SAOO,CAPP;aAOc;AAPd,SAQO,CARP;aAQc;AARd,SASO,CATP;aASc;AATd,SAUO,CAVP;aAUc;AAVd;aAWO;AAXP;AADe;;AA9BjB",
+  "sourcesContent": [
+    "\nimport Str from './str.js'\n\nexport toNumber = (ch) ->\n  switch ch.charAt(0)\n    when '⁰', '₀' then 0\n    when '¹', '₁' then 1\n    when '²', '₂' then 2\n    when '³', '₃' then 3\n    when '⁴', '₄' then 4\n    when '⁵', '₅' then 5\n    when '⁶', '₆' then 6\n    when '⁷', '₇' then 7\n    when '⁸', '₈' then 8\n    when '⁹', '₉' then 9\n    else undefined\n\nexport toSub = (n) ->\n  switch n\n    when 0 then '₀'\n    when 1 then '₁'\n    when 2 then '₂'\n    when 3 then '₃'\n    when 4 then '₄'\n    when 5 then '₅'\n    when 6 then '₆'\n    when 7 then '₇'\n    when 8 then '₈'\n    when 9 then '₉'\n    else undefined\n\nexport toSuper = (n) ->\n  switch n\n    when 0 then '⁰'\n    when 1 then '¹'\n    when 2 then '²'\n    when 3 then '³'\n    when 4 then '⁴'\n    when 5 then '⁵'\n    when 6 then '⁶'\n    when 7 then '⁷'\n    when 8 then '⁸'\n    when 9 then '⁹'\n    else undefined\n\n# TODO Note that ₀ is unassigned for the moment. Haven't decided what to do with it yet.\n"
+  ]
+}

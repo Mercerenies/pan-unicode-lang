@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "token.js",
+  "sourceRoot": "..",
+  "sources": [
+    "src/token.coffee"
+  ],
+  "names": [],
+  "mappings": ";AACA,OAAO,GAAP,MAAA;;AAEA,OAAA,IAAa,QAAN,MAAA,MAAA;EACL,WAAa,KAAA,EAAQ,QAAR,CAAA;IAAC,IAAC,CAAA;IACb,IAAiC,OAAO,IAAC,CAAA,IAAR,KAAiB,QAAlD;MAAA,IAAC,CAAA,IAAD,GAAQ,GAAG,CAAC,UAAJ,CAAe,IAAC,CAAA,IAAhB,EAAR;KAAJ;;IAEI,IAAC,CAAA,QAAD,GAAY,CAAC,CAAC;EAHH;;EAKb,SAAW,CAAA,CAAA;AACT,YAAA,KAAA;AAAA,YACO,IAAC,CAAA,QADR;eACsB,SAAS,CAAC;AADhC,WAEO,OAAO,IAAC,CAAA,IAAR,KAAiB,QAFxB;eAEsC,SAAS,CAAC;AAFhD;eAGO,SAAS,CAAC;AAHjB;EADS;;EAMX,QAAU,CAAA,CAAA;IACR,IAAG,IAAC,CAAA,QAAJ;aACE,YAAA,CAAa,IAAC,CAAA,IAAd,EADF;KAAA,MAAA;aAGE,IAAC,CAAA,IAAI,CAAC,QAAN,CAAA,EAHF;;EADQ;;AAZL;;AAkBP,OAAA,IAAO,SAAA,GACL;EAAA,MAAA,EAAQ,kBAAR;EACA,MAAA,EAAQ,kBADR;EAEA,OAAA,EAAS;AAFT;;AAIF,OAAA,IAAO,YAAA,GAAe,QAAA,CAAC,CAAD,CAAA;AACtB,MAAA,EAAA,EAAA,QAAA,EAAA,CAAA,EAAA;EAAE,CAAA,GAAI,CAAC,CAAC,QAAF,CAAA;EACJ,QAAA,GAAW;EACX,KAAA,mCAAA;;IACE,QAAA;AACE,cAAO,EAAP;AAAA,aACO,GADP;iBACgB;AADhB,aAEO,IAFP;iBAEiB;AAFjB;iBAGO;AAHP;;EAFJ;SAMA,CAAA,EAAA,CAAA,CAAK,QAAL,CAAA,EAAA;AAToB;;AAWtB,OAAA,IAAO,eAAA,GAAkB,QAAA,CAAC,EAAD,CAAA;AACvB,UAAO,EAAP;AAAA,SACO,GADP;aACgB;AADhB;aAEO;AAFP;AADuB",
+  "sourcesContent": [
+    "\nimport Str from './str.js'\n\nexport class Token\n  constructor: (@text, isString) ->\n    @text = Str.fromString(@text) if typeof(@text) == 'string'\n    # Normalize to Boolean\n    @isString = !!isString\n\n  tokenType: () ->\n    switch\n      when @isString then TokenType.String\n      when typeof(@text) == 'number' then TokenType.Number\n      else TokenType.Command\n\n  toString: ->\n    if @isString\n      escapeString(@text)\n    else\n      @text.toString()\n\nexport TokenType =\n  Number: \"TokenType.Number\"\n  String: \"TokenType.String\"\n  Command: \"TokenType.Command\"\n\nexport escapeString = (s) ->\n  s = s.toString()\n  contents = \"\"\n  for ch in s\n    contents +=\n      switch ch\n        when '\"' then '\\\\\"'\n        when '\\n' then '\\\\n'\n        else ch\n  \"\\\"#{contents}\\\"\"\n\nexport translateEscape = (ch) ->\n  switch ch\n    when 'n' then '\\n'\n    else ch\n"
+  ]
+}

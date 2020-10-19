@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "str.js",
+  "sourceRoot": "..",
+  "sources": [
+    "src/str.coffee"
+  ],
+  "names": [],
+  "mappings": ";AACA,IAAA,GAAA,EAAA,eAAA,EAAA;;AAAA,OAAA;EAAS,gBAAT;CAAA,MAAA,aAAA;;;;;;AAMA,OAAA,QAAqB,MAAN,MAAA,IAAA;EAEb,WAAa,MAAA,CAAA;IAAC,IAAC,CAAA;EAAF;;EAEA,OAAZ,UAAY,CAAC,IAAD,CAAA;AACf,QAAA,IAAA,EAAA;IAAI,IAAA,GAAO;IACP,CAAA,GAAI;AACJ,WAAM,CAAA,GAAI,IAAI,CAAC,MAAf;MACE,IAAG,eAAA,CAAgB,IAAI,CAAC,CAAD,CAAG,CAAC,UAAR,CAAmB,CAAnB,CAAhB,CAAH;;QAEE,CAAA,IAAK;QACL,IAAG,CAAA,IAAK,IAAI,CAAC,MAAV,IAAoB,CAAI,cAAA,CAAe,IAAI,CAAC,CAAD,CAAG,CAAC,UAAR,CAAmB,CAAnB,CAAf,CAA3B;UACE,MAAM,IAAI,gBAAJ,CAAqB,IAArB,EADR;;QAEA,IAAI,CAAC,IAAL,CAAU,IAAI,CAAC,KAAL,CAAW,CAAA,GAAI,CAAf,EAAkB,CAAA,GAAI,CAAtB,CAAV,EALF;OAAA,MAAA;QAOE,IAAI,CAAC,IAAL,CAAU,IAAI,CAAC,CAAD,CAAd,EAPF;;MAQA,CAAA,IAAK;IATP;WAUA,IAAI,GAAJ,CAAQ,IAAR;EAbW;;EAeb,QAAU,CAAA,CAAA;WACR,IAAC,CAAA,IAAI,CAAC,IAAN,CAAW,EAAX;EADQ;;EAGV,MAAQ,CAAC,CAAD,CAAA;WACN,IAAC,CAAA,IAAI,CAAC,CAAD;EADC;;EAGR,WAAa,CAAC,CAAD,CAAA;WACX,IAAC,CAAA,IAAI,CAAC,CAAD,CAAG,CAAC,WAAT,CAAqB,CAArB;EADW;;EAGb,MAAQ,CAAC,IAAD,CAAA;WACN,IAAI,GAAJ,CAAQ,IAAI,CAAC,IAAI,CAAC,MAAV,CAAiB,IAAI,CAAC,IAAtB,CAAR;EADM;;EAGQ,OAAf,aAAe,CAAC,SAAD,CAAA;WACd,IAAI,GAAJ,CAAQ,MAAM,CAAC,aAAP,CAAqB,SAArB,CAAR;EADc;;AA/BH;;AAkCf,MAAM,CAAC,cAAP,CAAsB,GAAG,CAAC,SAA1B,EAAqC,QAArC,EACE;EAAA,GAAA,EAAK,QAAA,CAAA,CAAA;WAAG,IAAC,CAAA,IAAI,CAAC;EAAT;AAAL,CADF;;AAGA,eAAA,GAAkB,QAAA,CAAC,CAAD,CAAA;SAChB,CAAC,CAAA,GAAI,MAAL,CAAA,KAAgB;AADA;;AAGlB,cAAA,GAAiB,QAAA,CAAC,CAAD,CAAA;SACf,CAAC,CAAA,GAAI,MAAL,CAAA,KAAgB;AADD",
+  "sourcesContent": [
+    "\nimport { StrEncodingError } from './error.js'\n\n# I want random access to individual \"characters\" in a string without\n# worrying about UTF-16 encoding issues. This class takes a string and\n# converts it to an array of individual characters, so we can get that\n# behavior.\nexport default class Str\n\n  constructor: (@data) ->\n\n  @fromString: (text) ->\n    data = []\n    i = 0\n    while i < text.length\n      if isHighSurrogate text[i].charCodeAt(0)\n        # High surrogate\n        i += 1\n        if i >= text.length or not isLowSurrogate text[i].charCodeAt(0)\n          throw new StrEncodingError(text)\n        data.push(text.slice(i - 1, i + 1))\n      else\n        data.push(text[i])\n      i += 1\n    new Str(data)\n\n  toString: () ->\n    @data.join('')\n\n  charAt: (n) ->\n    @data[n]\n\n  codePointAt: (n) ->\n    @data[n].codePointAt(0)\n\n  concat: (that) ->\n    new Str(this.data.concat(that.data))\n\n  @fromCodePoint: (codepoint) ->\n    new Str(String.fromCodePoint(codepoint))\n\nObject.defineProperty Str.prototype, 'length',\n  get: -> @data.length\n\nisHighSurrogate = (n) ->\n  (n & 0xFC00) == 0xD800\n\nisLowSurrogate = (n) ->\n  (n & 0xFC00) == 0xDC00\n"
+  ]
+}

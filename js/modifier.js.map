@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "modifier.js",
+  "sourceRoot": "..",
+  "sources": [
+    "src/modifier.coffee"
+  ],
+  "names": [],
+  "mappings": ";AACA,IAAA;;AAAA,IAAA,GAAO;;AAEP,OAAA,IAAa,WAAN,MAAA,SAAA,CAAA;;AAEP,OAAA,IAAa,cAAN,MAAA,YAAA,QAA0B,SAA1B;EACL,WAAa,MAAA,CAAA;;IAAC,IAAC,CAAA;EAAF;;EAGb,QAAU,CAAA,CAAA;WACR,IAAI,CAAC,MAAL,CAAY,IAAC,CAAA,KAAb;EADQ;;AAJL;;AAOP,OAAA,IAAa,gBAAN,MAAA,cAAA,QAA4B,SAA5B;EACL,QAAU,CAAA,CAAA;WAAG;EAAH;;AADL;;AAGP,OAAA,IAAO,aAAA,GAAgB,QAAA,CAAC,GAAD,CAAA;AACvB,MAAA;EAAE,IAAoB,GAAG,CAAC,IAAI,CAAC,QAAT,CAAA,CAAA,KAAuB,EAA3C;AAAA,WAAO,OAAP;;EACA,MAAA,GAAS,IAAI,CAAC,OAAL,CAAa,GAAG,CAAC,IAAI,CAAC,QAAT,CAAA,CAAb;EACT,IAAG,MAAA,IAAU,CAAb;WACE,IAAI,WAAJ,CAAgB,MAAhB,EADF;GAAA,MAAA;WAGE,OAHF;;AAHqB;;AAQvB,OAAA,IAAO,gBAAA,GAAmB",
+  "sourcesContent": [
+    "\nNUMS = \"⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳\"\n\nexport class Modifier\n\nexport class NumModifier extends Modifier\n  constructor: (@value) ->\n    super()\n\n  toString: ->\n    NUMS.charAt @value\n\nexport class PrimeModifier extends Modifier\n  toString: -> \"′\"\n\nexport toNumModifier = (tok) ->\n  return undefined if tok.text.toString() == \"\"\n  result = NUMS.indexOf(tok.text.toString())\n  if result >= 0\n    new NumModifier(result)\n  else\n    undefined\n\nexport MAX_NUM_MODIFIER = 20\n"
+  ]
+}

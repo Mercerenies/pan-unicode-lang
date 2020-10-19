@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "type_check.js",
+  "sourceRoot": "..",
+  "sources": [
+    "src/type_check.coffee"
+  ],
+  "names": [],
+  "mappings": ";AACA,OAAA;EAAS,SAAT;CAAA,MAAA;;AACA,OAAA;EAAS,SAAT;EAAoB,SAApB;EAA+B,QAA/B;CAAA,MAAA,WADA;;;;;AAOA,OAAA,IAAO,YAAA,GAAe,QAAA,CAAC,SAAD,EAAY,CAAZ,CAAA;SACpB,QAAA,CAAC,KAAD,CAAA;IACE,IAAG,CAAA,CAAE,KAAF,CAAH;aACE,MADF;KAAA,MAAA;MAGE,MAAM,IAAI,SAAJ,CAAc,SAAd,EAAyB,KAAzB,EAHR;;EADF;AADoB;;AAOtB,OAAA,IAAO,QAAA,GAAW,YAAA,CAAa,QAAb,EAAuB,QAAA,CAAC,CAAD,CAAA;SAAO,CAAA,YAAa;AAApB,CAAvB;;AAElB,OAAA,IAAO,QAAA,GAAW,YAAA,CAAa,QAAb,EAAuB,QAAA,CAAC,CAAD,CAAA;SAAO,CAAA,YAAa;AAApB,CAAvB;;AAElB,OAAA,IAAO,MAAA,GACL,YAAA,CAAa,MAAb,EAAqB,QAAA,CAAC,CAAD,CAAA;SAAO,CAAA,YAAa;AAApB,CAArB;;AAEF,OAAA,IAAO,cAAA,GACL,YAAA,CAAa,gBAAb,EAA+B,QAAA,CAAC,CAAD,CAAA;SAAO,CAAA,YAAa,SAAb,IAA0B,CAAA,YAAa;AAA9C,CAA/B",
+  "sourcesContent": [
+    "\nimport { TypeError } from './error.js'\nimport { NumberLit, StringLit, ArrayLit } from './ast.js'\n\n# Various typechecking functions. Unless otherwise stated, these each\n# return their argument if successful and throw an Error.TypeError\n# otherwise.\n\nexport checkOrThrow = (expecting, p) ->\n  (value) ->\n    if p value\n      value\n    else\n      throw new TypeError(expecting, value)\n\nexport isNumber = checkOrThrow \"number\", (v) -> v instanceof NumberLit\n\nexport isString = checkOrThrow \"string\", (v) -> v instanceof StringLit\n\nexport isList =\n  checkOrThrow \"list\", (v) -> v instanceof ArrayLit\n\nexport isStringOrList =\n  checkOrThrow \"string or list\", (v) -> v instanceof StringLit or v instanceof ArrayLit\n"
+  ]
+}

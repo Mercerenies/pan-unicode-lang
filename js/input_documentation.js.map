@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "input_documentation.js",
+  "sourceRoot": "..",
+  "sources": [
+    "src/input_documentation.coffee"
+  ],
+  "names": [],
+  "mappings": ";AACA,OAAA;EAAS,yBAAT;CAAA,MAAA;;AAEA,OAAA,IAAO,UAAA,GAAa,QAAA,CAAC,IAAD,CAAA;AACpB,MAAA,YAAA,EAAA,CAAA,EAAA,MAAA,EAAA,CAAA,EAAA;EAAE,MAAA,GAAS;EACT,MAAA,IAAU,CAAA;8CAAA;EAIV,YAAA,GAAe,CAAA;EACf,KAAA,8BAAA;;;MACE,YAAY,CAAC,CAAD,IAAO;;IACnB,YAAY,CAAC,CAAD,CAAG,CAAC,IAAhB,CAAqB,CAArB;EAFF;EAGA,KAAA,iBAAA;;IACE,EAAA,GAAK,CAAC,CAAC,GAAF,CAAM,QAAA,CAAC,CAAD,CAAA;aAAO,CAAA,MAAA,CAAA,CAAS,CAAT,CAAA,OAAA;IAAP,CAAN,CAAiC,CAAC,IAAlC,CAAuC,IAAvC;IACL,MAAA,IAAU,CAAA;YAAA,CAAA,CAEM,CAFN,CAAA;MAAA,CAAA,CAGA,EAHA,CAAA;KAAA;EAFZ;EAQA,MAAA,IAAU,CAAA,QAAA;SAGV,IAAI,CAAC,SAAL,GAAiB;AArBC",
+  "sourcesContent": [
+    "\nimport { DEFAULT_TRANSLATION_TABLE } from './unicode_input.js'\n\nexport printTable = (node) ->\n  result = \"\"\n  result += \"\"\"\n    <table class=\"input-table\">\n      <tr><th>Character</th><th>To Input</th></tr>\n  \"\"\"\n  flippedTable = {}\n  for k, v of DEFAULT_TRANSLATION_TABLE\n    flippedTable[v] ?= []\n    flippedTable[v].push(k)\n  for k, v of flippedTable\n    v1 = v.map((x) -> \"<code>#{x}</code>\").join(\", \")\n    result += \"\"\"\n      <tr>\n        <td><code>#{k}</code></td>\n        <td>#{v1}</td>\n      </tr>\n    \"\"\"\n  result += \"\"\"\n    </table>\n  \"\"\"\n  node.innerHTML = result\n"
+  ]
+}

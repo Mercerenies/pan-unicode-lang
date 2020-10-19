@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "pretty.js",
+  "sourceRoot": "..",
+  "sources": [
+    "src/pretty.coffee"
+  ],
+  "names": [],
+  "mappings": ";AACA,OAAA;EAAS,SAAT;CAAA,MAAA;;AAEA,OAAA,IAAO,SAAA,GAAY,QAAA,CAAC,KAAD,CAAA;AACjB,UAAA,KAAA;AAAA,WACO,KAAA,YAAiB,UADxB;aAEI,KAAK,CAAC,IAAI,CAAC,QAAX,CAAA;AAFJ;aAII,KAAK,CAAC,QAAN,CAAA;AAJJ;AADiB",
+  "sourcesContent": [
+    "\nimport { StringLit } from './ast.js'\n\nexport stringify = (value) ->\n  switch\n    when value instanceof StringLit\n      value.text.toString()\n    else\n      value.toString()\n"
+  ]
+}
