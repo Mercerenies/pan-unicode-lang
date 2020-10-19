@@ -26,4 +26,5 @@ a {
 .pancode-snippet {
     background-color: #444;
     padding: 7px;
+    display: block;
 }

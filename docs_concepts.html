@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Pancode Language - Docs</title>
+    <script src="js/main.js" type="module"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body style="width: 50%; margin: auto">
+    <h1>Pancode - Concepts</h1>
+    <p>
+      This page acts as something of a glossary for several concepts
+      that recur throughout the Pancode language. It's not really
+      intended to be read linearly, as the relevant sections are
+      linked from the documentation when they're mentioned.
+    </p>
+    <h2 id="binary-extension">Binary Extension</h2>
+    <p>
+      Many commands which are designed to be binary may be extended
+      with a <a href="#numerical-modifier">numerical modifier</a>. In
+      particular, if given a numerical modifier of N, these commands
+      will take N arguments and fold the argument list using the
+      binary command. For instance, <code>+</code> is a command which
+      adds two numbers, while <code>+⑧</code> is a command which adds
+      eight numbers.
+    </p>
+    <p>
+      If a command with binary extension does not specify its
+      associativity, you may assume it associates to the left, so <code>a b c +③</code> will
+      do <code>(a + b) + c</code> not <code>a + (b + c)</code>. This
+      is irrelevant for associative commands but can come into play
+      for others such as <code>-</code>.
+    </p>
+    <p>
+      If a command subject to binary extension is given the numerical
+      modifier of 0 or 1, special behavior often triggers. This
+      behavior is specific to the given command but follows a general
+      theme. If given numerical modifier zero, a command will
+      generally produce its identity or neutral value, e.g. zero for
+      addition or one for multiplication. If there's no sensible
+      identity, a numerical modifier of zero results in an error. If
+      given a numerical modifier one, "negative" commands like <code>-</code> and
+      <code>÷</code> will return the inverse of their sole argument
+      (respectively, the additive and multiplicative inverse).
+      "Positive" commands like <code>+</code> and <code>×</code> will
+      return their argument untouched.
+    </p>
+    <p>
+      If both <a href="#scalar-extension">scalar extension</a> and
+      binary extension apply to a command, binary extension applies
+      first, and scalar extension applies to the resulting binary
+      command.
+    </p>
+    <h2 id="numerical-modifier">Numerical Modifier</h2>
+    <p>
+      Many commands take optional numerical modifier. These are
+      distinct from standard stack-based arguments in that they are
+      provided as constants to the command itself. Numerical modifiers
+      can be any value from 0 to 20 and are given by placing the
+      "Circled Digit" characters (⓪ to ⑳) after the command itself.
+      For instance, to supply a numerical argument of 4 to <code>+</code>,
+      you would write <code>+④</code>.
+      These circled characters can be typed using <code>\(0)</code>, <code>\(1)</code>,
+      etc. Numerical modifiers are always optional and will take
+      reasonable defaults if not provided. If too many numerical
+      modifiers are provided, the excess ones will be ignored
+      silently.
+    </p>
+    <h2 id="scalar-extension">Scalar Extension</h2>
+    <p>
+      Some commands provide scalar extension behavior. Effectively,
+      this means that if given a list argument, the command will
+      automatically apply to each element of the list.
+    </p>
+    <p>
+      The simplest case is scalar extension applied to a unary
+      command, such as the negation command <code>_</code>. By default, <code>_</code> takes
+      a single number argument and returns its additive inverse.
+    </p>
+    <pre><code class="pancode-snippet">3 _ « Produces -3 »</code></pre>
+    <p>
+      However, if applied to a list, it will happily negate every
+      element of that list, recursively applying to nested lists as
+      well.
+    </p>
+    <pre><code class="pancode-snippet">{1 {2} {{3} 4}} _ « Produces {-1 {-2} {{-3} -4}} »</code></pre>
+    <p>
+      For binary commands, scalar extension is slightly more complex.
+      If given two non-lists, the command simply runs normally on the
+      two arguments. If given one list and one non-list, it runs on
+      each element of the list, keeping the other argument constant.
+      If given two lists, the lists must be the same length, and it
+      zips the lists together, applying the command to each
+      corresponding pair. Like in the unary case, this extension will
+      happily recurse arbitrarily deeply into nested lists.
+    </p>
+    <p>
+      Here are some examples, using the binary command <code>+</code>,
+      which applies the scalar extension rules.
+    </p>
+    <pre><code class="pancode-snippet">1 2 + « Produces 3 »
+{1 2 3} 10 + « Produces {11 12 13} »
+{1 2 3} {10 20 30} + « Produces {11 22 33} »
+{{1 2} {3 4}} {10 20} + « Produces {{11 12} {23 24}} »</code></pre>
+    <p>
+      For commands where both scalar extension and either <a href="#binary-extension">binary</a> or
+      <a href="#transitive-extension">transitive extension</a> would apply, the latter takes precedent
+      first, converting the command into a binary one, and then scalar
+      extension acts on the resulting binary command.
+    </p>
+    <h2 id="transitive-extension">Transitive Extension</h2>
+    <p>
+      Transitive extension is similar to <a href="#binary-extension">binary extension</a>,
+      in that it takes a traditionally binary command and uses its
+      <a href="#numerical-modifier">numerical modifier</a> to extend
+      it to an n-ary command. Transitive extension mainly applies to
+      comparison-oriented commands, such as <code><</code> and <code>></code>.
+      Transitive extension applies the binary command to each pair of
+      adjacent arguments and then returns true if all of the results
+      are true, or false otherwise. For instance,
+    </p>
+    <pre><code class="pancode-snippet">1 2 3 4 <④</code></pre>
+    <p>
+      This code will check whether <code>1 < 2</code>, then check
+      whether <code>2 < 3</code>, then whether <code>3 < 4</code>, and
+      return true since all of those are true.
+    </p>
+    <p>
+      Unless otherwise specified, a numerical modifier of zero to a
+      command which supports transitive extension will simply return
+      true, while a numerical modifier of one will produce an error.
+      In a case where both <a href="#scalar-extension">scalar extension</a> and
+      transitive extension apply, transitive extension applies first,
+      and scalar extension applies to the resulting binary command.
+    </p>
+    <div>
+      <a href="docs.html">Documentation Index</a>
+    </div>
+  </body>
+</html>
