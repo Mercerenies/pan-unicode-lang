@@ -226,7 +226,7 @@ export class SimpleCmd extends AST
           Op.op state, this,
             function: (a, b) -> a.value ^ b.value
             preProcess: TypeCheck.isNumber
-            zero: -1
+            zero: 0
             extension: Op.binary
             scalarExtend: true
         when '¬' # Bitwise Negate ( x -- y )

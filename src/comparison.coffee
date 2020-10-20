@@ -19,7 +19,7 @@ export equals = (a, b) ->
   if a instanceof ArrayLit and b instanceof ArrayLit
     return true if arrayEq(a.data, b.data, equals)
   if a instanceof StringLit and b instanceof StringLit
-    return true if a.text.toString() == b.text.toString()
+    return true if a.text.toString() == b.text.toString() and a.isRegexp() == b.isRegexp()
   if a instanceof NumberLit and b instanceof NumberLit
     return true if a.value == b.value
   if a instanceof Box and b instanceof Box
@@ -40,12 +40,12 @@ export compare = (a, b) ->
         return result if result != Ordering.EQ
       compare(a.length. b.length)
     when a instanceof StringLit and b instanceof StringLit
-      a = a.text.toString()
-      b = b.text.toString()
+      a1 = a.text.toString()
+      b1 = b.text.toString()
       switch
-        when a < b then Ordering.LT
-        when a > b then Ordering.GT
-        else            Ordering.EQ
+        when a1 < b1 then Ordering.LT
+        when a1 > b1 then Ordering.GT
+        else              toOrdering(a.isRegexp() - b.isRegexp())
     when a instanceof Box and b instanceof Box
       compare(a.value, b.value)
     else

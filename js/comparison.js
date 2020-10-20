@@ -40,7 +40,7 @@ export var equals = function(a, b) {
     }
   }
   if (a instanceof StringLit && b instanceof StringLit) {
-    if (a.text.toString() === b.text.toString()) {
+    if (a.text.toString() === b.text.toString() && a.isRegexp() === b.isRegexp()) {
       return true;
     }
   }
@@ -60,7 +60,7 @@ export var equals = function(a, b) {
 // Unlike equality, comparison WILL throw an error if given
 // incompatible types.
 export var compare = function(a, b) {
-  var i, j, ref, result;
+  var a1, b1, i, j, ref, result;
   switch (false) {
     case !(typeof a === 'number' && typeof b === 'number'):
       return toOrdering(a - b);
@@ -75,15 +75,15 @@ export var compare = function(a, b) {
       }
       return compare(a.length.b.length);
     case !(a instanceof StringLit && b instanceof StringLit):
-      a = a.text.toString();
-      b = b.text.toString();
+      a1 = a.text.toString();
+      b1 = b.text.toString();
       switch (false) {
-        case !(a < b):
+        case !(a1 < b1):
           return Ordering.LT;
-        case !(a > b):
+        case !(a1 > b1):
           return Ordering.GT;
         default:
-          return Ordering.EQ;
+          return toOrdering(a.isRegexp() - b.isRegexp());
       }
       break;
     case !(a instanceof Box && b instanceof Box):

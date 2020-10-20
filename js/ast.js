@@ -357,7 +357,7 @@ export var SimpleCmd = class SimpleCmd extends AST {
               return a.value ^ b.value;
             },
             preProcess: TypeCheck.isNumber,
-            zero: -1,
+            zero: 0,
             extension: Op.binary,
             scalarExtend: true
           });
