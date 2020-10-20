@@ -68,6 +68,15 @@
       Strings are compared for ordering using standard dictionary
       order on the code points.
     </p>
+    <p>
+      Strings may be marked as regular expressions using the <code>r</code> command.
+      A string marked as a regexp still behaves like a string for most
+      intents and purposes, but a few searching commands will treat it
+      differently. A regexp will never compare equal to a string. If
+      two strings are ordered and one is a regexp, they still follow
+      the usual ordering, unless they are the same string, in which
+      case the regexp is considered greater.
+    </p>
     <h2>Lists</h2>
     <p>
       Lists are finite sequences of Pancode values. Lists can contain
