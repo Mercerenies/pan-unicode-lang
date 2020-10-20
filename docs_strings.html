@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Pancode Language - Docs</title>
+    <script src="js/main.js" type="module"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body style="width: 50%; margin: auto">
+    <h1>Pancode - Commands - String Operations</h1>
+    <p>
+      These are various commands which operate on strings. Some of
+      these will also work on lists, where it makes sense to do so.
+      These cases are explicitly mentioned when they occur.
+    </p>
+    <h2>Concatenate (<code>⋄</code>)</h2>
+    <p>
+      Takes two strings or lists and returns a new string or list
+      which is the concatenation of the two. The two must have the
+      same type. Subject to <a href="docs_concepts.html#binary-extension">binary extension</a>.
+      If given a numerical modifier of zero, returns the empty string.
+    </p>
+    <h2>Chr / Ord (<code>💬</code>)</h2>
+    <p>
+      Expects either a number, string, or list as an argument, and
+      performs an appropriate operation based on the type of its
+      argument. If given a number, returns a string consisting of the
+      character whose code point is that value. If given a list,
+      returns a string whose characters have code points equal to each
+      value in the list. If given a string, returns the list of code
+      points.
+    </p>
+    <h2>Chomp (<code>🍴</code>)</h2>
+    <p>
+      Takes a string argument and removes the final character if that
+      character is a newline. If not, the string is returned
+      unmodified. Subject to <a href="docs_concepts.html#scalar-extension">scalar extension</a>.
+    </p>
+    <h2>Mark as Regexp (<code>r</code>)</h2>
+    <p>
+      Takes a string and returns a new string identical to the first
+      but marked as a regular expression. This string behaves
+      identically to the original for most purposes, but if used in a
+      command which involves searching or replacing, it will be
+      treated as a regular expression rather than a literal string.
+    </p>
+    <h2>Split String (<code>¶</code>)</h2>
+    <p>
+      Takes two arguments: a string and a delimiter. The delimiter can
+      be either a string or a regular expression. The string is split
+      based on the delimiter, and a list of strings is returned.
+    </p>
+    <h2>Join String (<code>⁋</code>)</h2>
+    <p>
+      Takes a list and a delimiter. Each element of the list is
+      prettified, then they are joined together, using the delimiter
+      (which must be a string) in between each pair of adjacent
+      elements.
+    </p>
+    <h2>Prettify (<code>p</code>)</h2>
+    <p>
+      Takes a single argument and converts it to a string in a natural
+      way. If the argument is already a (non-regexp) string, it will
+      not be changed.
+    </p>
+    <div>
+      <a href="docs.html">Documentation Index</a>
+    </div>
+  </body>
+</html>
