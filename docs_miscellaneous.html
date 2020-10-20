@@ -20,6 +20,58 @@
       Subject to <a href="docs_concepts.html#binary-extension">binary
       extension</a>. If given a numerical modifier of 0, returns ε.
     </p>
+    <h2>Stack Frame (<code>s</code>)</h2>
+    <p>
+      Pushes the currently executing function onto the stack. If used
+      with a <a href="docs_concepts.html#numerical-modifier">numerical modifier</a>,
+      the numerical modifier specifies how many call stack frames to
+      traverse upward before getting the function. For instance, a
+      numerical modifier of 1 will push the function which called the
+      current function.
+    </p>
+    <p>
+      This can be used to implement recursive functions without
+      assigning them a name. For instance, the following code defines
+      and calls a recursive function that prints "Hello" forever.
+    </p>
+    <pre><code class="pancode-snippet">« WARNING! This may lock up your browser! Run at your own risk! »
+
+[ "Hello" . s $ ] $</code></pre>
+    <h2>Array Start Sentinel (<code>{</code>)</h2>
+    <p>
+      Pushes the array start sentinel onto the stack. See <a href="docs_types.html#sentinels">Sentinels</a> for
+      more information.
+    </p>
+    <h2>White Flag Sentinel (<code>⚐</code>)</h2>
+    <p>
+      Pushes the white flag sentinel onto the stack. See <a href="docs_types.html#sentinels">Sentinels</a> for
+      more information.
+    </p>
+    <h2>Null Sentinel (<code>ε</code>)</h2>
+    <p>
+      Pushes the null sentinel onto the stack. See <a href="docs_types.html#sentinels">Sentinels</a> for
+      more information.
+    </p>
+    <h2>White Flag Constructor (<code>⚑</code>)</h2>
+    <p>
+      Given two functions <code>f</code> and <code>d</code>, this command defines and pushes a
+      new function onto the stack. The new function will pop the top
+      value off the stack and check if it is ⚐. If so, it calls <code>d</code>.
+      Otherwise, it pushes the top value back and calls <code>f</code>.
+    </p>
+    <p>
+      Pragmatically, the reason you might care to use this is in the
+      situation where you're performing a fold. The Fold (<code>/</code>)
+      command, if given an empty list argument, pushes ⚐ onto the
+      stack then calls its provided function. By calling ⚑ on your
+      function, you can specify the desired behavior if given the
+      empty list.
+    </p>
+    <pre><code class="pancode-snippet">« The default + behavior is to return zero if given ⚐ »
+{} `+ / « Result: 0 »
+
+« However, we can provide our own default, if we wish »
+{} `+ [ "Empty list!" ] ⚑ / « Result: "Empty list!" »</code></pre>
     <div>
       <a href="docs.html">Documentation Index</a>
     </div>
