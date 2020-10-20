@@ -568,7 +568,8 @@ export var SimpleCmd = class SimpleCmd extends AST {
             extension: Op.merge(function(a, b) {
               return a & b;
             }),
-            scalarExtend: true
+            scalarExtend: true,
+            whiteFlag: Op.WhiteFlag.ignore
           });
         case '<': // LT ( x y -- ? )
           return Op.op(state, this, {
@@ -580,7 +581,8 @@ export var SimpleCmd = class SimpleCmd extends AST {
             extension: Op.merge(function(a, b) {
               return a & b;
             }),
-            scalarExtend: true
+            scalarExtend: true,
+            whiteFlag: Op.WhiteFlag.ignore
           });
         case '>': // GT ( x y -- ? )
           return Op.op(state, this, {
@@ -592,7 +594,8 @@ export var SimpleCmd = class SimpleCmd extends AST {
             extension: Op.merge(function(a, b) {
               return a & b;
             }),
-            scalarExtend: true
+            scalarExtend: true,
+            whiteFlag: Op.WhiteFlag.ignore
           });
         case '≤': // LE ( x y -- ? )
           return Op.op(state, this, {
@@ -604,7 +607,8 @@ export var SimpleCmd = class SimpleCmd extends AST {
             extension: Op.merge(function(a, b) {
               return a & b;
             }),
-            scalarExtend: true
+            scalarExtend: true,
+            whiteFlag: Op.WhiteFlag.ignore
           });
         case '≥': // GE ( x y -- ? )
           return Op.op(state, this, {
@@ -616,7 +620,8 @@ export var SimpleCmd = class SimpleCmd extends AST {
             extension: Op.merge(function(a, b) {
               return a & b;
             }),
-            scalarExtend: true
+            scalarExtend: true,
+            whiteFlag: Op.WhiteFlag.ignore
           });
         case '≠': // Not Equal ( x y -- ? )
           return Op.op(state, this, {
@@ -628,7 +633,8 @@ export var SimpleCmd = class SimpleCmd extends AST {
             extension: Op.merge(function(a, b) {
               return a & b;
             }),
-            scalarExtend: true
+            scalarExtend: true,
+            whiteFlag: Op.WhiteFlag.ignore
           });
         case '≡': // Same ( x y -- ? )
           // Note: No scalar extension
@@ -641,7 +647,8 @@ export var SimpleCmd = class SimpleCmd extends AST {
             extension: Op.merge(function(a, b) {
               return a & b;
             }),
-            scalarExtend: false
+            scalarExtend: false,
+            whiteFlag: Op.WhiteFlag.ignore
           });
         case '≢': // Not Same ( x y -- ? )
           // Note: No scalar extension
@@ -654,7 +661,8 @@ export var SimpleCmd = class SimpleCmd extends AST {
             extension: Op.merge(function(a, b) {
               return a & b;
             }),
-            scalarExtend: false
+            scalarExtend: false,
+            whiteFlag: Op.WhiteFlag.ignore
           });
         case '⌈': // Max
           // With prime, pops a function and uses it instead of

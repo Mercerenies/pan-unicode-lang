@@ -376,6 +376,7 @@ export class SimpleCmd extends AST
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
+            whiteFlag: Op.WhiteFlag.ignore
         when '<' # LT ( x y -- ? )
           Op.op state, this,
             function: (a, b) -> compare(a, b) == Ordering.LT
@@ -383,6 +384,7 @@ export class SimpleCmd extends AST
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
+            whiteFlag: Op.WhiteFlag.ignore
         when '>' # GT ( x y -- ? )
           Op.op state, this,
             function: (a, b) -> compare(a, b) == Ordering.GT
@@ -390,6 +392,7 @@ export class SimpleCmd extends AST
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
+            whiteFlag: Op.WhiteFlag.ignore
         when '≤' # LE ( x y -- ? )
           Op.op state, this,
             function: (a, b) -> compare(a, b) != Ordering.GT
@@ -397,6 +400,7 @@ export class SimpleCmd extends AST
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
+            whiteFlag: Op.WhiteFlag.ignore
         when '≥' # GE ( x y -- ? )
           Op.op state, this,
             function: (a, b) -> compare(a, b) != Ordering.LT
@@ -404,6 +408,7 @@ export class SimpleCmd extends AST
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
+            whiteFlag: Op.WhiteFlag.ignore
         when '≠' # Not Equal ( x y -- ? )
           Op.op state, this,
             function: (a, b) -> not equals(a, b)
@@ -411,6 +416,7 @@ export class SimpleCmd extends AST
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: true
+            whiteFlag: Op.WhiteFlag.ignore
         when '≡' # Same ( x y -- ? )
           # Note: No scalar extension
           Op.op state, this,
@@ -419,6 +425,7 @@ export class SimpleCmd extends AST
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: false
+            whiteFlag: Op.WhiteFlag.ignore
         when '≢' # Not Same ( x y -- ? )
           # Note: No scalar extension
           Op.op state, this,
@@ -427,6 +434,7 @@ export class SimpleCmd extends AST
             zero: -1
             extension: Op.merge (a, b) -> a & b
             scalarExtend: false
+            whiteFlag: Op.WhiteFlag.ignore
         when '⌈' # Max
           # With prime, pops a function and uses it instead of
           # default less-than.
