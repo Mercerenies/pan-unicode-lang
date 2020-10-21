@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Pancode Language - Docs</title>
+    <script src="js/main.js" type="module"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body style="width: 50%; margin: auto">
+    <h1>Pancode - Commands - List Operations</h1>
+    <p>
+      These are various commands which operate on lists. Note that
+      some of the <a href="docs_strings.html">string commands</a> also
+      work on lists.
+    </p>
+    <p>
+      Many of these commands extend their arity in a natural way when
+      provided a <a href="docs_concepts.html#numerical-modifier">numerical modifier</a>.
+    </p>
+    <p>
+      (TODO This page is a stub)
+    </p>
+    <h2>Array End (<code>}</code>)</h2>
+    <p>
+      Pops values from the stack until the <code>{</code> array start
+      sentinel is reached, then places all of the popped values into a
+      single list, returning the list.
+    </p>
+    <h2>Fold (<code>/</code>)</h2>
+    <p>
+      Takes a list and a function. If the list is empty, then this
+      command pushes ⚐ to the stack and calls the function once. If
+      the list has one element, then that argument is returned. If the
+      list has multiple arguments, then the arguments are folded
+      together using the provided function, which should take two
+      arguments.
+    </p>
+    <p>
+      If you're using a built-in command as your reduction function
+      (e.g. if you're summing a list with <code>`+/</code>), then the
+      case of the empty list involving ⚐ will simply work without any
+      intervention. If you have a custom function and you'd like to
+      handle the empty list case explicitly, the easiest way to do so
+      is with the <a href="docs_miscellaneous.html#white-flag-constructor">White
+      Flag Constructor (<code>⚑</code>)</a> command.
+    </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">{1 2 3 4} `+/ « Result: 10 »</code></pre>
+    <h2>Scan (<code>\</code>)</h2>
+    <p>
+      Takes a list and a function. Folds the list, similar to <code>/</code>,
+      accumulating each intermediate value along the way. The
+      resulting list of accumulated values shall have the same length
+      as the original list. Note that, if given a list of length zero
+      or one, this function simply returns that list unmodified.
+    </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">{1 2 3 4} `+\ « Result: {1 3 6 10} »</code></pre>
+    <h2>Filter (<code>⌿</code>)</h2>
+    <p>
+      Takes a list and a mask. The mask can either be a function, a
+      number, or a list of masks. In the first two cases, the mask is
+      repeated into a list of the appropriate length (similar to the
+      scalar extension rules). The length of the mask list must equal
+      that of the input list. At each position of the input list, the
+      corresponding position of the mask list is consulted. If it's a
+      number, it's treated as the constant function returning that
+      number. If it's a function, it's called with the input list
+      element as argument. The absolute value of the result specifies
+      how many times to repeat the value in the resulting list.
+    </p>
+    <p>
+      With a numerical modifier, the Filter command will nest as deep
+      as the given numerical modifier, so with a modifier of 2, it
+      will nest two list layers deep. A numerical modifier of 20 is
+      treated as infinity.
+    </p>
+    <p>Examples:</p>
+    <pre><code class="pancode-snippet">« With a function argument, Filter behaves like the filter function in functional programming languages »
+{1 2 3 4 5} [2 | 0 ≡] ⌿ « Result: {2 4} »
+« With a list argument, Filter repeats its inputs as specified. »
+{1 2 3 4 5} {2 0 3 3 0} ⌿ « Result: {1 1 3 3 3 4 4 4} »</code></pre>
+    <h2>Map (<code>¨</code>)</h2>
+    <p>
+      Takes a list and a function. Applies the function to each
+      element of the list, producing a resulting list.
+    </p>
+    <p>
+      Takes two numerical modifiers. The first numerical modifier
+      specifies the number of lists. If given more than one list, the
+      Map command zips the lists (which must have the same length)
+      together, applying the function to each corresponding tuple of
+      arguments from the respective lists. The second numerical
+      modifier specifies the depth of the mapping operation, in a
+      similar way to Filter's numerical modifier. If the second
+      numerical modifier is 20, it's treated as infinity.
+    </p>
+    <p>
+      Examples:
+    </p>
+    <pre><code class="pancode-snippet">{1 2 3 4} [1+] ¨ « Result: {2 3 4 5} »
+{1 2 3 4} {10 20 30 40} `+ ¨② « Result: {11 22 33 44} »
+{{1 2} {3 4}} [1+] ¨①② « Result: {{2 3} {4 5}} »</code></pre>
+    <h2>Each (<code>ė</code>)</h2>
+    <p>
+      Behaves exactly like Map (<code>¨</code>), except that Each
+      doesn't expect a result from the function it calls and will not
+      accumulate a result list. Each takes the same numerical
+      modifiers as Map.
+    </p>
+    <h2>Nested Query (<code>n</code>)</h2>
+    <p>
+      Takes a list or string and an index. The index should either be
+      a number (in which case it's treated as a singleton list) or a
+      list. The index is traversed in order, taking the nth element of
+      the list or string at each step.
+    </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">{{1 2} {3 4}} {1 0} n « Result: 3 »</code></pre>
+    <h2>Select (<code>⊇</code>)</h2>
+    <p>
+      Takes a list or string and an index. The index can either be a
+      number or a list. If it's a number, it's treated as a singleton
+      list. A new list or string (matching the type of the input) is
+      formed, taking the element at each index of the provided index
+      list. Invalid indices are ignored.
+    </p>
+    <p>
+      Examples:
+    </p>
+    <pre><code class="pancode-snippet">{100 200 300} {0 2 1} ⊇ « Result: {100 300 200} »
+"ABCDEF" {3 5 5 3} ⊇ « Result: "DFFD" »</code></pre>
+    <h2>Grade Up (<code>⍋</code>)</h2>
+    <p>
+      Takes a list and sorts it, according to the natural ordering of
+      its elements. The sort is guaranteed to be stable.
+    </p>
+    <p>
+      With a <a href="docs_concepts.html#prime-modifier">prime
+      modifier</a>, this command also takes a function, which is used
+      for comparison instead of the standard <code><</code>.
+    </p>
+    <h2>Ravel / Flatten (<code>⍪</code>)</h2>
+    <p>
+      Flattens nested lists. By default, this command takes a list and
+      flattens one layer of nesting. Given a numerical modifier, this
+      command flattens that many layers of nesting. A numerical
+      modifier of 20 is treated as infinity.
+    </p>
+    <h2>Outer Product (<code>⊗</code>)</h2>
+    <p>
+      Takes two lists and a function. Applies the function to every
+      possible pair of elements from the two lists.
+    </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">{"a" "b"} {"A" "B" "C"} `⋄ ⊗ « Result: {{"aA" "aB" "aC"} {"bA" "bB" "bC"}} »</code></pre>
+    <p>
+      If given a numerical modifier, this command pops that many lists
+      and applies the function to n-tuples.
+    </p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">{"a" "b"} {"A" "B"} {"x" "y"} [⋄⋄] ⊗③ « Result: {{{"aAx" "aAy"} {"aBx" "aBy"}} {{"bAx" "bAy"} {"bBx" "bBy"}}} »</code></pre>
+    <h2>Prepend / Append (<code>∷</code>)</h2>
+    <p>
+      Takes a value and a list and prepends the value to the list.
+      With a numerical modifier N, takes N values and prepends them
+      all to the list. If given a prime modifier, the values are
+      appended to the list instead.
+    </p>
+    <h2>Member (<code>∈</code>)</h2>
+    <p>
+      Takes a list and an element. Returns a list of all of the
+      indices at which the element is found in the list. With a prime
+      modifier, this command instead takes a list and a function and
+      returns all of the elements for which the function returns
+      truthy.
+    </p>
+    <h2>Length (<code>#</code>)</h2>
+    <p>
+      Returns the length of its list argument. If given a numerical
+      modifier, it will count elements of nested lists (up to the
+      given depth) as well. A numerical modifier of 20 is treated as
+      infinity.
+    </p>
+    <h2>Empty (<code>🗋</code>)</h2>
+    <p>
+      ...
+    </p>
+    <h2>List Constructor (<code>ℓ</code>)</h2>
+    <p>
+      ...
+    </p>
+    <h2>Take (Left) (<code>◁</code>)</h2>
+    <p>
+      ...
+    </p>
+    <h2>Take (Right) (<code>▷</code>)</h2>
+    <p>
+      ...
+    </p>
+    <h2>Drop (Left) (<code>⧏</code>)</h2>
+    <p>
+      ...
+    </p>
+    <h2>Drop (Right) (<code>⧐</code>)</h2>
+    <p>
+      ...
+    </p>
+    <h2>Take While (Left) (<code>◂</code>)</h2>
+    <p>
+      ...
+    </p>
+    <h2>Take While (Right) (<code>▸</code>)</h2>
+    <p>
+      ...
+    </p>
+    <h2>Drop While (Left) (<code>◄</code>)</h2>
+    <p>
+      ...
+    </p>
+    <h2>Drop While (Right) (<code>►</code>)</h2>
+    <p>
+      ...
+    </p>
+    <h2>Reverse (<code>ɹ</code>)</h2>
+    <p>
+      ...
+    </p>
+    <h2>Reshape (<code>⍴</code>)</h2>
+    <p>
+      ...
+    </p>
+    <h2>First (<code>⁰</code>)</h2>
+    <p>
+      Takes a list and returns its first element.
+    </p>
+    <h2>Second (<code>¹</code>)</h2>
+    <p>
+      Takes a list and returns its second element.
+    </p>
+    <h2>Third (<code>²</code>)</h2>
+    <p>
+      Takes a list and returns its third element.
+    </p>
+    <h2>Fourth (<code>³</code>)</h2>
+    <p>
+      Takes a list and returns its fourth element.
+    </p>
+    <h2>Fifth (<code>⁴</code>)</h2>
+    <p>
+      Takes a list and returns its fifth element.
+    </p>
+    <h2>Sixth (<code>⁵</code>)</h2>
+    <p>
+      Takes a list and returns its sixth element.
+    </p>
+    <h2>Seventh (<code>⁶</code>)</h2>
+    <p>
+      Takes a list and returns its seventh element.
+    </p>
+    <h2>Eighth (<code>⁷</code>)</h2>
+    <p>
+      Takes a list and returns its eighth element.
+    </p>
+    <h2>Ninth (<code>⁸</code>)</h2>
+    <p>
+      Takes a list and returns its ninth element.
+    </p>
+    <h2>Tenth (<code>⁹</code>)</h2>
+    <p>
+      Takes a list and returns its tenth element.
+    </p>
+    <h2>Last (<code>₁</code>)</h2>
+    <p>
+      Takes a list and returns its last element.
+    </p>
+    <h2>Second Last (<code>₂</code>)</h2>
+    <p>
+      Takes a list and returns its second-last element.
+    </p>
+    <h2>Third Last (<code>₃</code>)</h2>
+    <p>
+      Takes a list and returns its third–last element.
+    </p>
+    <h2>Fourth Last (<code>₄</code>)</h2>
+    <p>
+      Takes a list and returns its fourth–last element.
+    </p>
+    <h2>Fifth Last (<code>₅</code>)</h2>
+    <p>
+      Takes a list and returns its fifth–last element.
+    </p>
+    <h2>Sixth Last (<code>₆</code>)</h2>
+    <p>
+      Takes a list and returns its sixth–last element.
+    </p>
+    <h2>Seventh Last (<code>₇</code>)</h2>
+    <p>
+      Takes a list and returns its seventh–last element.
+    </p>
+    <h2>Eighth Last (<code>₈</code>)</h2>
+    <p>
+      Takes a list and returns its eighth–last element.
+    </p>
+    <h2>Ninth Last (<code>₉</code>)</h2>
+    <p>
+      Takes a list and returns its ninth–last element.
+    </p>
+    <div>
+      <a href="docs.html">Documentation Index</a>
+    </div>
+  </body>
+</html>
