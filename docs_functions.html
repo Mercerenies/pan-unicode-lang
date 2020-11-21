@@ -10,32 +10,66 @@
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Commands - Higher Order Functions</h1>
     <p>
-      (TODO This page is a stub)
+      The following commands deal with the construction of functions
+      of particular types from existing functions. Almost all of these
+      commands either take a function as an argument or return one.
+    </p>
+    <p>
+      As a general note, the printed representations of functions
+      produced by these commands may look more complicated than the
+      actual behavior the functions provide. There are internal
+      optimizations taking place which allow the produced functions to
+      store relevant information faster than the equivalent
+      handwritten code but which complicate the printed
+      representation somewhat.
     </p>
     <h2>Identity Function (<code>ī</code>)</h2>
     <p>
-      ...
+      Pushes a function to the stack which, when called, does nothing.
+      This is equivalent to <code>[]</code>.
     </p>
     <h2>Constant Function (<code>c</code>)</h2>
     <p>
-      ...
+      Takes a single value and returns a function which, whenever
+      called, returns that value. If this command is given
+      a <a href="docs_concepts.html#numerical-modifier">numerical
+      modifier</a> N, the resulting function will first pop N elements
+      from the stack before returning its constant result.
     </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">10 c « Pushes a function equivalent to [10] »
+10 c① « Pushes a function equivalent to [% 10] »</code></pre>
     <h2>Curry (<code>●</code>)</h2>
     <p>
-      ...
+      Pops two arguments. The first can be any value and the second
+      must be a function. This command returns a function which, when
+      executed, pushes the first value onto the stack and then calls
+      the function.
     </p>
+    <p>
+      If given
+      a <a href="docs_concepts.html#numerical-modifier">numerical
+      modifier</a> N, that numerical modifier specifies how many
+      values to pop (excluding the function itself). All popped values
+      will be pushed onto the stack each time the function is called.
+    </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">10 [+] ● « Pushes a function equivalent to [10 +] »</code></pre>
     <h2>Compose (<code>○</code>)</h2>
     <p>
-      ...
+      Takes two functions and returns a new function which calls the
+      first function and then calls the second. Subject
+      to <a href="docs_concepts.html#binary-extension">binary
+      extension</a>.
     </p>
-    <h2>Accumulate (<code>⍸</code>)</h2>
     <p>
-      ...
+      Example:
     </p>
-    <h2>Call (<code>$</code>)</h2>
-    <p>
-      ...
-    </p>
+    <pre><code class="pancode-snippet">[5 +] [2 ×] ○ « Pushes a function equivalent to [5 + 2 ×] »</code></pre>
     <div>
       <a href="docs.html">Documentation Index</a>
     </div>
