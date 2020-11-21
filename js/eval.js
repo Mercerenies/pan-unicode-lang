@@ -23,11 +23,10 @@ export var Evaluator = class Evaluator {
     } else if (arg instanceof AST.AST) {
       return arg.eval(this);
     } else {
-
+      throw `Error: Attempt to eval ${arg}, which is invalid!`;
     }
   }
 
-  // TODO Throw some kind of (non-caught) error here
   push(...vs) {
     var j, len, results, v;
     results = [];
