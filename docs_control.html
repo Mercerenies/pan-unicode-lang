@@ -14,27 +14,82 @@
     </p>
     <h2>If (<code>i</code>)</h2>
     <p>
-      ...
+      Takes three arguments. The first argument can be any value, but
+      the latter two must be functions. If the first argument is
+      truthy, then the second argument is called. Otherwise, the third
+      argument is called.
     </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">1 [ "true" ] [ "false" ] i « Result: "true" »
+0 [ "true" ] [ "false" ] i « Result: "false" »</code></pre>
     <h2>While (<code>w</code>)</h2>
     <p>
-      ...
+      Takes two arguments, both of which must be functions. First,
+      this command calls the first function (the condition). If the
+      first function returns truthy, then this command pops the truthy
+      value and then calls the second function and then repeats the
+      process. If the first function returns falsy at any point, this
+      command stops running, pops the falsy value, and returns
+      immediately.
     </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">« The following prints the numbers from 0 to 9 »
+0 [ : 10 < ] [ : . 1 + ] w</code></pre>
     <h2>Abbreviated While (<code>W</code>)</h2>
     <p>
-      ...
+      Similar to While, but the condition and body are combined into
+      one function. Specifically, Abbreviated While takes one
+      argument, which must be a function. That function is called. If
+      it returns a truthy value, then that value is popped and the
+      process repeats. If the function returns a falsy value, then
+      that value is popped and this command returns.
     </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">« The following prints the numbers from 0 to 9 »
+0 [ : . 1 + : 10 < ] W</code></pre>
     <h2>Repeat (<code>⍳</code>)</h2>
     <p>
-      ...
+      Takes two arguments: a number and a function. The function is
+      called N times, where N is the provided number. The function
+      will be called with arguments from 0 to N-1, inclusive.
     </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">« The following prints the numbers from 0 to 9 »
+10 `. ⍳</code></pre>
+    <p>
+      Note that if you wish to construct a list indexed by the first N
+      natural numbers, it is simple to do so using Repeat by wrapping
+      it in curly braces. For example
+    </p>
+    <pre><code class="pancode-snippet">{10ī⍳} « Result: {0 1 2 3 4 5 6 7 8 9} »</code></pre>
     <h2>Accumulate (<code>⍸</code>)</h2>
     <p>
-      ...
+      Takes three arguments: an initial value, a number, and a
+      function. Similar to Repeat, the function will be called N
+      times, where N is the provided number. When the function is
+      called, it will be given two values: the accumulator and the
+      index. The index acts the same as in Repeat (i.e. it will be the
+      numbers from 0 to N-1, inclusive). The accumulator starts off as
+      the initial value and will be set at each iteration to the
+      return value of the last iteration. A list of all of the
+      accumulators (including the initial value) is returned.
     </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">« The first 7 factorials »
+1 6 [1+×] ⍸</code></pre>
     <h2>Call (<code>$</code>)</h2>
     <p>
-      ...
+      Pops a single value, which must be a function, and calls it once.
     </p>
     <div>
       <a href="docs.html">Documentation Index</a>
