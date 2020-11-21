@@ -18,9 +18,6 @@
       Many of these commands extend their arity in a natural way when
       provided a <a href="docs_concepts.html#numerical-modifier">numerical modifier</a>.
     </p>
-    <p>
-      (TODO This page is a stub)
-    </p>
     <h2>Array End (<code>}</code>)</h2>
     <p>
       Pops values from the stack until the <code>{</code> array start
@@ -194,52 +191,130 @@
     </p>
     <h2>Empty (<code>🗋</code>)</h2>
     <p>
-      ...
+      Returns whether or not its list argument is an empty list. If
+      given a prime modifier, this command flattens the list
+      completely before checking whether or not its empty. The
+      following demonstrates the difference between the two variants.
     </p>
+    <pre><code class="pancode-snippet">{{} {{}}} 🗋  « Result:  0 (List is not empty) »
+{{} {{}}} 🗋′ « Result: -1 (After flattening, list is empty) »</code></pre>
     <h2>List Constructor (<code>ℓ</code>)</h2>
     <p>
-      ...
+      By default, this command takes a single argument and wraps it in
+      a list. If given a numerical modifier N, this command pops N
+      values off the stack and places them into a list, starting with
+      the bottommost value.
     </p>
     <h2>Take (Left) (<code>◁</code>)</h2>
     <p>
-      ...
+      Takes two arguments: a list and a number. Returns the first N
+      elements of the list, where N is the absolute value of the
+      provided number. If the list is shorter than N, then the
+      original list is returned.
     </p>
     <h2>Take (Right) (<code>▷</code>)</h2>
     <p>
-      ...
+      Takes two arguments: a list and a number. Returns the last N
+      elements of the list, where N is the absolute value of the
+      provided number. If the list is shorter than N, then the
+      original list is returned.
     </p>
     <h2>Drop (Left) (<code>⧏</code>)</h2>
     <p>
-      ...
+      Takes two arguments: a list and a number. Returns the list, with
+      the first N elements removed, where N is the absolute value of
+      the provided number. If the list is shorter than N, then the
+      empty list is returned.
     </p>
     <h2>Drop (Right) (<code>⧐</code>)</h2>
     <p>
-      ...
+      Takes two arguments: a list and a number. Returns the list, with
+      the last N elements removed, where N is the absolute value of
+      the provided number. If the list is shorter than N, then the
+      empty list is returned.
     </p>
     <h2>Take While (Left) (<code>◂</code>)</h2>
     <p>
-      ...
+      Takes two arguments: a list and a unary function. Calls the
+      function for each element of the list, starting at the front,
+      until a falsy value is returned. Then the longest prefix of the
+      list for which the function returned true is returned.
     </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">{1 2 3 2 1} [3 <] ◂ « Result: {1 2} »</code></pre>
     <h2>Take While (Right) (<code>▸</code>)</h2>
     <p>
-      ...
+      Takes two arguments: a list and a unary function. Calls the
+      function for each element of the list, starting at the back,
+      until a falsy value is returned. Then the longest suffix of the
+      list for which the function returned true is returned.
     </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">{1 2 3 2 1} [3 <] ▸ « Result: {2 1} »</code></pre>
     <h2>Drop While (Left) (<code>◄</code>)</h2>
     <p>
-      ...
+      Takes two arguments: a list and a unary function. Calls the
+      function for each element of the list, starting at the front,
+      until a falsy value is returned. Then the rest of the list,
+      omitting the prefix for which the function returned true, is
+      returned.
     </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">{1 2 3 2 1} [3 <] ◄ « Result: {3 2 1} »</code></pre>
     <h2>Drop While (Right) (<code>►</code>)</h2>
     <p>
-      ...
+      Takes two arguments: a list and a unary function. Calls the
+      function for each element of the list, starting at the back,
+      until a falsy value is returned. Then the rest of the list,
+      omitting the suffix for which the function returned true, is
+      returned.
     </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">{1 2 3 2 1} [3 <] ► « Result: {1 2 3} »</code></pre>
     <h2>Reverse (<code>ɹ</code>)</h2>
     <p>
-      ...
+      Takes a single argument, which must be either a string or a
+      list, and returns the argument with its characters or elements, respectively, reversed.
     </p>
     <h2>Reshape (<code>⍴</code>)</h2>
     <p>
-      ...
+      Takes two arguments: a list and a shape. The shape should either
+      be a list or a number. If the shape is a number, it is treated
+      as a single-element list. First, this command flattens the list
+      completely. Then a new list is constructed, where each element
+      of the shape specifies the length of respective sublists. For
+      instance, if the shape is <code>{2 3}</code>, then the resulting
+      list will have two elements, and each of those elements will be
+      a list containing three elements.
     </p>
+    <p>
+      The actual elements of the resulting list are drawn from the
+      original argument list, starting at the beginning. If there are
+      too many elements, the later elements of the argument are
+      ignored. If there are too few elements, the elements are
+      repeated cyclically as needed, starting back at the beginning.
+      It is an error to pass an empty list as the first argument to
+      this command.
+    </p>
+    <p>
+      If given a numerical modifier, that modifier specifies the depth
+      by which to flatten the list before reshaping, using the same
+      rules as the Ravel command. Note that the default numerical
+      modifier to Reshape is 20, which is treated as infinity.
+    </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">{1 2 3 4} {2 2} ⍴ « Result: {{1 2} {3 4}} »
+{1 2 3} {2 2} ⍴ « Result: {{1 2} {3 1}} »</code></pre>
     <h2>First (<code>⁰</code>)</h2>
     <p>
       Takes a list and returns its first element.
