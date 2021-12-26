@@ -16,7 +16,7 @@ export class Evaluator
     else if arg instanceof AST.AST
       arg.eval this
     else
-      # TODO Throw some kind of (non-caught) error here
+      throw "Error: Attempt to eval #{arg}, which is invalid!"
 
   push: (vs...) ->
     for v in vs

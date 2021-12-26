@@ -78,11 +78,14 @@
 {} `+ [ "Empty list!" ] ⚑ / « Result: "Empty list!" »</code></pre>
     <h2>Box (<code>⊂</code>)</h2>
     <p>
-      ...
+      Takes a single value and returns
+      a <a href="docs_types.html#boxes">box</a> containing that value.
     </p>
     <h2>Unbox (<code>⊃</code>)</h2>
     <p>
-      ...
+      Pops a single value off the stack. If that value is
+      a <a href="docs_types.html#boxes">box</a>, then its contents are
+      returned. Otherwise, the value itself is returned.
     </p>
     <div>
       <a href="docs.html">Documentation Index</a>

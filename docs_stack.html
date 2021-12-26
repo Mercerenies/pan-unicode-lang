@@ -10,31 +10,115 @@
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Commands - Stack Combinators</h1>
     <p>
-      (TODO This page is a stub)
+      The following commands perform higher-order operations on the
+      stack than the more primitive <a href="docs_shuffle.html">Stack
+      Shuffling</a> commands and should generally be preferred for
+      most nontrivial computations. Many of these commands take
+      a <a href="docs_concepts.html#numerical-modifier">numerical
+      modifier</a> to specify how deep within the stack to
+      operate.
     </p>
     <h2>Dip (<code>D</code>)</h2>
     <p>
-      ...
+      Pops two arguments: a value and a function. Then calls the
+      function, then pushes the value back onto the top of the stack,
+      effectively preserving the top element of the stack. If given a
+      numerical modifier, the modifier specifies how many values to
+      preserve.
     </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">1 2 3 4 [100 ×] D « Result: 1 2 300 4 »
+1 2 3 4 [100 ×] D② « Result: 1 200 3 4 »</code></pre>
     <h2>Keep (<code>K</code>)</h2>
     <p>
-      ...
+      Pops one function from the stack and peeks at the next value on
+      the stack. Then this command calls the function, then it pushes
+      the value it peeked back on top of the stack, effectively
+      preserving the top element of the stack while still allowing the
+      function to consume it. If given a numerical modifier, the
+      modifier specifies how many values to preserve.
     </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">10 20 [+] K② « Result: 30 10 20 »</code></pre>
     <h2>Spread (<code>⇉</code>)</h2>
     <p>
-      ...
+      By default, Spread pops four arguments off the stack: two
+      arguments and two functions. Then it calls the first function
+      with the first argument and the second function with the second
+      argument, effectively zipping together the arguments and the
+      functions provided.
     </p>
+    <p>
+      Spread can be provided two numerical modifiers: A and F, where A
+      defaults to 1 and F defaults to 2. The modifier A specifies the
+      number of arguments each function will be given, and the
+      modifier F specifies how many functions will be provided.
+    </p>
+    <p>
+      In the following examples,
+      assume <code>a</code>, <code>b</code>, <code>c</code>,
+      and <code>d</code> are arbitrary values
+      and <code>f</code>, <code>g</code>, and <code>h</code> are
+      arbitrary functions.
+    </p>
+    <pre><code class="pancode-snippet">a b f g ⇉ « Calls f(a) then g(b) »
+a b f g ⇉①② « Calls f(a) then g(b) »
+a b c f g h ⇉①③ « Calls f(a) then g(b) then h(c) »
+a b c d f g ⇉②② « Calls f(a, b) then g(c, d) »</code></pre>
     <h2>Cross (<code>⤨</code>)</h2>
     <p>
-      ...
+      Cross is a very general command, which can be manipulated by its
+      three numerical modifiers.
+    </p>
+    <p>
+      By default, Cross pops four arguments off the stack: two
+      values <code>a</code> and <code>b</code> and two
+      functions <code>f</code> and <code>g</code>. Then it will call,
+      in
+      order, <code>f(a)</code>, <code>f(b)</code>, <code>g(a)</code>,
+      then <code>g(b)</code>.
+    </p>
+    <p>
+      Many aspects of this command can be specialized. Cross takes
+      three numerical modifiers. The first, A, defaults to 1; the
+      second, B, defaults to 2, and the third, F, defaults to 2. A
+      denotes the number of arguments to pass to each call, B denotes
+      the number of groups of arguments (where each group has size A),
+      and F denotes the number of functions.
+    </p>
+    <p>
+      This is best demonstrated with several examples. In what
+      follows, assume <code>a</code>, <code>b</code>, <code>c</code>,
+      and <code>d</code> are arbitrary values
+      and <code>f</code>, <code>g</code>, and <code>h</code> are
+      arbitrary functions.
+    </p>
+    <pre><code class="pancode-snippet">a b f g ⤨ « Calls f(a), f(b), g(a), g(b) »
+a b f g ⤨①②② « Calls f(a), f(b), g(a), g(b) »
+a b c f ⤨①③① « Calls f(a), f(b), g(c) »
+a b c d f ⤨②②① « Calls f(a, b), f(c, d) »
+a f g h ⤨①①③ « Calls f(a), g(a), h(a) »</code></pre>
+    <p>
+      Cross is one of the most complex commands available in Pancode.
+      As such, two specialized forms of the command are available:
+      Apply and Cleave. Consider using one of these simpler commands
+      in preference to Cross if it suits your needs equally well.
     </p>
     <h2>Apply (<code>↘</code>)</h2>
     <p>
-      ...
+      Apply is Cross but with the third numerical modifier (F) set to
+      1 automatically. Apply takes two numerical modifiers, A and B,
+      and behaves otherwise identically to Cross.
     </p>
     <h2>Cleave (<code>↗</code>)</h2>
     <p>
-      ...
+      Cleave is Cross but with the second numerical modifier (B) set
+      to 1 automatically. Cleave takes two numerical modifiers, A and
+      F, and behaves otherwise identically to Cross.
     </p>
     <div>
       <a href="docs.html">Documentation Index</a>

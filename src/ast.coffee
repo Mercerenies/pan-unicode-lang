@@ -438,27 +438,25 @@ export class SimpleCmd extends AST
         when '⌈' # Max
           # With prime, pops a function and uses it instead of
           # default less-than.
-          #
-          # TODO: Negative infinity default if mod is zero or white flag
           func = if this.getPrimeMod() > 0
             customLT(state, state.pop())
           else
             defaultLT
           Op.op state, this,
             function: (a, b) -> if func(b, a) then a else b
+            zero: -Infinity
             extension: Op.binary
             scalarExtend: true
         when '⌊' # Min
           # With prime, pops a function and uses it instead of
           # default less-than.
-          #
-          # TODO: Negative infinity default if mod is zero or white flag
           func = if this.getPrimeMod() > 0
             customLT(state, state.pop())
           else
             defaultLT
           Op.op state, this,
             function: (a, b) -> if func(a, b) then a else b
+            zero: Infinity
             extension: Op.binary
             scalarExtend: true
         ### METAPROGRAMMING ###

@@ -667,8 +667,6 @@ export var SimpleCmd = class SimpleCmd extends AST {
         case '⌈': // Max
           // With prime, pops a function and uses it instead of
           // default less-than.
-
-          // TODO: Negative infinity default if mod is zero or white flag
           func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT;
           return Op.op(state, this, {
             function: function(a, b) {
@@ -678,14 +676,13 @@ export var SimpleCmd = class SimpleCmd extends AST {
                 return b;
               }
             },
+            zero: -2e308,
             extension: Op.binary,
             scalarExtend: true
           });
         case '⌊': // Min
           // With prime, pops a function and uses it instead of
           // default less-than.
-
-          // TODO: Negative infinity default if mod is zero or white flag
           func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT;
           return Op.op(state, this, {
             function: function(a, b) {
@@ -695,6 +692,7 @@ export var SimpleCmd = class SimpleCmd extends AST {
                 return b;
               }
             },
+            zero: 2e308,
             extension: Op.binary,
             scalarExtend: true
           });
