@@ -287,7 +287,7 @@ export var SimpleCmd = class SimpleCmd extends AST {
             preProcess: TypeCheck.isNumber,
             scalarExtend: true
           });
-        case '⩑':
+        case '⩑': // LCM ( x y -- z )
           return Op.op(state, this, {
             function: function(a, b) {
               return new NumberLit(lcm(a.value, b.value));

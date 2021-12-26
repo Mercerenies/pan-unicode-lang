@@ -20,11 +20,11 @@
     </p>
     <h2>Dip (<code>D</code>)</h2>
     <p>
-      Pops two arguments: a value and a function. Then calls the
-      function, then pushes the value back onto the top of the stack,
-      effectively preserving the top element of the stack. If given a
-      numerical modifier, the modifier specifies how many values to
-      preserve.
+      Pops two arguments: a value and a function. With the two
+      arguments popped, calls the function, then pushes the value back
+      onto the top of the stack, effectively preserving the top
+      element of the stack. If given a numerical modifier, the
+      modifier specifies how many values to preserve.
     </p>
     <p>
       Example:
@@ -99,7 +99,7 @@ a b c d f g ⇉②② « Calls f(a, b) then g(c, d) »</code></pre>
     </p>
     <pre><code class="pancode-snippet">a b f g ⤨ « Calls f(a), f(b), g(a), g(b) »
 a b f g ⤨①②② « Calls f(a), f(b), g(a), g(b) »
-a b c f ⤨①③① « Calls f(a), f(b), g(c) »
+a b c f ⤨①③① « Calls f(a), f(b), f(c) »
 a b c d f ⤨②②① « Calls f(a, b), f(c, d) »
 a f g h ⤨①①③ « Calls f(a), g(a), h(a) »</code></pre>
     <p>
