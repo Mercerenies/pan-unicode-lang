@@ -23,7 +23,8 @@
     <h2>Add (<code>+</code>)</h2>
     <p>
       Adds two numbers. Subject to scalar and binary extension. If
-      given a numerical modifier of 0, this command pushes <code>0</code>
+      given a numerical modifier of 0, this command pushes <code>0</code>.
+      If given ⚐ as its sole argument, this command pushes <code>0</code>.
     </p>
     <h2>Subtract (<code>-</code>)</h2>
     <p>
@@ -34,7 +35,8 @@
     <h2>Multiply (<code>×</code>)</h2>
     <p>
       Multiplies two numbers. Subject to scalar and binary extension.
-      With a numerical modifier of 0, pushes <code>1</code>
+      With a numerical modifier of 0, pushes <code>1</code>. If given
+      ⚐ as its sole argument, this command pushes <code>1</code>.
     </p>
     <h2>Divide (<code>÷</code>)</h2>
     <p>
@@ -51,7 +53,8 @@
     <p>
       Raises its first argument to the power of its second. Subject to
       scalar and binary extension (binary extension associates to the
-      right). If given a numerical modifier of 0, this command returns <code>1</code>
+      right). If given a numerical modifier of 0, this command returns <code>1</code>.
+      If given ⚐ as its sole argument, this command pushes <code>1</code>.
     </p>
     <h2>Exponent (<code>ê</code>)</h2>
     <p>
@@ -89,13 +92,13 @@
     <p>
       Takes two arguments and returns their least common multiple.
       Subject to scalar and binary extension. With a numerical
-      modifier of 0, returns 1.
+      modifier of 0 or a ⚐ argument, returns 1.
     </p>
     <h2>GCD (<code>⩒</code>)</h2>
     <p>
       Takes two arguments and returns their greatest common divisor.
       Subject to scalar and binary extension. With a numerical
-      modifier of 0, returns 0.
+      modifier of 0 or a ⚐ argument, returns 0.
     </p>
     <h2>Negate (<code>_</code>)</h2>
     <p>
@@ -132,7 +135,7 @@
       them. The two numbers are treated as being in two's complement
       form. The result is undefined if either number is not an
       integer. Subject to scalar and binary extension. Returns <code>-1</code> with
-      a numerical argument of 0.
+      a numerical argument of 0 or a ⚐ argument.
     </p>
     <h2>Bitwise Disjunction (<code>∨</code>)</h2>
     <p>
@@ -140,7 +143,7 @@
       them. The two numbers are treated as being in two's complement
       form. The result is undefined if either number is not an
       integer. Subject to scalar and binary extension. Returns <code>0</code> with
-      a numerical argument of 0.
+      a numerical argument of 0 or a ⚐ argument.
     </p>
     <h2>Bitwise Exclusive Or (<code>⊕</code>)</h2>
     <p>
@@ -148,7 +151,7 @@
       them. The two numbers are treated as being in two's complement
       form. The result is undefined if either number is not an
       integer. Subject to scalar and binary extension. Returns <code>0</code> with
-      a numerical argument of 0.
+      a numerical argument of 0 or a ⚐ argument.
     </p>
     <h2>Bitwise Negate (<code>¬</code>)</h2>
     <p>

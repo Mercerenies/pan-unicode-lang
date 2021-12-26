@@ -182,7 +182,7 @@ export class SimpleCmd extends AST
             function: (a, b) -> new NumberLit((a.value % b.value + b.value) % b.value) # "True" mod
             preProcess: TypeCheck.isNumber
             scalarExtend: true
-        when '⩑'
+        when '⩑' # LCM ( x y -- z )
           Op.op state, this,
             function: (a, b) -> new NumberLit(lcm(a.value, b.value))
             preProcess: TypeCheck.isNumber
