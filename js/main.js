@@ -24,6 +24,7 @@ import {
 
 import Str from './str.js';
 
+// Main entrypoint for the online interactive interpreter.
 DEBUG_MODE = false;
 
 inputManager = null;
