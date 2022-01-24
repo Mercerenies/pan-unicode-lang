@@ -942,8 +942,10 @@ Object.defineProperty ArrayLit.prototype, 'length',
 export tryCall = (fn, state) ->
   if fn instanceof AST
     state.pushCall(fn)
-    result = fn.call(state)
-    state.popCall(fn)
+    try
+      result = fn.call(state)
+    finally
+      state.popCall(fn)
     result
   else
     throw new Error.CallNonFunction(fn)

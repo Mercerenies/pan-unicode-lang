@@ -1352,8 +1352,11 @@ export var tryCall = function(fn, state) {
   var result;
   if (fn instanceof AST) {
     state.pushCall(fn);
-    result = fn.call(state);
-    state.popCall(fn);
+    try {
+      result = fn.call(state);
+    } finally {
+      state.popCall(fn);
+    }
     return result;
   } else {
     throw new Error.CallNonFunction(fn);
