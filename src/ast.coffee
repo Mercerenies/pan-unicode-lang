@@ -90,8 +90,6 @@ export class SimpleCmd extends AST
             state.push(new StringLit(result))
           else
             state.push(SentinelValue.null)
-        when '😱' # Panic and throw error ( err -- )
-          throw new Error.UserError(state.pop())
         ### STACK SHUFFLING ###
         when ':' # Duplicate ( x -- x x )
                  # (Numerical modifier determines number of things to duplicate)
@@ -728,6 +726,21 @@ export class SimpleCmd extends AST
         when '$' # Call ( ..a ( ..a -- ..b ) -- ..b )
           fn = state.pop()
           tryCall(fn, state)
+        when '😱' # Panic and throw error ( err -- )
+          throw new Error.UserError(state.pop())
+        when '🙏' # Catch errors ( ..a ( ..a -- ..b) ( ..a err -- ..b ) -- ..b )
+          [tryBlock, recoverBlock] = state.pop(2)
+          savedStack = state.saveStack()
+          try
+            # TODO Don't piggyback on JS error handling; implement it in our VM
+            tryCall(tryBlock, state)
+          catch exc
+            if exc instanceof Error.Error
+              state.loadStack(savedStack)
+              state.push new StringLit(Str.fromString(exc.toString())) # TODO Store the exception in the string so if we re-throw it, we get the original exception back
+              tryCall(recoverBlock, state)
+            else
+              throw exc
         ### HIGHER ORDER FUNCTIONS ###
         when 'ī' # Push identity function
           state.push(new FunctionLit([]))

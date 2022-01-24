@@ -89,3 +89,17 @@ export class Evaluator
 
   stackToString: () ->
     @stack.join " "
+
+  saveStack: () ->
+    new SavedStack(@stack.slice())
+
+  loadStack: (savedStack) ->
+    @stack = savedStack.stack
+
+# Wrapper around the value stack at a given point. Can only be passed
+# to/from Evaluator. The constructor should be treated as private and
+# local to this module.
+export class SavedStack
+
+  constructor: (stack) ->
+    @stack = stack

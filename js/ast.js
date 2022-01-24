@@ -104,7 +104,7 @@ export var SimpleCmd = class SimpleCmd extends AST {
   }
 
   eval(state) {
-    var acc, arg, arr, body, c, char, chomp, cond, curr, deffn, delim, dropCmd, dropper, elem, f, fn, frame, func, i, j, k, l, len, len1, len2, len3, lift, list, m, mod, n, newTerm, num, o, p, preserve, q, r, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, res, result, results, results1, results2, results3, s, store, t, value, x;
+    var acc, arg, arr, body, c, char, chomp, cond, curr, deffn, delim, dropCmd, dropper, elem, exc, f, fn, frame, func, i, j, k, l, len, len1, len2, len3, lift, list, m, mod, n, newTerm, num, o, p, preserve, q, r, recoverBlock, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, res, result, results, results1, results2, results3, s, savedStack, store, t, tryBlock, value, x;
     if (this.isNumberLit()) {
       return state.push(new NumberLit(this.token.text));
     } else if (this.isStringLit()) {
@@ -157,8 +157,6 @@ export var SimpleCmd = class SimpleCmd extends AST {
             return state.push(SentinelValue.null);
           }
           break;
-        case '😱': // Panic and throw error ( err -- )
-          throw new Error.UserError(state.pop());
         /* STACK SHUFFLING */
         case ':': // Duplicate ( x -- x x )
           // (Numerical modifier determines number of things to duplicate)
@@ -1036,6 +1034,25 @@ export var SimpleCmd = class SimpleCmd extends AST {
         case '$': // Call ( ..a ( ..a -- ..b ) -- ..b )
           fn = state.pop();
           return tryCall(fn, state);
+        case '😱': // Panic and throw error ( err -- )
+          throw new Error.UserError(state.pop());
+        case '🙏': // Catch errors ( ..a ( ..a -- ..b) ( ..a err -- ..b ) -- ..b )
+          [tryBlock, recoverBlock] = state.pop(2);
+          savedStack = state.saveStack();
+          try {
+            // TODO Don't piggyback on JS error handling; implement it in our VM
+            return tryCall(tryBlock, state);
+          } catch (error) {
+            exc = error;
+            if (exc instanceof Error.Error) {
+              state.loadStack(savedStack);
+              state.push(new StringLit(Str.fromString(exc.toString())));
+              return tryCall(recoverBlock, state);
+            } else {
+              throw exc;
+            }
+          }
+          break;
         /* HIGHER ORDER FUNCTIONS */
         case 'ī': // Push identity function
           return state.push(new FunctionLit([]));

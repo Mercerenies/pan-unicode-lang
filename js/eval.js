@@ -134,6 +134,24 @@ export var Evaluator = class Evaluator {
     return this.stack.join(" ");
   }
 
+  saveStack() {
+    return new SavedStack(this.stack.slice());
+  }
+
+  loadStack(savedStack) {
+    return this.stack = savedStack.stack;
+  }
+
+};
+
+// Wrapper around the value stack at a given point. Can only be passed
+// to/from Evaluator. The constructor should be treated as private and
+// local to this module.
+export var SavedStack = class SavedStack {
+  constructor(stack) {
+    this.stack = stack;
+  }
+
 };
 
 //# sourceMappingURL=eval.js.map
