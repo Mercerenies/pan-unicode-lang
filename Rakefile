@@ -5,7 +5,9 @@ task default: %w[compile run]
 
 task :compile do
   files = Dir.glob('src/*.coffee')
-  flags = $debug && ['--map']
+  flags = []
+  flags << '--bare'
+  flags << '--map' if $debug
   sh 'coffee', '--compile', '--output', 'js/', *flags, *files
 end
 
