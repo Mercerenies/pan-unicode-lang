@@ -20,6 +20,9 @@ export class AST
   call: (state) ->
     throw new Error.CallNonFunction(this)
 
+  toException: () ->
+    return new Error.UserError(this)
+
   getNumMod: (args...) ->
     args = [undefined] if args.length == 0
     result = []
@@ -727,7 +730,7 @@ export class SimpleCmd extends AST
           fn = state.pop()
           tryCall(fn, state)
         when '😱' # Panic and throw error ( err -- )
-          throw new Error.UserError(state.pop())
+          throw state.pop().toException()
         when '🙏' # Catch errors ( ..a ( ..a -- ..b) ( ..a err -- ..b ) -- ..b )
           [tryBlock, recoverBlock] = state.pop(2)
           savedStack = state.saveStack()
@@ -737,7 +740,7 @@ export class SimpleCmd extends AST
           catch exc
             if exc instanceof Error.Error
               state.loadStack(savedStack)
-              state.push new StringLit(Str.fromString(exc.toString())) # TODO Store the exception in the string so if we re-throw it, we get the original exception back
+              state.push StringLit.fromException(exc)
               tryCall(recoverBlock, state)
             else
               throw exc
@@ -828,19 +831,36 @@ export class ReadFromVar extends AST
   toString: () ->
     "←" + @target
 
+# StringLit actually encompasses a few things here. A string literal
+# consists of, obviously, a sequence of characters. Additionally, a
+# string literal can consist of a regex flag (Boolean) which specifies
+# that it is to be treated as a regex, not a literal string, when used
+# as an argument to search/replace functions. A string literal can
+# also contain an exception object from which it was constructed. If a
+# string literal is thrown and has an exception associated to it, then
+# that exception will be thrown. Otherwise, the string will be wrapped
+# in a new UserError exception.
 export class StringLit extends AST
 
   constructor: (@text) ->
     super()
     @text = Str.fromString(@text) if typeof(@text) == 'string'
     @regexp = false
+    @exception = null # TODO How does this fit in with equality? Are two strings with different exceptions equal?
 
   markAsRegexp: () ->
     @regexp = true
     this
 
+  markWithException: (exc) ->
+    @exception = exc
+    this
+
   isRegexp: () ->
     @regexp
+
+  hasException: () ->
+    @exception != null
 
   eval: (state) -> state.push(this)
 
@@ -852,6 +872,15 @@ export class StringLit extends AST
 
   toString: () ->
     escapeString(@text) + if this.isRegexp() then "r" else ""
+
+  toException: () ->
+    if @hasException()
+      @exception
+    else
+      super.toException()
+
+  @fromException: (exc) ->
+    new StringLit(Str.fromString(exc.toString())).markWithException(exc)
 
 export class NumberLit extends AST
 

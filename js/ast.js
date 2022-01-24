@@ -50,6 +50,10 @@ export var AST = class AST {
     throw new Error.CallNonFunction(this);
   }
 
+  toException() {
+    return new Error.UserError(this);
+  }
+
   getNumMod(...args) {
     var mod, ref, result;
     if (args.length === 0) {
@@ -1035,7 +1039,7 @@ export var SimpleCmd = class SimpleCmd extends AST {
           fn = state.pop();
           return tryCall(fn, state);
         case '😱': // Panic and throw error ( err -- )
-          throw new Error.UserError(state.pop());
+          throw state.pop().toException();
         case '🙏': // Catch errors ( ..a ( ..a -- ..b) ( ..a err -- ..b ) -- ..b )
           [tryBlock, recoverBlock] = state.pop(2);
           savedStack = state.saveStack();
@@ -1046,7 +1050,7 @@ export var SimpleCmd = class SimpleCmd extends AST {
             exc = error;
             if (exc instanceof Error.Error) {
               state.loadStack(savedStack);
-              state.push(new StringLit(Str.fromString(exc.toString())));
+              state.push(StringLit.fromException(exc));
               return tryCall(recoverBlock, state);
             } else {
               throw exc;
@@ -1168,6 +1172,15 @@ export var ReadFromVar = class ReadFromVar extends AST {
 
 };
 
+// StringLit actually encompasses a few things here. A string literal
+// consists of, obviously, a sequence of characters. Additionally, a
+// string literal can consist of a regex flag (Boolean) which specifies
+// that it is to be treated as a regex, not a literal string, when used
+// as an argument to search/replace functions. A string literal can
+// also contain an exception object from which it was constructed. If a
+// string literal is thrown and has an exception associated to it, then
+// that exception will be thrown. Otherwise, the string will be wrapped
+// in a new UserError exception.
 export var StringLit = class StringLit extends AST {
   constructor(text) {
     super();
@@ -1176,6 +1189,7 @@ export var StringLit = class StringLit extends AST {
       this.text = Str.fromString(this.text);
     }
     this.regexp = false;
+    this.exception = null; // TODO How does this fit in with equality? Are two strings with different exceptions equal?
   }
 
   markAsRegexp() {
@@ -1183,8 +1197,17 @@ export var StringLit = class StringLit extends AST {
     return this;
   }
 
+  markWithException(exc) {
+    this.exception = exc;
+    return this;
+  }
+
   isRegexp() {
     return this.regexp;
+  }
+
+  hasException() {
+    return this.exception !== null;
   }
 
   eval(state) {
@@ -1201,6 +1224,18 @@ export var StringLit = class StringLit extends AST {
 
   toString() {
     return escapeString(this.text) + (this.isRegexp() ? "r" : "");
+  }
+
+  toException() {
+    if (this.hasException()) {
+      return this.exception;
+    } else {
+      return super.toException();
+    }
+  }
+
+  static fromException(exc) {
+    return new StringLit(Str.fromString(exc.toString())).markWithException(exc);
   }
 
 };
