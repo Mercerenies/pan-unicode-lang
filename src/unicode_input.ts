@@ -1,12 +1,13 @@
 
 import { spliceStr } from './util.js';
 
+
 export class InputManager {
   private element: HTMLElement | null;
-  private handler: ((event: any) => void) | null;
-  private downHandler: ((event: any) => void) | null;
-  private translations: any;
-  private currentTranslation: any;
+  private handler: ((this: HTMLElement, event: Event) => void) | null;
+  private downHandler: ((this: HTMLElement, event: KeyboardEvent) => void) | null;
+  private readonly translations: CompiledTable;
+  private currentTranslation: CompiledTable | null;
   private currentString: string;
   private currentPosition: number;
 
@@ -20,115 +21,124 @@ export class InputManager {
     this.currentPosition = 0;
   }
 
-  register(element) {
+  register(element: HTMLElement): void {
     if (this.element != null) {
       this.unregister();
     }
     this.element = element;
-    this.handler = (event) => {
-      return this.onInput(event);
+    this.handler = (event: Event) => {
+      return this.onInput(event as InputEvent);
     };
-    this.downHandler = (event) => {
+    this.downHandler = (event: KeyboardEvent) => {
       return this.onKeyDown(event);
     };
     element.addEventListener('input', this.handler);
     element.addEventListener('keypress', this.downHandler);
-    return element.addEventListener('keydown', this.downHandler);
+    element.addEventListener('keydown', this.downHandler);
   }
 
-  unregister() {
+  unregister(): void {
     if (this.element != null) {
-      this.element.removeEventListener('input', this.handler as ((event: any) => void));
-      this.element.removeEventListener('keypress', this.downHandler as ((event: any) => void));
-      this.element.removeEventListener('keydown', this.downHandler as ((event: any) => void));
+      this.element.removeEventListener('input', this.handler as ((this: HTMLElement, event: Event) => void));
+      this.element.removeEventListener('keypress', this.downHandler as ((this: HTMLElement, event: KeyboardEvent) => void));
+      this.element.removeEventListener('keydown', this.downHandler as ((this: HTMLElement, event: KeyboardEvent) => void));
       this.element = null;
       this.handler = null;
-      return this.downHandler = null;
+      this.downHandler = null;
     }
   }
 
-  onKeyDown(event) {
+  onKeyDown(event: KeyboardEvent): void {
+    // MDN says to do this :)
     if (event.isComposing || event.keyCode === 229) {
       return;
     }
-    // MDN says to do this :)
     if (event.keyCode === 13 && event.shiftKey) {
       (document.querySelector("#run-button") as HTMLInputElement).click();
-      return event.preventDefault();
+      event.preventDefault();
     }
   }
 
-  onInput(event) {
-    var resolution, tryToResolve;
+  onInput(event: InputEvent): void {
     if (event.inputType === "insertText") {
-      resolution = 0;
-      tryToResolve = () => {
-        var next, term;
+      const target = event.target as HTMLTextAreaElement;
+      let resolution = 0;
+      const tryToResolve = (): void => {
         if (resolution > 2) {
           return;
         }
         resolution += 1;
         if (this.currentTranslation === null) {
           this.currentTranslation = this.translations;
-          this.currentPosition = event.target.selectionStart - 1;
+          this.currentPosition = target.selectionStart - 1;
         }
-        next = this.currentTranslation[event.data];
+        const next = this.currentTranslation[event.data!];
         this.currentString += event.data;
-        switch (false) {
-          case this.currentPosition === event.target.selectionStart - 1:
-            this.currentTranslation = null;
-            this.currentString = "";
-            tryToResolve();
-            break;
-          case typeof next !== 'object':
-            if (next[END] != null) {
-              term = next[END];
-              this.currentPosition = event.target.selectionStart;
-              event.target.value = spliceStr(event.target.value, term, this.currentPosition - this.currentString.length, this.currentPosition);
-              event.target.selectionStart = this.currentPosition - this.currentString.length + term.length;
-              event.target.selectionEnd = event.target.selectionStart;
-              this.currentString = term;
-            }
-            this.currentTranslation = next;
-            break;
-          default:
-            this.currentTranslation = null;
-            this.currentString = "";
-            tryToResolve();
+        if (this.currentPosition !== target.selectionStart - 1) {
+          this.currentTranslation = null;
+          this.currentString = "";
+          tryToResolve();
+        } else if (typeof next === 'object') {
+          const terminal = next[END];
+          if (terminal != null) {
+            this.currentPosition = target.selectionStart;
+            target.value = spliceStr(target.value, terminal, this.currentPosition - this.currentString.length, this.currentPosition);
+            target.selectionStart = this.currentPosition - this.currentString.length + terminal.length;
+            target.selectionEnd = target.selectionStart;
+            this.currentString = terminal;
+          }
+          this.currentTranslation = next;
+        } else {
+          this.currentTranslation = null;
+          this.currentString = "";
+          tryToResolve();
         }
-        return this.currentPosition = event.target.selectionStart;
+        this.currentPosition = target.selectionStart;
       };
-      return tryToResolve();
+      tryToResolve();
     } else {
       // In any other case, cancel the current translation
       this.currentTranslation = null;
-      return this.currentString = "";
+      this.currentString = "";
     }
   }
 
-};
+}
 
-export var END = Symbol("END");
 
-export var compileTranslationTable = function(table) {
-  var ch, curr, i, k, len, result, v;
-  result = {};
-  for (k in table) {
-    v = table[k];
-    curr = result;
-    for (i = 0, len = k.length; i < len; i++) {
+export const END: unique symbol = Symbol("END");
+
+
+export function compileTranslationTable(table: TranslationTable): CompiledTable {
+  const result: CompiledTable = {};
+  for (const k in table) {
+    const v = table[k];
+    let curr: CompiledTable = result;
+    [...k].forEach((i, ch) => {
       ch = k[i];
       if (curr[ch] == null) {
         curr[ch] = {};
       }
       curr = curr[ch];
-    }
+    });
     curr[END] = v;
   }
   return result;
-};
+}
 
-export var DEFAULT_TRANSLATION_TABLE = {
+
+export type TranslationTable = {
+  [key: string]: string;
+}
+
+
+export interface CompiledTable {
+  [key: string]: CompiledTable;
+  [END]?: string;
+}
+
+
+export const DEFAULT_TRANSLATION_TABLE: TranslationTable = {
   "\\o": "ø",
   ".-": "×",
   "\\times": "×",
@@ -436,7 +446,5 @@ export var DEFAULT_TRANSLATION_TABLE = {
   "3/8": "⅜",
   "5/8": "⅝",
   "7/8": "⅞",
-  "0/3": "↉"
+  "0/3": "↉",
 };
-
-//# sourceMappingURL=unicode_input.js.map
