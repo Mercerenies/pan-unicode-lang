@@ -430,91 +430,91 @@ function* cartesianProductRec<T>(lists: T[][], n: number, prefix: T[]): Iterable
 // indices at which the element can be found in the list. If used with
 // a prime modifier, the search element is instead a unary function,
 // which is called for each position.
-export var member = function(term, state) {
-  var elem, func, func0, i, j, len1, list, ref, result, v;
-  [list, func] = term.getPrimeMod() > 0 ? ([list, func0] = state.pop(2), func = function(x) {
-    state.push(x);
-    tryCall(func0, state);
-    return isTruthy(state.pop());
-  }, [list, func]) : ([list, elem] = state.pop(2), func = function(x) {
-    return equals(x, elem);
-  }, [list, func]);
-  isList(list);
-  result = [];
-  ref = list.data;
-  for (i = j = 0, len1 = ref.length; j < len1; i = ++j) {
-    v = ref[i];
+export function member(term: AST, state: Evaluator): void {
+  const [list0, needle] = state.pop(2);
+  const list = isList(list0);
+  let func: (x: AST) => boolean;
+  if (term.getPrimeMod() > 0) {
+    func = function(x: AST) {
+      state.push(x);
+      tryCall(needle, state);
+      return isTruthy(state.pop());
+    };
+  } else {
+    func = (x: AST) => equals(x, needle);
+  }
+  const result: AST[] = [];
+  for (let i = 0; i < list.data.length; i++) {
+    const v = list.data[i];
     if (func(v)) {
       result.push(new NumberLit(i));
     }
   }
-  return state.push(new ArrayLit(result));
-};
+  state.push(new ArrayLit(result));
+}
+
 
 // Length (#). By default, returns the length of the list. With a
-// numerical modifier, this will happily nested deeper and count the
+// numerical modifier, this will happily nest deeper and count the
 // length of sublists as well. Numerical argument of 20 is treated as
 // infinity.
-export var length = function(term, state) {
-  var list, newTerm, num;
-  num = term.getNumMod(1);
+export function length(term: AST, state: Evaluator): void {
+  const num = term.getNumMod(1);
   if (num === 0) {
     // There's one thing, if we ignore all depth. Simple and dumb result.
     state.pop();
     state.push(1);
     return;
   }
-  newTerm = new SimpleCmd(new Token('⍪'));
+  const newTerm = new SimpleCmd(new Token('⍪'));
   newTerm.modifiers.push(new NumModifier(num === MAX_NUM_MODIFIER || num === 0 ? num : num - 1));
   ravel(newTerm, state);
-  list = state.pop();
-  isList(list);
+  const list = isList(state.pop());
   return state.push(list.length);
-};
+}
+
 
 // Reshape (⍴) takes two arguments: a list and a shape. Its numerical
 // argument defaults to 20 (which equates to infinity). The first thing
 // it does is ravel the list to the depth of its own numerical
 // argument. Then it produces a new list of the specified shape, where
 // the shape should either be a number or a list of numbers.
-export var reshape = function(term, state) {
-  var depth, list, newTerm, result, shape;
-  shape = state.pop();
-  if (!(shape instanceof ArrayLit)) {
-    shape = new ArrayLit([shape]);
+export function reshape(term: AST, state: Evaluator): void {
+  const shape0 = state.pop();
+  let shape: ArrayLit;
+  if (shape0 instanceof ArrayLit) {
+    shape = shape0;
+  } else {
+    shape = new ArrayLit([shape0]);
   }
-  depth = term.getNumMod(MAX_NUM_MODIFIER);
+  let depth = term.getNumMod(MAX_NUM_MODIFIER);
   if (depth === MAX_NUM_MODIFIER) {
-    depth = 2e308;
+    depth = Infinity;
   }
-  newTerm = new SimpleCmd(new Token('⍪'));
+  const newTerm = new SimpleCmd(new Token('⍪'));
   newTerm.modifiers.push(new NumModifier(depth));
   ravel(newTerm, state);
-  list = state.pop();
-  isList(list);
+  const list = isList(state.pop());
   if (list.length === 0) {
     throw new Error.TypeError("nonempty list", list);
   }
-  list = list.data;
-  result = doReshape(shape.data, 0, list, [0]);
-  return state.push(result);
-};
+  const result = doReshape(shape.data, 0, list.data, [0]);
+  state.push(result);
+}
 
-// listPos is a 1-element array (cheap and nasty ref cell)
-export var doReshape = function(shape, shapePos, list, listPos) {
-  var dim, i, j, ref, result;
+
+// listPos is a 1-element array (cheap and nasty ref cell) (HACK)
+export function doReshape(shape: AST[], shapePos: number, list: AST[], listPos: [number]) {
   if (shapePos >= shape.length) {
-    result = list[listPos[0] % list.length];
+    const result = list[listPos[0] % list.length];
     listPos[0] += 1;
     return result;
   } else {
-    dim = shape[shapePos];
-    result = [];
-    for (i = j = 0, ref = dim - 1; j <= ref; i = j += 1) {
+    const dim = isNumber(shape[shapePos]).value;
+    const result: AST[] = [];
+    for (let i = 0; i < dim; i++) {
       result.push(doReshape(shape, shapePos + 1, list, listPos));
     }
     return new ArrayLit(result);
   }
-};
-
-//# sourceMappingURL=list_op.js.map
+}
