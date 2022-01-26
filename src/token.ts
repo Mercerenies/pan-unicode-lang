@@ -13,20 +13,23 @@ export class Token {
     this.isString = isString || false;
   }
 
-  tokenType() {
-    switch (false) {
-      case !this.isString:
-        return TokenType.String;
-      case typeof this.text !== 'number':
-        return TokenType.Number;
-      default:
-        return TokenType.Command;
+  tokenType(): TokenType {
+    if (this.isString) {
+      return TokenType.String;
+    } else if (typeof this.text === 'number') {
+      return TokenType.Number;
+    } else {
+      return TokenType.Command;
     }
   }
 
-  toString() {
+  toString(): string {
     if (this.isString) {
-      return escapeString(this.text);
+      let text = this.text;
+      if (typeof text === 'number') {
+        text = Str.fromString("" + text);
+      }
+      return escapeString(text);
     } else {
       return this.text.toString();
     }
@@ -34,39 +37,36 @@ export class Token {
 
 };
 
-export var TokenType = {
-  Number: "TokenType.Number",
-  String: "TokenType.String",
-  Command: "TokenType.Command"
-};
+export enum TokenType {
+  Number = "TokenType.Number",
+  String = "TokenType.String",
+  Command = "TokenType.Command",
+}
 
-export var escapeString = function(s) {
-  var ch, contents, i, len;
-  s = s.toString();
-  contents = "";
-  for (i = 0, len = s.length; i < len; i++) {
-    ch = s[i];
-    contents += (function() {
-      switch (ch) {
-        case '"':
-          return '\\"';
-        case '\n':
-          return '\\n';
-        default:
-          return ch;
-      }
-    })();
+export function escapeString(s: Str | string): string {
+  if (s instanceof Str) {
+    s = s.toString();
+  }
+  let contents = "";
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    switch (ch) {
+    case '"':
+      contents += '\\"';
+    case '\n':
+      contents += '\\n';
+    default:
+      contents += ch;
+    }
   }
   return `\"${contents}\"`;
-};
+}
 
-export var translateEscape = function(ch) {
+export function translateEscape(ch: string): string {
   switch (ch) {
-    case 'n':
-      return '\n';
-    default:
-      return ch;
+  case 'n':
+    return '\n';
+  default:
+    return ch;
   }
-};
-
-//# sourceMappingURL=token.js.map
+}
