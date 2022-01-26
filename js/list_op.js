@@ -192,49 +192,20 @@ function runMap(depth, args, func, baseCase) {
     }
 }
 // Just like map but doesn't expect a result of any kind.
-export var each = function (term, state) {
-    var argCount, args, depth, func, ref, result;
-    [argCount, depth] = term.getNumMod(1, 1);
+export function each(term, state) {
+    let [argCount, depth] = term.getNumMod(1, 1);
     if (depth === MAX_NUM_MODIFIER) {
-        depth = 2e308;
+        depth = Infinity;
     }
-    ref = [...state.pop(argCount + 1)], [...args] = ref, [func] = args.splice(-1);
-    return result = runEach(depth, args, func, state);
-};
-runEach = function (depth, args, func, state) {
-    var i, j, len, mask, newArgs, ref, results1;
-    len = getNodeLength(args);
-    if (depth <= 0 || len === void 0) {
+    const everything = state.pop(argCount + 1);
+    const args = everything.slice(0, -1);
+    const func = everything[everything.length - 1];
+    runMap(depth, args, func, function (args, func) {
         state.push(...args);
-        return tryCall(func, state);
-    }
-    else {
-        mask = (function () {
-            if (func instanceof ArrayLit) {
-                if (func.length !== len) {
-                    throw new Error.IncompatibleArrayLengths();
-                }
-                return func.data;
-            }
-            else {
-                return Array(len).fill(func);
-            }
-        })();
-        results1 = [];
-        for (i = j = 0, ref = len - 1; (0 <= ref ? j <= ref : j >= ref); i = 0 <= ref ? ++j : --j) {
-            newArgs = args.map(function (v) {
-                if (v instanceof ArrayLit) {
-                    return v.data[i];
-                }
-                else {
-                    return v;
-                }
-            });
-            results1.push(runEach(depth - 1, newArgs, mask[i], state));
-        }
-        return results1;
-    }
-};
+        tryCall(func, state);
+        return SentinelValue.null;
+    });
+}
 // Nested query (n) Takes two arguments: a list/string and an index,
 // which can be either a number or a list. The index is traversed in
 // order, taking the nth element of the list/string at each step.
