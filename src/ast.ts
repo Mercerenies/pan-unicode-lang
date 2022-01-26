@@ -87,7 +87,7 @@ export class SimpleCmd extends AST {
   }
 
   eval(state: Evaluator): void {
-    var acc, arg, arr, body, c, char, chomp, cond, curr, deffn, delim, dropCmd, dropper, elem, exc, f, fn, frame, func, i, j, k, l, len, len1, len2, len3, lift, list, m, mod, n, newTerm, num, o, p, preserve, q, r, recoverBlock, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, res, result, results, results1, results2, results3, s, savedStack, store, t, tryBlock, value, x;
+    var acc, arg, arr, body, c, chomp, cond, curr, deffn, delim, dropCmd, dropper, elem, exc, f, fn, frame, func, i, j, k, l, len, len1, len2, len3, list, m, mod, n, newTerm, num, o, p, preserve, q, r, recoverBlock, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, res, result, results, results1, results2, results3, s, savedStack, t, tryBlock, value, x;
     if (this.isNumberLit()) {
       state.push(new NumberLit(this.token.text as number));
     } else if (this.isStringLit()) {
@@ -101,18 +101,19 @@ export class SimpleCmd extends AST {
       case ',': // Read integer from input
         state.push(readAndParseInt(state));
         break;
-      case '📜': // Read character from input
-        char = state.readInput();
+      case '📜': { // Read character from input
+        const char = state.readInput();
         if (char != null) {
           state.push(new StringLit(char));
         } else {
           state.push(SentinelValue.null);
         }
         break;
-      case '📖': // Read line from input
-        result = "";
+      }
+      case '📖': { // Read line from input
+        let result = "";
         while (true) {
-          curr = state.readInput();
+          const curr = state.readInput();
           if (curr === void 0) {
             break;
           }
@@ -127,10 +128,11 @@ export class SimpleCmd extends AST {
           state.push(SentinelValue.null);
         }
         break;
-      case "📚": // Read all remaining from input
-        result = "";
+      }
+      case "📚": { // Read all remaining from input
+        let result = "";
         while (true) {
-          curr = state.readInput();
+          const curr = state.readInput();
           if (curr === void 0) {
             break;
           }
@@ -142,35 +144,40 @@ export class SimpleCmd extends AST {
           state.push(SentinelValue.null);
         }
         break;
+      }
       /* STACK SHUFFLING */
-      case ':': // Duplicate ( x -- x x )
+      case ':': { // Duplicate ( x -- x x )
         // (Numerical modifier determines number of things to duplicate)
-        mod = this.getNumMod(1);
-        x = state.pop(mod);
+        const mod = this.getNumMod(1);
+        const x = state.pop(mod);
         state.push(...x);
         state.push(...x);
         break;
-      case '%': // Pop ( x -- )
+      }
+      case '%': { // Pop ( x -- )
         // (Numerical modifier determines amount to pop)
-        mod = this.getNumMod(1);
+        const mod = this.getNumMod(1);
         state.pop(mod);
         break;
-      case '@': // Swap/Rotate ( x y -- y x )
+      }
+      case '@': { // Swap/Rotate ( x y -- y x )
         // (Numerical modifier determines how deep to lift)
-        mod = this.getNumMod(1);
-        store = state.pop(mod);
-        lift = state.pop();
+        const mod = this.getNumMod(1);
+        const store = state.pop(mod);
+        const lift = state.pop();
         state.push(...store);
         state.push(lift);
         break;
-      case 'ø': // Over ( x y -- x y x )
+      }
+      case 'ø': { // Over ( x y -- x y x )
         // (Numerical modifier determines how deep to go)
-        mod = this.getNumMod(1);
-        store = state.pop(mod);
-        lift = state.peek();
+        const mod = this.getNumMod(1);
+        const store = state.pop(mod);
+        const lift = state.peek();
         state.push(...store);
         state.push(lift);
         break;
+      }
       /* ARITHMETIC */
       case '+': // Add ( x y -- z )
         // (Numerical modifier determines arity)
@@ -527,85 +534,78 @@ export class SimpleCmd extends AST {
           scalarExtend: false
         });
         break;
-      case '💬': // Chr / Ord ( x -- y )
-        arg = state.pop();
-        if (typeof arg === 'number') {
-          arg = new ArrayLit([new NumberLit(arg)]);
+      case '💬': { // Chr / Ord ( x -- y )
+        let arg = state.pop();
+        if (arg instanceof NumberLit) {
+          arg = new ArrayLit([arg]);
         }
-        switch (false) {
-        case !(arg instanceof ArrayLit):
-          res = new Str((function() {
-            var j, len, ref, results;
-            ref = arg.data;
-            results = [];
-            for (j = 0, len = ref.length; j < len; j++) {
-              c = ref[j];
-              results.push(String.fromCodePoint(c.value));
+        if (arg instanceof ArrayLit) {
+          const res: string[] = [];
+          for (const c of arg.data) {
+            if (!(c instanceof NumberLit)) {
+              throw new Error.TypeError("number", c);
             }
-            return results;
-          })());
-          state.push(new StringLit(res));
+            res.push(String.fromCodePoint(c.value));
+          }
+          state.push(new StringLit(new Str(res)));
           break;
-        case !(arg instanceof StringLit):
-          res = (function() {
-            var j, ref, results;
-            results = [];
-            for (i = j = 0, ref = arg.text.length - 1; (0 <= ref ? j <= ref : j >= ref); i = 0 <= ref ? ++j : --j) {
-              results.push(new NumberLit(arg.text.codePointAt(i)));
-            }
-            return results;
-          })();
-          state.push(new ArrayLit(res));
+        } else if (arg instanceof StringLit) {
+          const res = arg.text.codePoints();
+          state.push(new ArrayLit(res.map((x) => new NumberLit(x))));
           break;
-        default:
+        } else {
           throw new Error.TypeError("string or list", arg);
         }
         break;
-      case '🍴': // Chomp ( x -- y )
+      }
+      case '🍴': { // Chomp ( x -- y )
         // Removes the last character if it's a newline. Subject to scalar extension.
-        chomp = function(x) {
-          x = x.text;
-          result = x.charAt(x.length - 1) === '\n' ? Str.fromString(x.toString().slice(0, x.length - 1)) : x;
+        const chomp = function(x0: StringLit) {
+          const x = x0.text;
+          const result = x.charAt(x.length - 1) === '\n' ? Str.fromString(x.toString().slice(0, x.length - 1)) : x;
           return new StringLit(result);
         };
         state.push(Op.scalarExtendUnary(function(x) {
           return chomp(TypeCheck.isString(x));
         })(state.pop()));
         break;
-      case 'r': // Mark as regexp ( s -- s )
-        s = state.pop();
-        TypeCheck.isString(s);
+      }
+      case 'r': { // Mark as regexp ( s -- s )
+        const s = TypeCheck.isString(state.pop());
         state.push(new StringLit(s.text).markAsRegexp());
         break;
-      case '¶': // Split string ( s delim -- arr )
+      }
+      case '¶': { // Split string ( s delim -- arr )
         // Delimiter can be either string or regexp
-        [s, delim] = state.pop(2);
-        TypeCheck.isString(delim);
-        delim = delim.toReOrStr();
+        const [s0, delim0] = state.pop(2);
+        let delim = TypeCheck.isString(delim0).toReOrStr();
         if (delim === "") {
           // Awkward hack for UTF-16 support (we don't want to pass
           // empty string to split function)
           delim = new RegExp("", "u");
         }
-        TypeCheck.isString(s);
-        result = s.text.toString().split(delim).map(function(x) {
+        const s = TypeCheck.isString(s0);
+        const result = s.text.toString().split(delim).map(function(x) {
           return new StringLit(Str.fromString(x));
         });
         state.push(new ArrayLit(result));
         break;
-      case '⁋': // Join string ( arr delim -- s )
+      }
+      case '⁋': { // Join string ( arr delim -- s )
         // Delimiter should be a string. Other argument should be list of strings.
-        [arr, delim] = state.pop(2);
-        TypeCheck.isList(arr);
-        delim = stringify(delim);
-        result = new StringLit(arr.data.map(stringify).join(delim));
+        const [arr0, delim0] = state.pop(2);
+        const arr = TypeCheck.isList(arr0);
+        const delim = stringify(delim0);
+        const result = new StringLit(arr.data.map(stringify).join(delim));
         state.push(result);
         break;
-      case 'p': // Prettify ( x -- s )
+      }
+      case 'p': { // Prettify ( x -- s )
         // Converts the value to a string. No-op if given a string.
-        x = state.pop();
+        const x = state.pop();
         state.push(new StringLit(stringify(x)));
         break;
+      }
       /* COMPARISONS */
       case '=': // Equal ( x y -- ? )
         Op.op(state, this, {
@@ -721,10 +721,10 @@ export class SimpleCmd extends AST {
           whiteFlag: Op.WhiteFlag.ignore
         });
         break;
-      case '⌈': // Max
+      case '⌈': { // Max
         // With prime, pops a function and uses it instead of
         // default less-than.
-        func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT;
+        const func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT;
         Op.op(state, this, {
           function: function(a, b) {
             if (func(b, a)) {
@@ -738,10 +738,11 @@ export class SimpleCmd extends AST {
           scalarExtend: true
         });
         break;
-      case '⌊': // Min
+      }
+      case '⌊': { // Min
         // With prime, pops a function and uses it instead of
         // default less-than.
-        func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT;
+        const func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT;
         Op.op(state, this, {
           function: function(a, b) {
             if (func(a, b)) {
@@ -755,19 +756,21 @@ export class SimpleCmd extends AST {
           scalarExtend: true
         });
         break;
+      }
       /* METAPROGRAMMING */
-      case 's': // Get stack frame
+      case 's': { // Get stack frame
         // (Numerical argument determines how deep to go; n=0 is current)
-        mod = this.getNumMod(0);
-        frame = state.getFromCallStack(mod);
+        const mod = this.getNumMod(0);
+        const frame = state.getFromCallStack(mod);
         state.push(frame);
         break;
+      }
       case '{':
       case '⚐':
       case 'ε': // Sentinel value
         state.push(new SentinelValue(this.token.text as Str));
         break;
-      case '⚑': // Construct ⚐ sentinel ( fn deffn -- fn )
+      case '⚑': { // Construct ⚐ sentinel ( fn deffn -- fn )
         // Constructs a handler for the ⚐ sentinel. The resulting
         // function will call deffn if the top value of the stack is
         // ⚐ (popping ⚐), or will call fn otherwise (without popping
@@ -777,7 +780,7 @@ export class SimpleCmd extends AST {
 
         // For instance, [`+ `999 ⚑ /] is a function which sums a
         // list, but returns 999 rather than 0 if the list is empty.
-        [fn, deffn] = state.pop(2);
+        const [fn, deffn] = state.pop(2);
         state.push(new FunctionLit([
           new SimpleCmd(new Token(":")),
           new SimpleCmd(new Token("⚐")),
@@ -791,18 +794,20 @@ export class SimpleCmd extends AST {
           new SimpleCmd(new Token("i")),
         ]));
         break;
+      }
       /* ARRAY LITERALS */
-      case '}': // End array (pops until sentinel value is hit)
-        arr = [];
-        value = state.pop();
+      case '}': { // End array (pops until sentinel value is hit)
+        const arr: AST[] = [];
+        let value = state.pop();
         while (!equals(value, SentinelValue.arrayStart)) {
           arr.push(value);
           value = state.pop();
         }
         state.push(new ArrayLit(arr.reverse()));
         break;
+      }
       /* LIST OPERATIONS */
-      case '/': // Fold ( ..a list ( ..a x y -- ..b z ) -- ..b t )
+      case '/': { // Fold ( ..a list ( ..a x y -- ..b z ) -- ..b t )
         // This one bears a bit of explanation. If the list is
         // nonempty, it acts like a traditional fold, applying the
         // binary operation between all elements of the list,
@@ -812,44 +817,44 @@ export class SimpleCmd extends AST {
         // check for the ⚐ and will return their identity (0 and 1,
         // resp.) in that case. If you provide your own function, you
         // can deal with the empty case by checking for ⚐.
-        [list, func] = state.pop(2);
-        TypeCheck.isList(list);
+        const [list0, func] = state.pop(2);
+        const list = TypeCheck.isList(list0);
         if (list.length <= 0) {
           state.push(SentinelValue.whiteFlag);
           tryCall(func, state);
         } else {
-          acc = list.data[0];
+          const acc = list.data[0];
           state.push(acc);
-          results = [];
-          for (i = j = 1, ref = list.length - 1; j <= ref; i = j += 1) {
-            state.push(list.data[i]);
-            results.push(tryCall(func, state));
-          }
-          results;
+          list.data.slice(1).forEach(function(datum: AST) {
+            state.push(datum);
+            tryCall(func, state);
+          })
         }
         break;
-      case '\\': // Scan ( ..a list ( ..a x y -- ..b z ) -- ..b t )
+      }
+      case '\\': { // Scan ( ..a list ( ..a x y -- ..b z ) -- ..b t )
         // This works just like fold (/) except that it returns a
         // list of all the intermediate results. The ⚐ caveat does
         // not apply, for if the empty list is given as input, then
         // the empty list is produced as output.
-        [list, func] = state.pop(2);
-        TypeCheck.isList(list);
+        const [list0, func] = state.pop(2);
+        const list = TypeCheck.isList(list0);
         if (list.length <= 0) {
           state.push(new ArrayLit([]));
         } else {
-          acc = list.data[0];
+          const acc = list.data[0];
+          const result: AST[] = [];
           state.push(acc);
-          result = [];
-          for (i = k = 1, ref1 = list.length - 1; k <= ref1; i = k += 1) {
+          list.data.slice(1).forEach(function(datum: AST) {
             result.push(state.peek());
-            state.push(list.data[i]);
+            state.push(datum);
             tryCall(func, state);
-          }
+          });
           result.push(state.pop());
           state.push(new ArrayLit(result));
         }
         break;
+      }
       case '⌿': // Filter ( ..a list ( ..a x -- ..a ? ) -- ..a list )
         // The filter "function" can either be a function or a list
         // with the same length as the list, which acts as a mask. In
@@ -962,61 +967,60 @@ export class SimpleCmd extends AST {
         // List length. See ListOp.length for details
         ListOp.length(this, state);
         break;
-      case '🗋': // Empty ( list -- ? )
+      case '🗋': { // Empty ( list -- ? )
         // With prime modifier, flattens before checking
         if (this.getPrimeMod() > 0) {
-          newTerm = new SimpleCmd(new Token('⍪'));
+          const newTerm = new SimpleCmd(new Token('⍪'));
           newTerm.modifiers.push(new Modifier.NumModifier(Modifier.MAX_NUM_MODIFIER));
           ListOp.ravel(newTerm, state);
         }
-        list = state.pop();
-        TypeCheck.isList(list);
+        const list = TypeCheck.isList(state.pop());
         state.push(Op.boolToInt(list.length === 0));
         break;
-      case 'ℓ': // List constructor
+      }
+      case 'ℓ': { // List constructor
         // Takes as many arguments as numerical modifier (default=1) specifies
-        num = this.getNumMod(1);
-        arr = new ArrayLit(state.pop(num));
+        const num = this.getNumMod(1);
+        const arr = new ArrayLit(state.pop(num));
         state.push(arr);
         break;
-      case '◁': // Take (left) ( list n -- list )
-        [list, n] = state.pop(2);
-        TypeCheck.isList(list);
-        TypeCheck.isNumber(n);
-        n = Math.abs(n.value);
+      }
+      case '◁': { // Take (left) ( list n -- list )
+        const [list0, n0] = state.pop(2);
+        const list = TypeCheck.isList(list0);
+        const n = Math.abs(TypeCheck.isNumber(n0).value);
         state.push(new ArrayLit(list.data.slice(0, n)));
         break;
-      case '▷': // Take (right) ( list n -- list )
-        [list, n] = state.pop(2);
-        TypeCheck.isList(list);
-        TypeCheck.isNumber(n);
-        n = Math.abs(n.value);
+      }
+      case '▷': { // Take (right) ( list n -- list )
+        const [list0, n0] = state.pop(2);
+        const list = TypeCheck.isList(list0);
+        const n = Math.abs(TypeCheck.isNumber(n0).value);
         state.push(new ArrayLit(list.data.slice(-n)));
         break;
-      case '⧏': // Drop (left) ( list n -- list )
-        [list, n] = state.pop(2);
-        TypeCheck.isList(list);
-        TypeCheck.isNumber(n);
-        n = Math.abs(n.value);
+      }
+      case '⧏': { // Drop (left) ( list n -- list )
+        const [list0, n0] = state.pop(2);
+        const list = TypeCheck.isList(list0);
+        const n = Math.abs(TypeCheck.isNumber(n0).value);
         state.push(new ArrayLit(list.data.slice(n)));
         break;
-      case '⧐': // Drop (right) ( list n -- list )
-        [list, n] = state.pop(2);
-        TypeCheck.isList(list);
-        TypeCheck.isNumber(n);
-        n = Math.abs(n.value);
+      }
+      case '⧐': { // Drop (right) ( list n -- list )
+        const [list0, n0] = state.pop(2);
+        const list = TypeCheck.isList(list0);
+        const n = Math.abs(TypeCheck.isNumber(n0).value);
         state.push(new ArrayLit(list.data.slice(0, -n)));
         break;
-      case '◂': // Take while (left) ( list f -- list )
-        [list, f] = state.pop(2);
-        TypeCheck.isList(list);
-        result = [];
-        ref4 = list.data;
-        for (l = 0, len = ref4.length; l < len; l++) {
-          elem = ref4[l];
+      }
+      case '◂': { // Take while (left) ( list f -- list )
+        const [list0, f] = state.pop(2);
+        const list = TypeCheck.isList(list0);
+        const result: AST[] = [];
+        for (const elem of list.data) {
           state.push(elem);
           tryCall(f, state);
-          curr = isTruthy(state.pop());
+          const curr = isTruthy(state.pop());
           if (!curr) {
             break;
           }
@@ -1024,113 +1028,114 @@ export class SimpleCmd extends AST {
         }
         state.push(new ArrayLit(result));
         break;
-      case '▸': // Take while (right) ( list f -- list )
-        [list, f] = state.pop(2);
-        TypeCheck.isList(list);
-        result = [];
-        ref5 = list.data.slice().reverse();
-        for (m = 0, len1 = ref5.length; m < len1; m++) {
-          elem = ref5[m];
+      }
+      case '▸': { // Take while (right) ( list f -- list )
+        const [list0, f] = state.pop(2);
+        const list = TypeCheck.isList(list0);
+        const result: AST[] = [];
+        for (const elem of list.data.slice().reverse()) {
           state.push(elem);
           tryCall(f, state);
-          curr = isTruthy(state.pop());
+          const curr = isTruthy(state.pop());
           if (!curr) {
             break;
           }
           result.push(elem);
         }
-        state.push(new ArrayLit(result.reverse()));
+        state.push(new ArrayLit(result));
         break;
-      case '◄': // Drop while (left) ( list f -- list )
-        [list, f] = state.pop(2);
-        TypeCheck.isList(list);
-        ref6 = list.data;
-        for (i = o = 0, len2 = ref6.length; o < len2; i = ++o) {
-          elem = ref6[i];
+      }
+      case '◄': { // Drop while (left) ( list f -- list )
+        const [list0, f] = state.pop(2);
+        const list = TypeCheck.isList(list0);
+        let i = 0;
+        for (const elem of list.data) {
           state.push(elem);
           tryCall(f, state);
-          curr = isTruthy(state.pop());
+          const curr = isTruthy(state.pop());
           if (!curr) {
             break;
           }
+          i += 1;
         }
         state.push(new ArrayLit(list.data.slice(i)));
         break;
-      case '►': // Drop while (right) ( list f -- list )
-        [list, f] = state.pop(2);
-        TypeCheck.isList(list);
-        ref7 = list.data.slice().reverse();
-        for (i = p = 0, len3 = ref7.length; p < len3; i = ++p) {
-          elem = ref7[i];
+      }
+      case '►': { // Drop while (right) ( list f -- list )
+        const [list0, f] = state.pop(2);
+        const list = TypeCheck.isList(list0);
+        let i = 0;
+        for (const elem of list.data.slice().reverse()) {
           state.push(elem);
           tryCall(f, state);
-          curr = isTruthy(state.pop());
+          const curr = isTruthy(state.pop());
           if (!curr) {
             break;
           }
+          i += 1;
         }
         state.push(new ArrayLit(list.data.slice(0, list.length - i)));
         break;
-      case 'ɹ': // Reverse ( list -- list )
-        list = state.pop();
-        TypeCheck.isStringOrList(list);
+      }
+      case 'ɹ': { // Reverse ( list -- list )
+        const list = TypeCheck.isStringOrList(state.pop());
         if (list instanceof ArrayLit) {
           state.push(new ArrayLit(list.data.slice().reverse()));
         } else {
-          state.push(new StringLit(new Str(list.text.data.slice().reverse())));
+          state.push(new StringLit(list.text.reversed()));
         }
         break;
+      }
       case '⍴': // Reshape ( list shape -- list )
         // See ListOp.reshape
         ListOp.reshape(this, state);
         break;
       /* CONTROL FLOW */
-      case 'i': // If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
-        [c, t, f] = state.pop(3);
+      case 'i': { // If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
+        const [c, t, f] = state.pop(3);
         if (isTruthy(c)) {
           tryCall(t, state);
         } else {
           tryCall(f, state);
         }
         break;
-      case 'w': // While ( ..a ( ..a -- ..b ? ) ( ..b -- ..a ) -- ..b )
-        [cond, body] = state.pop(2);
-        results1 = [];
+      }
+      case 'w': { // While ( ..a ( ..a -- ..b ? ) ( ..b -- ..a ) -- ..b )
+        const [cond, body] = state.pop(2);
         while (true) {
           tryCall(cond, state);
-          result = state.pop();
+          const result = state.pop();
           if (!isTruthy(result)) {
             break;
           }
-          results1.push(tryCall(body, state));
+          tryCall(body, state);
         }
         break;
-      case 'W': // While ( ..a ( ..a -- ..a ? ) -- ..b )
+      }
+      case 'W': { // While ( ..a ( ..a -- ..a ? ) -- ..b )
         // Like w but with no explicit body.
-        cond = state.pop();
-        results2 = [];
+        const cond = state.pop();
         while (true) {
           tryCall(cond, state);
-          result = state.pop();
+          const result = state.pop();
           if (!isTruthy(result)) {
             break;
-          } else {
-            results2.push(void 0);
           }
         }
         break;
-      case '⍳': // Repeat N times ( ..a n ( ..a i -- ..a ) -- ..a )
-        [n, body] = state.pop(2);
-        results3 = [];
-        for (i = q = 0, ref8 = n - 1; q <= ref8; i = q += 1) {
+      }
+      case '⍳': { // Repeat N times ( ..a n ( ..a i -- ..a ) -- ..a )
+        const [n, body] = state.pop(2);
+        for (let i = 0; i < TypeCheck.isNumber(n).value; i++) {
           state.push(i);
-          results3.push(tryCall(body, state));
+          tryCall(body, state);
         }
         break;
+      }
       case '⍸': // Repeat N times and accumulate ( ..a x n ( ..a x i -- ..a x ) -- ..a list )
-        [n, body] = state.pop(2);
-        result = [state.peek()];
-        for (i = r = 0, ref9 = n - 1; r <= ref9; i = r += 1) {
+        const [n, body] = state.pop(2);
+        const result = [state.peek()];
+        for (let i = 0; i < TypeCheck.isNumber(n).value; i++) {
           state.push(i);
           tryCall(body, state);
           result.push(state.peek());

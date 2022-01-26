@@ -43,6 +43,10 @@ export default class Str {
     return this.data[n].codePointAt(0)!;
   }
 
+  codePoints(): number[] {
+    return this.data.map((x) => x.codePointAt(0)!);
+  }
+
   concat(that: Str): Str {
     return new Str(this.data.concat(that.data));
   }
@@ -53,6 +57,10 @@ export default class Str {
 
   get length(): number {
     return this.data.length;
+  }
+
+  reversed(): Str {
+    return new Str(this.data.slice().reverse());
   }
 
 };

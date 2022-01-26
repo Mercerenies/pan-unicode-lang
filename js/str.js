@@ -35,6 +35,9 @@ export default class Str {
     codePointAt(n) {
         return this.data[n].codePointAt(0);
     }
+    codePoints() {
+        return this.data.map((x) => x.codePointAt(0));
+    }
     concat(that) {
         return new Str(this.data.concat(that.data));
     }
@@ -43,6 +46,9 @@ export default class Str {
     }
     get length() {
         return this.data.length;
+    }
+    reversed() {
+        return new Str(this.data.slice().reverse());
     }
 }
 ;
