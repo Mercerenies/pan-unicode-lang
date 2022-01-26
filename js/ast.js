@@ -67,25 +67,27 @@ export class SimpleCmd extends AST {
     eval(state) {
         var acc, arg, arr, body, c, char, chomp, cond, curr, deffn, delim, dropCmd, dropper, elem, exc, f, fn, frame, func, i, j, k, l, len, len1, len2, len3, lift, list, m, mod, n, newTerm, num, o, p, preserve, q, r, recoverBlock, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, res, result, results, results1, results2, results3, s, savedStack, store, t, tryBlock, value, x;
         if (this.isNumberLit()) {
-            return state.push(new NumberLit(this.token.text));
+            state.push(new NumberLit(this.token.text));
         }
         else if (this.isStringLit()) {
-            return state.push(new StringLit(this.token.text));
+            state.push(new StringLit(this.token.text));
         }
         else {
             switch (this.token.text.toString()) {
                 /* IO */
                 case '.': // Pretty print ( x -- )
-                    return state.print(stringify(state.pop()));
+                    state.print(stringify(state.pop()));
+                    break;
                 case ',': // Read integer from input
-                    return state.push(readAndParseInt(state));
+                    state.push(readAndParseInt(state));
+                    break;
                 case '📜': // Read character from input
                     char = state.readInput();
                     if (char != null) {
-                        return state.push(new StringLit(char));
+                        state.push(new StringLit(char));
                     }
                     else {
-                        return state.push(SentinelValue.null);
+                        state.push(SentinelValue.null);
                     }
                     break;
                 case '📖': // Read line from input
@@ -101,10 +103,10 @@ export class SimpleCmd extends AST {
                         }
                     }
                     if (result !== "") {
-                        return state.push(new StringLit(result));
+                        state.push(new StringLit(result));
                     }
                     else {
-                        return state.push(SentinelValue.null);
+                        state.push(SentinelValue.null);
                     }
                     break;
                 case "📚": // Read all remaining from input
@@ -117,10 +119,10 @@ export class SimpleCmd extends AST {
                         result += curr;
                     }
                     if (result !== "") {
-                        return state.push(new StringLit(result));
+                        state.push(new StringLit(result));
                     }
                     else {
-                        return state.push(SentinelValue.null);
+                        state.push(SentinelValue.null);
                     }
                     break;
                 /* STACK SHUFFLING */
@@ -129,29 +131,33 @@ export class SimpleCmd extends AST {
                     mod = this.getNumMod(1);
                     x = state.pop(mod);
                     state.push(...x);
-                    return state.push(...x);
+                    state.push(...x);
+                    break;
                 case '%': // Pop ( x -- )
                     // (Numerical modifier determines amount to pop)
                     mod = this.getNumMod(1);
-                    return state.pop(mod);
+                    state.pop(mod);
+                    break;
                 case '@': // Swap/Rotate ( x y -- y x )
                     // (Numerical modifier determines how deep to lift)
                     mod = this.getNumMod(1);
                     store = state.pop(mod);
                     lift = state.pop();
                     state.push(...store);
-                    return state.push(lift);
+                    state.push(lift);
+                    break;
                 case 'ø': // Over ( x y -- x y x )
                     // (Numerical modifier determines how deep to go)
                     mod = this.getNumMod(1);
                     store = state.pop(mod);
                     lift = state.peek();
                     state.push(...store);
-                    return state.push(lift);
+                    state.push(lift);
+                    break;
                 /* ARITHMETIC */
                 case '+': // Add ( x y -- z )
                     // (Numerical modifier determines arity)
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(a.value + b.value);
                         },
@@ -160,8 +166,9 @@ export class SimpleCmd extends AST {
                         extension: Op.binary,
                         scalarExtend: true
                     });
+                    break;
                 case '-': // Subtract ( x y -- z )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(a.value - b.value);
                         },
@@ -172,8 +179,9 @@ export class SimpleCmd extends AST {
                         extension: Op.binary,
                         scalarExtend: true
                     });
+                    break;
                 case '×': // Multiply ( x y -- z )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(a.value * b.value);
                         },
@@ -182,8 +190,9 @@ export class SimpleCmd extends AST {
                         extension: Op.binary,
                         scalarExtend: true
                     });
+                    break;
                 case '÷': // Divide ( x y -- z )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(a.value / b.value);
                         },
@@ -194,8 +203,9 @@ export class SimpleCmd extends AST {
                         extension: Op.binary,
                         scalarExtend: true
                     });
+                    break;
                 case '*': // Power ( x y -- z )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(a.value ** b.value);
                         },
@@ -204,16 +214,18 @@ export class SimpleCmd extends AST {
                         extension: Op.binaryRight,
                         scalarExtend: true
                     });
+                    break;
                 case 'ê': // e^x ( x -- y )
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.exp(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '🌳': // ln(x) ( x -- y )
                     // With prime modifier, it's log_b(a) ( a b -- y )
                     if (this.getPrimeMod() > 0) {
-                        return Op.op(state, this, {
+                        Op.op(state, this, {
                             function: function (a, b) {
-                                return new NumberLit(Math.log(a.value) / Math.log(b.value));
+                                new NumberLit(Math.log(a.value) / Math.log(b.value));
                             },
                             preProcess: TypeCheck.isNumber,
                             extension: Op.binary,
@@ -221,7 +233,7 @@ export class SimpleCmd extends AST {
                         });
                     }
                     else {
-                        return state.push(Op.scalarExtendUnary(function (x) {
+                        state.push(Op.scalarExtendUnary(function (x) {
                             return Math.log(TypeCheck.isNumber(x).value);
                         })(state.pop()));
                     }
@@ -229,9 +241,9 @@ export class SimpleCmd extends AST {
                 case '√': // sqrt(x) ( x -- y )
                     // With prime modifier, it's (a ** (1/b)) ( a b -- y )
                     if (this.getPrimeMod() > 0) {
-                        return Op.op(state, this, {
+                        Op.op(state, this, {
                             function: function (a, b) {
-                                return new NumberLit(a.value ** (1 / b.value));
+                                new NumberLit(a.value ** (1 / b.value));
                             },
                             preProcess: TypeCheck.isNumber,
                             extension: Op.binary,
@@ -239,22 +251,23 @@ export class SimpleCmd extends AST {
                         });
                     }
                     else {
-                        return state.push(Op.scalarExtendUnary(function (x) {
+                        state.push(Op.scalarExtendUnary(function (x) {
                             return Math.sqrt(TypeCheck.isNumber(x).value);
                         })(state.pop()));
                     }
                     break;
                 case '|': // Remainder ( x y -- z )
                     // This does not extend with modifier; it only scalar extends
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit((a.value % b.value + b.value) % b.value); // "True" mod
                         },
                         preProcess: TypeCheck.isNumber,
                         scalarExtend: true
                     });
+                    break;
                 case '⩑': // LCM ( x y -- z )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(lcm(a.value, b.value));
                         },
@@ -263,8 +276,9 @@ export class SimpleCmd extends AST {
                         extension: Op.binary,
                         scalarExtend: true
                     });
+                    break;
                 case '⩒': // GCD ( x y -- z )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(gcd(a.value, b.value));
                         },
@@ -273,32 +287,39 @@ export class SimpleCmd extends AST {
                         extension: Op.binary,
                         scalarExtend: true
                     });
+                    break;
                 case '_': // Negate ( x -- y )
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return -TypeCheck.isNumber(x).value;
                     })(state.pop()));
+                    break;
                 case '⅟': // Reciprocal ( x -- y )
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return 1 / TypeCheck.isNumber(x).value;
                     })(state.pop()));
+                    break;
                 case '⌉': // Ceiling ( x -- y )
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.ceil(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '⌋': // Floor ( x -- y )
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.floor(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case 'A': // Absolute value ( x -- y )
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.abs(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case 'a': // Signum ( x -- y )
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.sign(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '∧': // Bitwise Conjunction ( x y -- z )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return a.value & b.value;
                         },
@@ -307,8 +328,9 @@ export class SimpleCmd extends AST {
                         extension: Op.binary,
                         scalarExtend: true
                     });
+                    break;
                 case '∨': // Bitwise Disjunction ( x y -- z )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return a.value | b.value;
                         },
@@ -317,8 +339,9 @@ export class SimpleCmd extends AST {
                         extension: Op.binary,
                         scalarExtend: true
                     });
+                    break;
                 case '⊕': // Bitwise Exclusive Or ( x y -- z )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return a.value ^ b.value;
                         },
@@ -327,14 +350,16 @@ export class SimpleCmd extends AST {
                         extension: Op.binary,
                         scalarExtend: true
                     });
+                    break;
                 case '¬': // Bitwise Negate ( x -- y )
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return ~TypeCheck.isNumber(x).value;
                     })(state.pop()));
+                    break;
                 case '¿': // Defined-or ( x y -- z )
                     // Returns the first argument unless it's ε, in which
                     // case it returns the second.
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             if (equals(a, SentinelValue.null)) {
                                 return b;
@@ -347,111 +372,147 @@ export class SimpleCmd extends AST {
                         extension: Op.binary,
                         scalarExtend: false
                     });
+                    break;
                 /* TRIGONOMETRY */
                 case '◐':
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.sin(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '◑':
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.asin(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '◒':
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.cos(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '◓':
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.acos(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '◔':
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.tan(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '◕':
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.atan(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '◖':
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.sinh(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '◗':
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.asinh(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '◌':
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.cosh(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '◍':
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.acosh(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '◎':
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.tanh(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 case '◉':
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return Math.atanh(TypeCheck.isNumber(x).value);
                     })(state.pop()));
+                    break;
                 /* NUMERICAL CONSTANTS */
                 case 'π':
-                    return state.push(Math.PI);
+                    state.push(Math.PI);
+                    break;
                 case 'τ':
-                    return state.push(2 * Math.PI);
+                    state.push(2 * Math.PI);
+                    break;
                 case 'e':
-                    return state.push(Math.E);
+                    state.push(Math.E);
+                    break;
                 case '¼':
-                    return state.push(1 / 4);
+                    state.push(1 / 4);
+                    break;
                 case '½':
-                    return state.push(1 / 2);
+                    state.push(1 / 2);
+                    break;
                 case '¾':
-                    return state.push(3 / 4);
+                    state.push(3 / 4);
+                    break;
                 case '⅐':
-                    return state.push(1 / 7);
+                    state.push(1 / 7);
+                    break;
                 case '⅑':
-                    return state.push(1 / 9);
+                    state.push(1 / 9);
+                    break;
                 case '⅒':
-                    return state.push(1 / 10);
+                    state.push(1 / 10);
+                    break;
                 case '⅓':
-                    return state.push(1 / 3);
+                    state.push(1 / 3);
+                    break;
                 case '⅔':
-                    return state.push(2 / 3);
+                    state.push(2 / 3);
+                    break;
                 case '⅕':
-                    return state.push(1 / 5);
+                    state.push(1 / 5);
+                    break;
                 case '⅖':
-                    return state.push(2 / 5);
+                    state.push(2 / 5);
+                    break;
                 case '⅗':
-                    return state.push(3 / 5);
+                    state.push(3 / 5);
+                    break;
                 case '⅘':
-                    return state.push(4 / 5);
+                    state.push(4 / 5);
+                    break;
                 case '⅙':
-                    return state.push(1 / 6);
+                    state.push(1 / 6);
+                    break;
                 case '⅚':
-                    return state.push(5 / 6);
+                    state.push(5 / 6);
+                    break;
                 case '⅛':
-                    return state.push(1 / 8);
+                    state.push(1 / 8);
+                    break;
                 case '⅜':
-                    return state.push(3 / 8);
+                    state.push(3 / 8);
+                    break;
                 case '⅝':
-                    return state.push(5 / 8);
+                    state.push(5 / 8);
+                    break;
                 case '⅞':
-                    return state.push(7 / 8);
+                    state.push(7 / 8);
+                    break;
                 case '↉':
-                    return state.push(0 / 3);
+                    state.push(0 / 3);
+                    break;
                 /* STRING OPERATIONS */
                 case '⋄': // Concatenate ( x y -- z )
                     // (Numerical modifier determines arity)
                     // No scalar extension. Works on lists and on strings.
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: catenate,
                         preProcess: TypeCheck.isStringOrList,
                         zero: new StringLit(""),
                         extension: Op.binary,
                         scalarExtend: false
                     });
+                    break;
                 case '💬': // Chr / Ord ( x -- y )
                     arg = state.pop();
                     if (typeof arg === 'number') {
@@ -469,7 +530,8 @@ export class SimpleCmd extends AST {
                                 }
                                 return results;
                             })());
-                            return state.push(new StringLit(res));
+                            state.push(new StringLit(res));
+                            break;
                         case !(arg instanceof StringLit):
                             res = (function () {
                                 var j, ref, results;
@@ -479,7 +541,8 @@ export class SimpleCmd extends AST {
                                 }
                                 return results;
                             })();
-                            return state.push(new ArrayLit(res));
+                            state.push(new ArrayLit(res));
+                            break;
                         default:
                             throw new Error.TypeError("string or list", arg);
                     }
@@ -491,13 +554,15 @@ export class SimpleCmd extends AST {
                         result = x.charAt(x.length - 1) === '\n' ? Str.fromString(x.toString().slice(0, x.length - 1)) : x;
                         return new StringLit(result);
                     };
-                    return state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(Op.scalarExtendUnary(function (x) {
                         return chomp(TypeCheck.isString(x));
                     })(state.pop()));
+                    break;
                 case 'r': // Mark as regexp ( s -- s )
                     s = state.pop();
                     TypeCheck.isString(s);
-                    return state.push(new StringLit(s.text).markAsRegexp());
+                    state.push(new StringLit(s.text).markAsRegexp());
+                    break;
                 case '¶': // Split string ( s delim -- arr )
                     // Delimiter can be either string or regexp
                     [s, delim] = state.pop(2);
@@ -512,21 +577,24 @@ export class SimpleCmd extends AST {
                     result = s.text.toString().split(delim).map(function (x) {
                         return new StringLit(Str.fromString(x));
                     });
-                    return state.push(new ArrayLit(result));
+                    state.push(new ArrayLit(result));
+                    break;
                 case '⁋': // Join string ( arr delim -- s )
                     // Delimiter should be a string. Other argument should be list of strings.
                     [arr, delim] = state.pop(2);
                     TypeCheck.isList(arr);
                     delim = stringify(delim);
                     result = new StringLit(arr.data.map(stringify).join(delim));
-                    return state.push(result);
+                    state.push(result);
+                    break;
                 case 'p': // Prettify ( x -- s )
                     // Converts the value to a string. No-op if given a string.
                     x = state.pop();
-                    return state.push(new StringLit(stringify(x)));
+                    state.push(new StringLit(stringify(x)));
+                    break;
                 /* COMPARISONS */
                 case '=': // Equal ( x y -- ? )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return equals(a, b);
                         },
@@ -538,8 +606,9 @@ export class SimpleCmd extends AST {
                         scalarExtend: true,
                         whiteFlag: Op.WhiteFlag.ignore
                     });
+                    break;
                 case '<': // LT ( x y -- ? )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return compare(a, b) === Ordering.LT;
                         },
@@ -551,8 +620,9 @@ export class SimpleCmd extends AST {
                         scalarExtend: true,
                         whiteFlag: Op.WhiteFlag.ignore
                     });
+                    break;
                 case '>': // GT ( x y -- ? )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return compare(a, b) === Ordering.GT;
                         },
@@ -564,8 +634,9 @@ export class SimpleCmd extends AST {
                         scalarExtend: true,
                         whiteFlag: Op.WhiteFlag.ignore
                     });
+                    break;
                 case '≤': // LE ( x y -- ? )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return compare(a, b) !== Ordering.GT;
                         },
@@ -577,8 +648,9 @@ export class SimpleCmd extends AST {
                         scalarExtend: true,
                         whiteFlag: Op.WhiteFlag.ignore
                     });
+                    break;
                 case '≥': // GE ( x y -- ? )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return compare(a, b) !== Ordering.LT;
                         },
@@ -590,8 +662,9 @@ export class SimpleCmd extends AST {
                         scalarExtend: true,
                         whiteFlag: Op.WhiteFlag.ignore
                     });
+                    break;
                 case '≠': // Not Equal ( x y -- ? )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return !equals(a, b);
                         },
@@ -603,9 +676,10 @@ export class SimpleCmd extends AST {
                         scalarExtend: true,
                         whiteFlag: Op.WhiteFlag.ignore
                     });
+                    break;
                 case '≡': // Same ( x y -- ? )
                     // Note: No scalar extension
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return equals(a, b);
                         },
@@ -617,9 +691,10 @@ export class SimpleCmd extends AST {
                         scalarExtend: false,
                         whiteFlag: Op.WhiteFlag.ignore
                     });
+                    break;
                 case '≢': // Not Same ( x y -- ? )
                     // Note: No scalar extension
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             return !equals(a, b);
                         },
@@ -631,11 +706,12 @@ export class SimpleCmd extends AST {
                         scalarExtend: false,
                         whiteFlag: Op.WhiteFlag.ignore
                     });
+                    break;
                 case '⌈': // Max
                     // With prime, pops a function and uses it instead of
                     // default less-than.
                     func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT;
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             if (func(b, a)) {
                                 return a;
@@ -648,11 +724,12 @@ export class SimpleCmd extends AST {
                         extension: Op.binary,
                         scalarExtend: true
                     });
+                    break;
                 case '⌊': // Min
                     // With prime, pops a function and uses it instead of
                     // default less-than.
                     func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT;
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (a, b) {
                             if (func(a, b)) {
                                 return a;
@@ -665,16 +742,19 @@ export class SimpleCmd extends AST {
                         extension: Op.binary,
                         scalarExtend: true
                     });
+                    break;
                 /* METAPROGRAMMING */
                 case 's': // Get stack frame
                     // (Numerical argument determines how deep to go; n=0 is current)
                     mod = this.getNumMod(0);
                     frame = state.getFromCallStack(mod);
-                    return state.push(frame);
+                    state.push(frame);
+                    break;
                 case '{':
                 case '⚐':
                 case 'ε': // Sentinel value
-                    return state.push(new SentinelValue(this.token.text));
+                    state.push(new SentinelValue(this.token.text));
+                    break;
                 case '⚑': // Construct ⚐ sentinel ( fn deffn -- fn )
                     // Constructs a handler for the ⚐ sentinel. The resulting
                     // function will call deffn if the top value of the stack is
@@ -685,7 +765,7 @@ export class SimpleCmd extends AST {
                     // For instance, [`+ `999 ⚑ /] is a function which sums a
                     // list, but returns 999 rather than 0 if the list is empty.
                     [fn, deffn] = state.pop(2);
-                    return state.push(new FunctionLit([
+                    state.push(new FunctionLit([
                         new SimpleCmd(new Token(":")),
                         new SimpleCmd(new Token("⚐")),
                         new SimpleCmd(new Token("≡")),
@@ -697,6 +777,7 @@ export class SimpleCmd extends AST {
                         fn,
                         new SimpleCmd(new Token("i")),
                     ]));
+                    break;
                 /* ARRAY LITERALS */
                 case '}': // End array (pops until sentinel value is hit)
                     arr = [];
@@ -705,7 +786,8 @@ export class SimpleCmd extends AST {
                         arr.push(value);
                         value = state.pop();
                     }
-                    return state.push(new ArrayLit(arr.reverse()));
+                    state.push(new ArrayLit(arr.reverse()));
+                    break;
                 /* LIST OPERATIONS */
                 case '/': // Fold ( ..a list ( ..a x y -- ..b z ) -- ..b t )
                     // This one bears a bit of explanation. If the list is
@@ -721,7 +803,7 @@ export class SimpleCmd extends AST {
                     TypeCheck.isList(list);
                     if (list.length <= 0) {
                         state.push(SentinelValue.whiteFlag);
-                        return tryCall(func, state);
+                        tryCall(func, state);
                     }
                     else {
                         acc = list.data[0];
@@ -731,7 +813,7 @@ export class SimpleCmd extends AST {
                             state.push(list.data[i]);
                             results.push(tryCall(func, state));
                         }
-                        return results;
+                        results;
                     }
                     break;
                 case '\\': // Scan ( ..a list ( ..a x y -- ..b z ) -- ..b t )
@@ -742,7 +824,7 @@ export class SimpleCmd extends AST {
                     [list, func] = state.pop(2);
                     TypeCheck.isList(list);
                     if (list.length <= 0) {
-                        return state.push(new ArrayLit([]));
+                        state.push(new ArrayLit([]));
                     }
                     else {
                         acc = list.data[0];
@@ -754,7 +836,7 @@ export class SimpleCmd extends AST {
                             tryCall(func, state);
                         }
                         result.push(state.pop());
-                        return state.push(new ArrayLit(result));
+                        state.push(new ArrayLit(result));
                     }
                     break;
                 case '⌿': // Filter ( ..a list ( ..a x -- ..a ? ) -- ..a list )
@@ -765,36 +847,44 @@ export class SimpleCmd extends AST {
                     // repeat the value. Numerical argument (default=1)
                     // determines how many nested lists to go. See documentation
                     // for ListOp.filter for more specific details.
-                    return ListOp.filter(this, state);
+                    ListOp.filter(this, state);
+                    break;
                 case '¨': // Map ( ..a list ( ..a x -- ..a y ) -- ..a list )
                     // Nests arbitrarily deep with a numerical argument, like
                     // filter. See ListOp.map for full details.
-                    return ListOp.map(this, state);
+                    ListOp.map(this, state);
+                    break;
                 case 'ė': // Each ( ..a list ( ..a x -- ..a ) -- ..a )
                     // Nests arbitrarily deep with a numerical argument, like
                     // filter. See ListOp.each for full details.
-                    return ListOp.each(this, state);
+                    ListOp.each(this, state);
+                    break;
                 case 'n': // Nested Query ( list index -- result )
                     // Works on lists or strings. See ListOp.nestedQuery
                     // for details.
-                    return ListOp.nestedQuery(this, state);
+                    ListOp.nestedQuery(this, state);
+                    break;
                 case '⊇': // Select ( list index -- result )
                     // Works on lists or strings. See ListOp.select
                     // for details.
-                    return ListOp.select(this, state);
+                    ListOp.select(this, state);
+                    break;
                 case '⍋': // Grade Up
                     // Sorting function. See ListOp.gradeUp for full details.
-                    return ListOp.gradeUp(this, state);
+                    ListOp.gradeUp(this, state);
+                    break;
                 case '⍪': // Ravel / Flatten
                     // Flattens lists. See ListOp.ravel for full details.
-                    return ListOp.ravel(this, state);
+                    ListOp.ravel(this, state);
+                    break;
                 case '⊗': // Outer Product
                     // Outer product of lists under some operation. See ListOp.outerProduct.
-                    return ListOp.outerProduct(this, state);
+                    ListOp.outerProduct(this, state);
+                    break;
                 case '∷': // Prepend / Append
                     if (this.getPrimeMod() === 0) {
                         // With no prime, prepends some number of elements to a list
-                        return Op.op(state, this, {
+                        Op.op(state, this, {
                             function: function (x, list) {
                                 return new ArrayLit([x].concat(TypeCheck.isList(list).data));
                             },
@@ -808,7 +898,7 @@ export class SimpleCmd extends AST {
                     }
                     else {
                         // With prime, appends some number of elements to a list
-                        return Op.op(state, this, {
+                        Op.op(state, this, {
                             function: function (x, list) {
                                 return new ArrayLit(TypeCheck.isList(list).data.concat([x]));
                             },
@@ -835,7 +925,8 @@ export class SimpleCmd extends AST {
                     if (value === undefined) {
                         throw `Internal error in superscript with ${this.token.text}`;
                     }
-                    return state.push((ref2 = ListOp.nth(state.pop(), value)) != null ? ref2 : SentinelValue.null);
+                    state.push((ref2 = ListOp.nth(state.pop(), value)) != null ? ref2 : SentinelValue.null);
+                    break;
                 }
                 case '₁':
                 case '₂':
@@ -850,14 +941,17 @@ export class SimpleCmd extends AST {
                     if (value === undefined) {
                         throw `Internal error in subscript with ${this.token.text}`;
                     }
-                    return state.push((ref3 = ListOp.nth(state.pop(), -value)) != null ? ref3 : SentinelValue.null);
+                    state.push((ref3 = ListOp.nth(state.pop(), -value)) != null ? ref3 : SentinelValue.null);
+                    break;
                 }
                 case '∈': // Member ( list x -- idx )
                     // List membership. See ListOp.member for details
-                    return ListOp.member(this, state);
+                    ListOp.member(this, state);
+                    break;
                 case '#': // Length ( list -- n )
                     // List length. See ListOp.length for details
-                    return ListOp.length(this, state);
+                    ListOp.length(this, state);
+                    break;
                 case '🗋': // Empty ( list -- ? )
                     // With prime modifier, flattens before checking
                     if (this.getPrimeMod() > 0) {
@@ -867,36 +961,42 @@ export class SimpleCmd extends AST {
                     }
                     list = state.pop();
                     TypeCheck.isList(list);
-                    return state.push(Op.boolToInt(list.length === 0));
+                    state.push(Op.boolToInt(list.length === 0));
+                    break;
                 case 'ℓ': // List constructor
                     // Takes as many arguments as numerical modifier (default=1) specifies
                     num = this.getNumMod(1);
                     arr = new ArrayLit(state.pop(num));
-                    return state.push(arr);
+                    state.push(arr);
+                    break;
                 case '◁': // Take (left) ( list n -- list )
                     [list, n] = state.pop(2);
                     TypeCheck.isList(list);
                     TypeCheck.isNumber(n);
                     n = Math.abs(n.value);
-                    return state.push(new ArrayLit(list.data.slice(0, n)));
+                    state.push(new ArrayLit(list.data.slice(0, n)));
+                    break;
                 case '▷': // Take (right) ( list n -- list )
                     [list, n] = state.pop(2);
                     TypeCheck.isList(list);
                     TypeCheck.isNumber(n);
                     n = Math.abs(n.value);
-                    return state.push(new ArrayLit(list.data.slice(-n)));
+                    state.push(new ArrayLit(list.data.slice(-n)));
+                    break;
                 case '⧏': // Drop (left) ( list n -- list )
                     [list, n] = state.pop(2);
                     TypeCheck.isList(list);
                     TypeCheck.isNumber(n);
                     n = Math.abs(n.value);
-                    return state.push(new ArrayLit(list.data.slice(n)));
+                    state.push(new ArrayLit(list.data.slice(n)));
+                    break;
                 case '⧐': // Drop (right) ( list n -- list )
                     [list, n] = state.pop(2);
                     TypeCheck.isList(list);
                     TypeCheck.isNumber(n);
                     n = Math.abs(n.value);
-                    return state.push(new ArrayLit(list.data.slice(0, -n)));
+                    state.push(new ArrayLit(list.data.slice(0, -n)));
+                    break;
                 case '◂': // Take while (left) ( list f -- list )
                     [list, f] = state.pop(2);
                     TypeCheck.isList(list);
@@ -912,7 +1012,8 @@ export class SimpleCmd extends AST {
                         }
                         result.push(elem);
                     }
-                    return state.push(new ArrayLit(result));
+                    state.push(new ArrayLit(result));
+                    break;
                 case '▸': // Take while (right) ( list f -- list )
                     [list, f] = state.pop(2);
                     TypeCheck.isList(list);
@@ -928,7 +1029,8 @@ export class SimpleCmd extends AST {
                         }
                         result.push(elem);
                     }
-                    return state.push(new ArrayLit(result.reverse()));
+                    state.push(new ArrayLit(result.reverse()));
+                    break;
                 case '◄': // Drop while (left) ( list f -- list )
                     [list, f] = state.pop(2);
                     TypeCheck.isList(list);
@@ -942,7 +1044,8 @@ export class SimpleCmd extends AST {
                             break;
                         }
                     }
-                    return state.push(new ArrayLit(list.data.slice(i)));
+                    state.push(new ArrayLit(list.data.slice(i)));
+                    break;
                 case '►': // Drop while (right) ( list f -- list )
                     [list, f] = state.pop(2);
                     TypeCheck.isList(list);
@@ -956,28 +1059,30 @@ export class SimpleCmd extends AST {
                             break;
                         }
                     }
-                    return state.push(new ArrayLit(list.data.slice(0, list.length - i)));
+                    state.push(new ArrayLit(list.data.slice(0, list.length - i)));
+                    break;
                 case 'ɹ': // Reverse ( list -- list )
                     list = state.pop();
                     TypeCheck.isStringOrList(list);
                     if (list instanceof ArrayLit) {
-                        return state.push(new ArrayLit(list.data.slice().reverse()));
+                        state.push(new ArrayLit(list.data.slice().reverse()));
                     }
                     else {
-                        return state.push(new StringLit(new Str(list.text.data.slice().reverse())));
+                        state.push(new StringLit(new Str(list.text.data.slice().reverse())));
                     }
                     break;
                 case '⍴': // Reshape ( list shape -- list )
                     // See ListOp.reshape
-                    return ListOp.reshape(this, state);
+                    ListOp.reshape(this, state);
+                    break;
                 /* CONTROL FLOW */
                 case 'i': // If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
                     [c, t, f] = state.pop(3);
                     if (isTruthy(c)) {
-                        return tryCall(t, state);
+                        tryCall(t, state);
                     }
                     else {
-                        return tryCall(f, state);
+                        tryCall(f, state);
                     }
                     break;
                 case 'w': // While ( ..a ( ..a -- ..b ? ) ( ..b -- ..a ) -- ..b )
@@ -991,7 +1096,6 @@ export class SimpleCmd extends AST {
                         }
                         results1.push(tryCall(body, state));
                     }
-                    return results1;
                     break;
                 case 'W': // While ( ..a ( ..a -- ..a ? ) -- ..b )
                     // Like w but with no explicit body.
@@ -1007,7 +1111,6 @@ export class SimpleCmd extends AST {
                             results2.push(void 0);
                         }
                     }
-                    return results2;
                     break;
                 case '⍳': // Repeat N times ( ..a n ( ..a i -- ..a ) -- ..a )
                     [n, body] = state.pop(2);
@@ -1016,7 +1119,6 @@ export class SimpleCmd extends AST {
                         state.push(i);
                         results3.push(tryCall(body, state));
                     }
-                    return results3;
                     break;
                 case '⍸': // Repeat N times and accumulate ( ..a x n ( ..a x i -- ..a x ) -- ..a list )
                     [n, body] = state.pop(2);
@@ -1027,25 +1129,28 @@ export class SimpleCmd extends AST {
                         result.push(state.peek());
                     }
                     state.pop();
-                    return state.push(new ArrayLit(result));
+                    state.push(new ArrayLit(result));
+                    break;
                 case '$': // Call ( ..a ( ..a -- ..b ) -- ..b )
                     fn = state.pop();
-                    return tryCall(fn, state);
+                    tryCall(fn, state);
+                    break;
                 case '😱': // Panic and throw error ( err -- )
                     throw state.pop().toException();
+                    break;
                 case '🙏': // Catch errors ( ..a ( ..a -- ..b) ( ..a err -- ..b ) -- ..b )
                     [tryBlock, recoverBlock] = state.pop(2);
                     savedStack = state.saveStack();
                     try {
                         // TODO Don't piggyback on JS error handling; implement it in our VM
-                        return tryCall(tryBlock, state);
+                        tryCall(tryBlock, state);
                     }
                     catch (error) {
                         exc = error;
                         if (exc instanceof Error.Error) {
                             state.loadStack(savedStack);
                             state.push(StringLit.fromException(exc));
-                            return tryCall(recoverBlock, state);
+                            tryCall(recoverBlock, state);
                         }
                         else {
                             throw exc;
@@ -1054,7 +1159,8 @@ export class SimpleCmd extends AST {
                     break;
                 /* HIGHER ORDER FUNCTIONS */
                 case 'ī': // Push identity function
-                    return state.push(new FunctionLit([]));
+                    state.push(new FunctionLit([]));
+                    break;
                 case 'c': // Make constant function ( x -- ( -- x ) )
                     // Numerical argument (defaults to zero) determines number to
                     // pop in resulting function.
@@ -1063,9 +1169,10 @@ export class SimpleCmd extends AST {
                     dropCmd = new SimpleCmd(new Token("%"));
                     dropCmd.modifiers.push(new Modifier.NumModifier(num));
                     dropper = new FunctionLit([dropCmd]);
-                    return state.push(new ComposedFunction(dropper, new CurriedFunction(x, new FunctionLit([]))));
+                    state.push(new ComposedFunction(dropper, new CurriedFunction(x, new FunctionLit([]))));
+                    break;
                 case '●': // Curry ( x ( ..a x -- ..b ) -- ( ..a -- ..b ) )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (x, f) {
                             return new CurriedFunction(x, f);
                         },
@@ -1076,8 +1183,9 @@ export class SimpleCmd extends AST {
                             return x + 1;
                         }
                     });
+                    break;
                 case '○': // Compose ( ( ..a -- ..b ) ( ..b -- ..c ) -- ( ..a -- ..c ) )
-                    return Op.op(state, this, {
+                    Op.op(state, this, {
                         function: function (f, g) {
                             return new ComposedFunction(f, g);
                         },
@@ -1088,14 +1196,17 @@ export class SimpleCmd extends AST {
                         },
                         defaultModifier: 2
                     });
+                    break;
                 /* BOXING / UNBOXING */
                 case '⊂': // Box ( x -- box )
                     value = state.pop();
-                    return state.push(new Box(value));
+                    state.push(new Box(value));
+                    break;
                 case '⊃': // Unbox ( box -- x )
                     // No effect if value is not boxed
                     value = state.pop();
-                    return state.push(value instanceof Box ? value.value : value);
+                    state.push(value instanceof Box ? value.value : value);
+                    break;
                 /* STACK COMBINATORS */
                 case 'D': // Dip ( ..a x ( ..a -- ..b ) -- ..b x )
                     // (Numerical modifier determines arity)
@@ -1103,28 +1214,35 @@ export class SimpleCmd extends AST {
                     fn = state.pop();
                     preserve = state.pop(mod);
                     tryCall(fn, state);
-                    return state.push(...preserve);
+                    state.push(...preserve);
+                    break;
                 case 'K': // Keep ( ..a x ( ..a x -- ..b ) -- ..b x )
                     // (Numerical modifier determines arity)
                     mod = this.getNumMod(1);
                     fn = state.pop();
                     preserve = state.peek(mod);
                     tryCall(fn, state);
-                    return state.push(...preserve);
+                    state.push(...preserve);
+                    break;
                 case '⇉': // "Spread" combinator, in Factor parlance
                     // See StackOp.spread for details.
-                    return StackOp.spread(this, state);
+                    StackOp.spread(this, state);
+                    break;
                 case '⤨': // "Cross" combinator
                     // See StackOp.cross for details
-                    return StackOp.cross(this, state);
+                    StackOp.cross(this, state);
+                    break;
                 case '↘': // "Apply" combinator
                     // See StackOp.cleave for details
-                    return StackOp.apply(this, state);
+                    StackOp.apply(this, state);
+                    break;
                 case '↗': // "Cleave" combinator
                     // See StackOp.apply for details
-                    return StackOp.cleave(this, state);
+                    StackOp.cleave(this, state);
+                    break;
                 default:
                     throw new Error.UnknownCommandError(this.token);
+                    break;
             }
         }
     }
@@ -1132,7 +1250,6 @@ export class SimpleCmd extends AST {
         return this.token.toString() + this.modifiers.join("");
     }
 }
-;
 export class AssignToVar extends AST {
     constructor(target) {
         super();
@@ -1323,7 +1440,6 @@ export class SentinelValue extends AST {
 SentinelValue.null = new SentinelValue("ε");
 SentinelValue.whiteFlag = new SentinelValue("⚐");
 SentinelValue.arrayStart = new SentinelValue("{");
-;
 export class Box extends AST {
     constructor(value) {
         super();
@@ -1336,7 +1452,6 @@ export class Box extends AST {
         state.push(this);
     }
 }
-;
 export class ArrayLit extends AST {
     constructor(data) {
         super();

@@ -85,7 +85,7 @@ export abstract class Evaluator {
     }
   }
 
-  print(value: AST.AST): void {
+  print(value: AST.AST | string): void {
     // Default behavior is to simply print to console. Interactive
     // editor will override this.
     console.log(value.toString());
