@@ -1,4 +1,8 @@
 
+export function assertNever(x: never): never {
+  throw "assertNever failed";
+}
+
 export function zip<A, B>(a: A[], b: B[]): [A, B][] {
   return a.map((v, i) => [v, b[i]]);
 }
@@ -38,4 +42,13 @@ export function lcm(a: number, b: number): number {
   } else {
     return a * b / d;
   }
+}
+
+
+export function range(a: number, b: number): number[] {
+  const x: number[] = [];
+  for (let i = a; i < b; i++) {
+    x.push(i);
+  }
+  return x;
 }

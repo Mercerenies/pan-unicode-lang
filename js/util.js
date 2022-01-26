@@ -1,3 +1,6 @@
+export function assertNever(x) {
+    throw "assertNever failed";
+}
 export function zip(a, b) {
     return a.map((v, i) => [v, b[i]]);
 }
@@ -30,4 +33,11 @@ export function lcm(a, b) {
     else {
         return a * b / d;
     }
+}
+export function range(a, b) {
+    const x = [];
+    for (let i = a; i < b; i++) {
+        x.push(i);
+    }
+    return x;
 }
