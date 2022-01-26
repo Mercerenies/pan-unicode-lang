@@ -1,4 +1,5 @@
 
+import { Evaluator } from './eval.js';
 import * as Error from './error.js';
 import { stringify } from './pretty.js';
 import * as Modifier from './modifier.js';
@@ -19,24 +20,23 @@ export abstract class AST {
     this.modifiers = [];
   }
 
-  call(state) {
+  call(state: Evaluator): void {
     throw new Error.CallNonFunction(this);
   }
 
-  abstract eval(state);
+  abstract eval(state: Evaluator): void;
 
   toException(): Error.Error {
     return new Error.UserError(this);
   }
 
-  getNumMod(...args) {
-    var mod, ref, result;
-    if (args.length === 0) {
-      args = [void 0];
-    }
-    result = [];
-    ref = this.modifiers;
-    for (mod of ref) {
+  getNumMod(arg: number): number;
+  getNumMod(arg1: number, arg2: number, ...args: number[]): number[];
+  getNumMod(...args: number[]): number | number[] {
+    const result: number[] = [];
+
+    // Take modifiers that we have.
+    for (const mod of this.modifiers) {
       if (mod instanceof Modifier.NumModifier) {
         result.push(mod.value);
         if (result.length >= args.length) {
@@ -44,21 +44,23 @@ export abstract class AST {
         }
       }
     }
+
+    // Pad from args for everything left.
     while (result.length < args.length) {
       result.push(args[result.length]);
     }
-    if (result.length === 1) {
+
+    if (args.length === 1) {
       return result[0];
     } else {
-      return result;
+      return result.slice(0, args.length);
     }
+
   }
 
-  getPrimeMod() {
-    var mod, n, ref;
-    n = 0;
-    ref = this.modifiers;
-    for (mod of ref) {
+  getPrimeMod(): number {
+    let n = 0;
+    for (const mod of this.modifiers) {
       if (mod instanceof Modifier.PrimeModifier) {
         n += 1;
       }
@@ -71,16 +73,16 @@ export abstract class AST {
 export class SimpleCmd extends AST {
   readonly token: Token;
 
-  constructor(token) {
+  constructor(token: Token) {
     super();
     this.token = token;
   }
 
-  isNumberLit() {
+  isNumberLit(): boolean {
     return this.token.tokenType() === TokenType.Number;
   }
 
-  isStringLit() {
+  isStringLit(): boolean {
     return this.token.tokenType() === TokenType.String;
   }
 
@@ -467,7 +469,7 @@ export class SimpleCmd extends AST {
       case '💬': // Chr / Ord ( x -- y )
         arg = state.pop();
         if (typeof arg === 'number') {
-          arg = new ArrayLit([arg]);
+          arg = new ArrayLit([new NumberLit(arg)]);
         }
         switch (false) {
         case !(arg instanceof ArrayLit):
@@ -684,7 +686,7 @@ export class SimpleCmd extends AST {
       case '{':
       case '⚐':
       case 'ε': // Sentinel value
-        return state.push(new SentinelValue(this.token.text));
+        return state.push(new SentinelValue(this.token.text as Str));
       case '⚑': // Construct ⚐ sentinel ( fn deffn -- fn )
         // Constructs a handler for the ⚐ sentinel. The resulting
         // function will call deffn if the top value of the stack is
@@ -1132,7 +1134,7 @@ export class SimpleCmd extends AST {
     }
   }
 
-  toString() {
+  toString(): string {
     return this.token.toString() + this.modifiers.join("");
   }
 
@@ -1141,34 +1143,34 @@ export class SimpleCmd extends AST {
 export class AssignToVar extends AST {
   readonly target: string;
 
-  constructor(target) {
+  constructor(target: string | Token) {
     super();
-    this.target = target;
+    this.target = target.toString();
   }
 
-  eval(state) {
-    return state.setGlobal(this.target, state.pop());
+  eval(state: Evaluator): void {
+    state.setGlobal(this.target, state.pop());
   }
 
-  toString() {
+  toString(): string {
     return "→" + this.target;
   }
 
 };
 
-export var ReadFromVar = class ReadFromVar extends AST {
+export class ReadFromVar extends AST {
   readonly target: string;
 
-  constructor(target) {
+  constructor(target: string | Token) {
     super();
-    this.target = target;
+    this.target = target.toString();
   }
 
-  eval(state) {
-    return state.push(state.getGlobal(this.target));
+  eval(state: Evaluator): void {
+    state.push(state.getGlobal(this.target));
   }
 
-  toString() {
+  toString(): string {
     return "←" + this.target;
   }
 
@@ -1176,13 +1178,13 @@ export var ReadFromVar = class ReadFromVar extends AST {
 
 // StringLit actually encompasses a few things here. A string literal
 // consists of, obviously, a sequence of characters. Additionally, a
-// string literal can consist of a regex flag (Boolean) which specifies
-// that it is to be treated as a regex, not a literal string, when used
-// as an argument to search/replace functions. A string literal can
-// also contain an exception object from which it was constructed. If a
-// string literal is thrown and has an exception associated to it, then
-// that exception will be thrown. Otherwise, the string will be wrapped
-// in a new UserError exception.
+// string literal can consist of a regex flag (Boolean) which
+// specifies that it is to be treated as a regex, not a literal
+// string, when used as an argument to search/replace functions. A
+// string literal can also contain an exception object from which it
+// was constructed. If a string literal is thrown and has an exception
+// associated to it, then that exception will be thrown. Otherwise,
+// the string will be wrapped in a new UserError exception.
 export class StringLit extends AST {
   readonly text: Str;
   readonly regexp: boolean;
@@ -1202,7 +1204,7 @@ export class StringLit extends AST {
     return new StringLit(this.text, true, this.exception);
   }
 
-  markWithException(exc) {
+  markWithException(exc: Error.Error): StringLit {
     return new StringLit(this.text, this.regexp, exc);
   }
 
@@ -1214,11 +1216,11 @@ export class StringLit extends AST {
     return this.exception != null;
   }
 
-  eval(state) {
-    return state.push(this);
+  eval(state: Evaluator): void {
+    state.push(this);
   }
 
-  toReOrStr() {
+  toReOrStr(): string | RegExp {
     if (this.isRegexp()) {
       return new RegExp(this.text.toString(), "u");
     } else {
@@ -1226,11 +1228,11 @@ export class StringLit extends AST {
     }
   }
 
-  toString() {
+  toString(): string {
     return escapeString(this.text) + (this.isRegexp() ? "r" : "");
   }
 
-  toException() {
+  toException(): Error.Error {
     if (this.exception != null) {
       return this.exception;
     } else {
@@ -1238,7 +1240,7 @@ export class StringLit extends AST {
     }
   }
 
-  static fromException(exc) {
+  static fromException(exc: Error.Error): StringLit {
     return new StringLit(Str.fromString(exc.toString())).markWithException(exc);
   }
 
@@ -1247,16 +1249,16 @@ export class StringLit extends AST {
 export class NumberLit extends AST {
   readonly value: number;
 
-  constructor(value1) {
+  constructor(value: number) {
     super();
-    this.value = value1;
+    this.value = value;
   }
 
-  eval(state) {
-    return state.push(this);
+  eval(state: Evaluator): void {
+    state.push(this);
   }
 
-  toString() {
+  toString(): string {
     if (this.value === Infinity) {
       return "∞";
     } else if (this.value === -Infinity) {
@@ -1270,81 +1272,81 @@ export class NumberLit extends AST {
 
 };
 
-export var FunctionLit = class FunctionLit extends AST {
+export class FunctionLit extends AST {
   readonly body: AST[];
 
-  constructor(body1) {
+  constructor(body: AST[]) {
     super();
-    this.body = body1;
+    this.body = body;
   }
 
-  eval(state) {
-    return state.push(this);
+  eval(state: Evaluator): void {
+    state.push(this);
   }
 
-  call(state) {
-    return state.eval(this.body);
+  call(state: Evaluator): void {
+    state.eval(this.body);
   }
 
-  toString() {
+  toString(): string {
     return `[ ${this.body.join(" ")} ]${this.modifiers.join("")}`;
   }
 
 };
 
-export var CurriedFunction = class CurriedFunction extends AST {
+export class CurriedFunction extends AST {
   readonly arg: AST;
   readonly function: AST;
 
-  constructor(arg1, _function) {
+  constructor(arg: AST, _function: AST) {
     super();
-    this.arg = arg1;
+    this.arg = arg;
     this.function = _function;
   }
 
-  eval(state) {
-    return state.push(this);
+  eval(state: Evaluator): void {
+    state.push(this);
   }
 
-  call(state) {
+  call(state: Evaluator): void {
     state.push(this.arg);
-    return tryCall(this.function, state);
+    tryCall(this.function, state);
   }
 
-  toString() {
+  toString(): string {
     // toString "lies" a bit, in that it prints as a FunctionLit
     // quotation. If you try to read this representation back in, you
-    // will get a FunctionLit, not a CurriedFunction. But it's accurate
-    // enough for most purposes.
+    // will get a FunctionLit, not a CurriedFunction. But it's
+    // accurate enough for most purposes.
     return `[ ${this.arg} ${this.function} $ ]${this.modifiers.join("")}`;
   }
 
 };
 
-export var ComposedFunction = class ComposedFunction extends AST {
+export class ComposedFunction extends AST {
   readonly first: AST;
   readonly second: AST;
 
-  constructor(first, second) {
+  constructor(first: AST, second: AST) {
     super();
     this.first = first;
     this.second = second;
   }
 
-  eval(state) {
-    return state.push(this);
+  eval(state: Evaluator): void {
+    state.push(this);
   }
 
-  call(state) {
+  call(state: Evaluator): void {
     tryCall(this.first, state);
-    return tryCall(this.second, state);
+    tryCall(this.second, state);
   }
 
-  toString() {
+  toString(): string {
     // toString "lies" a bit, in that it prints as a FunctionLit
     // quotation. If you try to read this representation back in, you
-    // will get a FunctionLit, not a CurriedFunction. But it's accurate
-    // enough for most purposes.
+    // will get a FunctionLit, not a CurriedFunction. But it's
+    // accurate enough for most purposes.
     return `[ ${this.first} $ ${this.second} $ ]${this.modifiers.join("")}`;
   }
 
@@ -1357,19 +1359,19 @@ export var ComposedFunction = class ComposedFunction extends AST {
 export class SentinelValue extends AST {
   readonly type: Str;
 
-  constructor(type) {
+  constructor(type: string | Str) {
     super();
-    this.type = type;
-    if (typeof this.type === 'string') {
-      this.type = Str.fromString(this.type);
+    if (typeof type === 'string') {
+      type = Str.fromString(type);
     }
+    this.type = type;
   }
 
-  toString() {
+  toString(): string {
     return this.type + this.modifiers.join("");
   }
 
-  eval(state) {
+  eval(state: Evaluator): void {
     state.push(this);
   }
 
@@ -1391,7 +1393,7 @@ export class Box extends AST {
     return `${this.value} ⊂${this.modifiers.join("")}`;
   }
 
-  eval(state) {
+  eval(state: Evaluator): void {
     state.push(this);
   }
 
@@ -1401,20 +1403,20 @@ export class Box extends AST {
 export class ArrayLit extends AST {
   readonly data: AST[];
 
-  constructor(data) {
+  constructor(data: AST[]) {
     super();
     this.data = data;
   }
 
-  static filled(n, x) {
+  static filled(n: number, x: AST): ArrayLit {
     return new ArrayLit(Array(n).fill(x));
   }
 
-  toString() {
+  toString(): string {
     return `{ ${this.data.join(" ")} }${this.modifiers.join("")}`;
   }
 
-  eval(state) {
+  eval(state: Evaluator): void {
     state.push(this);
   }
 
@@ -1424,63 +1426,64 @@ export class ArrayLit extends AST {
 
 };
 
-export var tryCall = function(fn, state) {
-  var result;
+export function tryCall(fn: AST, state: Evaluator): void {
   if (fn instanceof AST) {
     state.pushCall(fn);
     try {
-      result = fn.call(state);
+      fn.call(state);
     } finally {
-      state.popCall(fn);
+      state.popCall();
     }
-    return result;
   } else {
     throw new Error.CallNonFunction(fn);
   }
 };
 
-function readAndParseInt(state) {
-  var ch, next, sign, v, valid;
+// TODO Why is this being done both here and in the parser? Consolidate?
+function readAndParseInt(state: Evaluator): NumberLit | SentinelValue {
   // Skip to the next number
-  while ((state.peekInput() != null) && /[^-+0-9]/.test(state.peekInput())) {
+  let input = state.peekInput();
+  while ((input != null) && /[^-+0-9]/.test(input)) {
     state.readInput();
+    input = state.peekInput();
   }
   // Start reading
-  valid = false;
-  sign = function(x) {
-    return x;
-  };
-  if ((state.peekInput() != null) && /[-+]/.test(state.peekInput())) {
-    ch = state.readInput();
+  let valid = false;
+  let sign = (x: number) => x;
+  const signInput = state.peekInput();
+  if ((signInput != null) && /[-+]/.test(signInput)) {
+    const ch = state.readInput();
     if (ch === '-') {
-      sign = (function(x) {
-        return -x;
-      });
+      sign = (x: number) => -x;
     }
     valid = true;
   }
-  v = 0;
-  next = state.peekInput();
+  let v = 0;
+  let next = state.peekInput();
   while ((next != null) && /[0-9]/.test(next)) {
     valid = true;
     state.readInput();
     v = v * 10 + parseInt(next, 10);
     next = state.peekInput();
   }
-  if (state.peekInput() === void 0 && valid === false) {
+  if (state.peekInput() === undefined && valid === false) {
     return SentinelValue.null;
   }
   if (!valid) {
+    // We consumed input but are still invalid; that's a bad parse
+    // (should not happen at all)
     throw new Error.InvalidInput();
   }
   return new NumberLit(sign(v));
-};
+}
 
-export var isTruthy = function(c) {
+
+export function isTruthy(c: AST): boolean {
   return !(c instanceof NumberLit) || (c.value !== 0);
-};
+}
 
-export var catenate = function(a, b) {
+
+export function catenate(a: AST, b: AST): AST {
   if (a instanceof ArrayLit && b instanceof ArrayLit) {
     return new ArrayLit(a.data.concat(b.data));
   } else if (a instanceof StringLit && b instanceof StringLit) {
@@ -1488,6 +1491,5 @@ export var catenate = function(a, b) {
   } else {
     throw new Error.TypeError("arrays or strings", new ArrayLit([a, b]));
   }
-};
+}
 
-//# sourceMappingURL=ast.js.map
