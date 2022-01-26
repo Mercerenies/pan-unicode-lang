@@ -3,74 +3,78 @@ import { Token } from './token.js';
 import { AST } from './ast.js';
 
 export class Error {
+
   constructor() {}
 
-  id() {
+  id(): number {
     return -1;
   }
 
-  message() {
+  message(): string {
     return "Error";
   }
 
-  toString() {
+  toString(): string {
     return this.message();
   }
 
-};
+}
 
-export var UnknownCommandError = class UnknownCommandError extends Error {
+export class UnknownCommandError extends Error {
   readonly token: Token;
 
-  constructor(token) {
+  constructor(token: Token) {
     super();
     this.token = token;
   }
 
-  id() {
+  id(): number {
     return 1;
   }
 
-  message() {
+  message(): string {
     return `Unknown command ${this.token}`;
   }
 
-};
+}
 
-export var StackUnderflowError = class StackUnderflowError extends Error {
-  id() {
+export class StackUnderflowError extends Error {
+
+  id(): number {
     return 2;
   }
 
-  message() {
+  message(): string {
     return "Stack underflow";
   }
 
-};
+}
 
-export var CallStackUnderflowError = class CallStackUnderflowError extends Error {
-  id() {
+export class CallStackUnderflowError extends Error {
+
+  id(): number {
     return 3;
   }
 
-  message() {
+  message(): string {
     return "Call stack underflow";
   }
 
-};
+}
 
-export var UnexpectedEOF = class UnexpectedEOF extends Error {
-  id() {
+export class UnexpectedEOF extends Error {
+
+  id(): number {
     return 4;
   }
 
-  message() {
+  message(): string {
     return "Unexpected EOF";
   }
 
-};
+}
 
-export var UnexpectedParseError = class UnexpectedParseError extends Error {
+export class UnexpectedParseError extends Error {
   readonly token: Token;
 
   constructor(token) {
@@ -78,17 +82,17 @@ export var UnexpectedParseError = class UnexpectedParseError extends Error {
     this.token = token;
   }
 
-  id() {
+  id(): number {
     return 5;
   }
 
-  message() {
+  message(): string {
     return `Unexpected token ${this.token}`;
   }
 
-};
+}
 
-export var CallNonFunction = class CallNonFunction extends Error {
+export class CallNonFunction extends Error {
   readonly object: AST;
 
   constructor(object) {
@@ -96,17 +100,17 @@ export var CallNonFunction = class CallNonFunction extends Error {
     this.object = object;
   }
 
-  id() {
+  id(): number {
     return 6;
   }
 
-  message() {
+  message(): string {
     return `Attempt to call non-function ${this.object}`;
   }
 
-};
+}
 
-export var InvalidModifier = class InvalidModifier extends Error {
+export class InvalidModifier extends Error {
   readonly token: Token
 
   constructor(token) {
@@ -114,39 +118,41 @@ export var InvalidModifier = class InvalidModifier extends Error {
     this.token = token;
   }
 
-  id() {
+  id(): number {
     return 7;
   }
 
-  message() {
+  message(): string {
     return `Invalid modifier(s) on ${this.token}`;
   }
 
-};
+}
 
-export var IncompatibleArrayLengths = class IncompatibleArrayLengths extends Error {
-  id() {
+export class IncompatibleArrayLengths extends Error {
+
+  id(): number {
     return 8;
   }
 
-  message() {
+  message(): string {
     return "Incompatible array lengths";
   }
 
-};
+}
 
-export var InvalidInput = class InvalidInput extends Error {
-  id() {
+export class InvalidInput extends Error {
+
+  id(): number {
     return 9;
   }
 
-  message() {
+  message(): string {
     return "Invalid input";
   }
 
-};
+}
 
-export var TypeError = class TypeError extends Error {
+export class TypeError extends Error {
   readonly expected: string; // TODO Refine?
   readonly value: AST;
 
@@ -156,17 +162,17 @@ export var TypeError = class TypeError extends Error {
     this.value = value;
   }
 
-  id() {
+  id(): number {
     return 10;
   }
 
-  message() {
+  message(): string {
     return `Type error (Expected ${this.expected} got ${this.value})`;
   }
 
-};
+}
 
-export var StrEncodingError = class StrEncodingError extends Error {
+export class StrEncodingError extends Error {
   readonly str: string;
 
   constructor(str) {
@@ -174,17 +180,17 @@ export var StrEncodingError = class StrEncodingError extends Error {
     this.str = str;
   }
 
-  id() {
+  id(): number {
     return 11;
   }
 
-  message() {
+  message(): string {
     return `String encoding error (${this.str})`;
   }
 
-};
+}
 
-export var IncomparableValues = class IncomparableValues extends Error {
+export class IncomparableValues extends Error {
   readonly lhs: AST;
   readonly rhs: AST;
 
@@ -194,17 +200,17 @@ export var IncomparableValues = class IncomparableValues extends Error {
     this.rhs = rhs;
   }
 
-  id() {
+  id(): number {
     return 12;
   }
 
-  message() {
+  message(): string {
     return `Attempt to compare ${this.lhs} and ${this.rhs}`;
   }
 
-};
+}
 
-export var UserError = class UserError extends Error {
+export class UserError extends Error {
   readonly value: AST
 
   constructor(value) {
@@ -212,12 +218,12 @@ export var UserError = class UserError extends Error {
     this.value = value;
   }
 
-  id() {
+  id(): number {
     return 13;
   }
 
-  message() {
+  message(): string {
     return `User error ${this.value}`;
   }
 
-};
+}

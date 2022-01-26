@@ -10,8 +10,7 @@ export class Error {
         return this.message();
     }
 }
-;
-export var UnknownCommandError = class UnknownCommandError extends Error {
+export class UnknownCommandError extends Error {
     constructor(token) {
         super();
         this.token = token;
@@ -22,32 +21,32 @@ export var UnknownCommandError = class UnknownCommandError extends Error {
     message() {
         return `Unknown command ${this.token}`;
     }
-};
-export var StackUnderflowError = class StackUnderflowError extends Error {
+}
+export class StackUnderflowError extends Error {
     id() {
         return 2;
     }
     message() {
         return "Stack underflow";
     }
-};
-export var CallStackUnderflowError = class CallStackUnderflowError extends Error {
+}
+export class CallStackUnderflowError extends Error {
     id() {
         return 3;
     }
     message() {
         return "Call stack underflow";
     }
-};
-export var UnexpectedEOF = class UnexpectedEOF extends Error {
+}
+export class UnexpectedEOF extends Error {
     id() {
         return 4;
     }
     message() {
         return "Unexpected EOF";
     }
-};
-export var UnexpectedParseError = class UnexpectedParseError extends Error {
+}
+export class UnexpectedParseError extends Error {
     constructor(token) {
         super();
         this.token = token;
@@ -58,8 +57,8 @@ export var UnexpectedParseError = class UnexpectedParseError extends Error {
     message() {
         return `Unexpected token ${this.token}`;
     }
-};
-export var CallNonFunction = class CallNonFunction extends Error {
+}
+export class CallNonFunction extends Error {
     constructor(object) {
         super();
         this.object = object;
@@ -70,8 +69,8 @@ export var CallNonFunction = class CallNonFunction extends Error {
     message() {
         return `Attempt to call non-function ${this.object}`;
     }
-};
-export var InvalidModifier = class InvalidModifier extends Error {
+}
+export class InvalidModifier extends Error {
     constructor(token) {
         super();
         this.token = token;
@@ -82,24 +81,24 @@ export var InvalidModifier = class InvalidModifier extends Error {
     message() {
         return `Invalid modifier(s) on ${this.token}`;
     }
-};
-export var IncompatibleArrayLengths = class IncompatibleArrayLengths extends Error {
+}
+export class IncompatibleArrayLengths extends Error {
     id() {
         return 8;
     }
     message() {
         return "Incompatible array lengths";
     }
-};
-export var InvalidInput = class InvalidInput extends Error {
+}
+export class InvalidInput extends Error {
     id() {
         return 9;
     }
     message() {
         return "Invalid input";
     }
-};
-export var TypeError = class TypeError extends Error {
+}
+export class TypeError extends Error {
     constructor(expected, value) {
         super();
         this.expected = expected;
@@ -111,8 +110,8 @@ export var TypeError = class TypeError extends Error {
     message() {
         return `Type error (Expected ${this.expected} got ${this.value})`;
     }
-};
-export var StrEncodingError = class StrEncodingError extends Error {
+}
+export class StrEncodingError extends Error {
     constructor(str) {
         super();
         this.str = str;
@@ -123,8 +122,8 @@ export var StrEncodingError = class StrEncodingError extends Error {
     message() {
         return `String encoding error (${this.str})`;
     }
-};
-export var IncomparableValues = class IncomparableValues extends Error {
+}
+export class IncomparableValues extends Error {
     constructor(lhs, rhs) {
         super();
         this.lhs = lhs;
@@ -136,8 +135,8 @@ export var IncomparableValues = class IncomparableValues extends Error {
     message() {
         return `Attempt to compare ${this.lhs} and ${this.rhs}`;
     }
-};
-export var UserError = class UserError extends Error {
+}
+export class UserError extends Error {
     constructor(value) {
         super();
         this.value = value;
@@ -148,4 +147,4 @@ export var UserError = class UserError extends Error {
     message() {
         return `User error ${this.value}`;
     }
-};
+}
