@@ -10,59 +10,33 @@ export class Evaluator {
     eval(arg) {
         var elem, results;
         if (Array.isArray(arg)) {
-            results = [];
-            for (elem of arg) {
-                results.push(this.eval(elem));
-            }
-            return results;
-        }
-        else if (arg instanceof AST.AST) {
-            return arg.eval(this);
+            arg.forEach((x) => this.eval(x));
         }
         else {
-            throw `Error: Attempt to eval ${arg}, which is invalid!`;
+            arg.eval(this);
         }
     }
     push(...vs) {
-        var j, len, results, v;
-        results = [];
-        for (j = 0, len = vs.length; j < len; j++) {
-            v = vs[j];
-            // Wrap any primitives
-            v = (function () {
-                switch (false) {
-                    case typeof v !== 'number':
-                        return new AST.NumberLit(v);
-                    case !(typeof v === 'string' || v instanceof Str):
-                        return new AST.StringLit(v);
-                    default:
-                        return v;
-                }
-            })();
-            results.push(this.stack.push(v));
+        for (const v of vs) {
+            this.stack.push(wrapPrimitive(v));
         }
-        return results;
     }
     pop(n) {
-        var arr, i;
         if (n != null) {
-            arr = (() => {
-                var j, ref, results;
-                results = [];
-                for (i = j = 0, ref = n - 1; j <= ref; i = j += 1) {
-                    results.push(this.pop());
-                }
-                return results;
-            })();
+            const arr = [];
+            for (let i = 0; i < n; i++) {
+                arr.push(this.pop());
+            }
             arr.reverse();
             return arr;
         }
         else {
-            if (this.stack.length <= 0) {
+            const value = this.stack.pop();
+            if (value == null) {
                 throw new Error.StackUnderflowError();
             }
             else {
-                return this.stack.pop();
+                return value;
             }
         }
     }
@@ -85,7 +59,7 @@ export class Evaluator {
         }
     }
     pushCall(v) {
-        return this.callStack.push(v);
+        this.callStack.push(v);
     }
     popCall() {
         return this.callStack.pop();
@@ -103,32 +77,37 @@ export class Evaluator {
     print(value) {
         // Default behavior is to simply print to console. Interactive
         // editor will override this.
-        return console.log(value.toString());
+        console.log(value.toString());
     }
     getGlobal(k) {
-        var ref;
-        return (ref = this.globalVars[k]) != null ? ref : new AST.SentinelValue("ε");
+        var _a;
+        return (_a = this.globalVars[k]) !== null && _a !== void 0 ? _a : new AST.SentinelValue("ε");
     }
     setGlobal(k, v) {
-        return this.globalVars[k] = v;
+        this.globalVars[k] = v;
     }
     stackToString() {
         return this.stack.join(" ");
     }
     saveStack() {
-        return new SavedStack(this.stack.slice());
+        return this.stack.slice();
     }
     loadStack(savedStack) {
-        return this.stack = savedStack.stack;
+        this.stack = savedStack;
     }
 }
 ;
-// Wrapper around the value stack at a given point. Can only be passed
-// to/from Evaluator. The constructor should be treated as private and
-// local to this module.
-export class SavedStack {
-    constructor(stack) {
-        this.stack = stack;
+function wrapPrimitive(v) {
+    if (typeof v === 'number') {
+        return new AST.NumberLit(v);
+    }
+    else if (typeof v === 'string') {
+        return new AST.StringLit(Str.fromString(v));
+    }
+    else if (v instanceof Str) {
+        return new AST.StringLit(v);
+    }
+    else {
+        return v;
     }
 }
-;

@@ -14,65 +14,44 @@ export abstract class Evaluator {
     this.globalVars = {};
   }
 
-  eval(arg) {
+  eval(arg: AST.AST | AST.AST[]): void {
     var elem, results;
     if (Array.isArray(arg)) {
-      results = [];
-      for (elem of arg) {
-        results.push(this.eval(elem));
-      }
-      return results;
-    } else if (arg instanceof AST.AST) {
-      return arg.eval(this);
+      arg.forEach((x) => this.eval(x));
     } else {
-      throw `Error: Attempt to eval ${arg}, which is invalid!`;
+      arg.eval(this);
     }
   }
 
-  push(...vs) {
-    var j, len, results, v;
-    results = [];
-    for (j = 0, len = vs.length; j < len; j++) {
-      v = vs[j];
-      // Wrap any primitives
-      v = (function() {
-        switch (false) {
-          case typeof v !== 'number':
-            return new AST.NumberLit(v);
-          case !(typeof v === 'string' || v instanceof Str):
-            return new AST.StringLit(v);
-          default:
-            return v;
-        }
-      })();
-      results.push(this.stack.push(v));
+  push(...vs: (AST.AST | number | string | Str)[]): void {
+    for (const v of vs) {
+      this.stack.push(wrapPrimitive(v));
     }
-    return results;
   }
 
-  pop(n?: number) {
-    var arr, i;
+  pop(n: number): AST.AST[];
+  pop(): AST.AST;
+  pop(n?: number): AST.AST | AST.AST[] {
     if (n != null) {
-      arr = (() => {
-        var j, ref, results;
-        results = [];
-        for (i = j = 0, ref = n - 1; j <= ref; i = j += 1) {
-          results.push(this.pop());
-        }
-        return results;
-      })();
+      const arr: AST.AST[] = [];
+      for (let i = 0; i < n; i++) {
+        arr.push(this.pop());
+      }
       arr.reverse();
       return arr;
     } else {
-      if (this.stack.length <= 0) {
+      const value = this.stack.pop();
+      if (value == null) {
         throw new Error.StackUnderflowError();
       } else {
-        return this.stack.pop();
+        return value;
       }
     }
   }
 
-  peek(n) {
+  peek(n: number): AST.AST[];
+  peek(): AST.AST;
+  peek(n?: number): AST.AST | AST.AST[] {
     if (n != null) {
       if (this.stack.length < n) {
         throw new Error.StackUnderflowError();
@@ -88,17 +67,17 @@ export abstract class Evaluator {
     }
   }
 
-  pushCall(v) {
-    return this.callStack.push(v);
+  pushCall(v: AST.AST): void {
+    this.callStack.push(v);
   }
 
-  popCall() {
+  popCall(): AST.AST | undefined {
     return this.callStack.pop();
   }
 
   // n=0 gets the current stack frame. Higher arguments get deeper in
   // the call stack.
-  getFromCallStack(n) {
+  getFromCallStack(n: number): AST.AST {
     if (n >= this.callStack.length) {
       throw new Error.CallStackUnderflowError();
     } else {
@@ -106,10 +85,10 @@ export abstract class Evaluator {
     }
   }
 
-  print(value) {
+  print(value: AST.AST): void {
     // Default behavior is to simply print to console. Interactive
     // editor will override this.
-    return console.log(value.toString());
+    console.log(value.toString());
   }
 
 
@@ -120,37 +99,40 @@ export abstract class Evaluator {
   // Read one character from input but don't consume.
   abstract peekInput(): string | undefined;
 
-  getGlobal(k) {
-    var ref;
-    return (ref = this.globalVars[k]) != null ? ref : new AST.SentinelValue("ε");
+  getGlobal(k: string): AST.AST {
+    return this.globalVars[k] ?? new AST.SentinelValue("ε");
   }
 
-  setGlobal(k, v) {
-    return this.globalVars[k] = v;
+  setGlobal(k: string, v: AST.AST): void {
+    this.globalVars[k] = v;
   }
 
-  stackToString() {
+  stackToString(): string {
     return this.stack.join(" ");
   }
 
-  saveStack() {
-    return new SavedStack(this.stack.slice());
+  saveStack(): SavedStack {
+    return this.stack.slice() as SavedStack;
   }
 
-  loadStack(savedStack) {
-    return this.stack = savedStack.stack;
-  }
-
-};
-
-// Wrapper around the value stack at a given point. Can only be passed
-// to/from Evaluator. The constructor should be treated as private and
-// local to this module.
-export class SavedStack {
-  private stack: AST.AST[];
-
-  constructor(stack: AST.AST[]) {
-    this.stack = stack;
+  loadStack(savedStack: SavedStack): void {
+    this.stack = savedStack;
   }
 
 };
+
+
+export type SavedStack = AST.AST[] & { readonly __tag: unique symbol };
+
+
+function wrapPrimitive(v: AST.AST | number | string | Str): AST.AST {
+  if (typeof v === 'number') {
+    return new AST.NumberLit(v);
+  } else if (typeof v === 'string') {
+    return new AST.StringLit(Str.fromString(v));
+  } else if (v instanceof Str) {
+    return new AST.StringLit(v);
+  } else {
+    return v;
+  }
+}
