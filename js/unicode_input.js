@@ -5,6 +5,7 @@ export class InputManager {
         this.handler = null;
         this.downHandler = null;
         this.translations = compileTranslationTable(DEFAULT_TRANSLATION_TABLE);
+        console.log(this.translations);
         this.currentTranslation = null;
         this.currentString = "";
         this.currentPosition = 0;
@@ -97,8 +98,7 @@ export function compileTranslationTable(table) {
     for (const k in table) {
         const v = table[k];
         let curr = result;
-        [...k].forEach((i, ch) => {
-            ch = k[i];
+        [...k].forEach((ch, i) => {
             if (curr[ch] == null) {
                 curr[ch] = {};
             }

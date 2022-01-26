@@ -114,8 +114,7 @@ export function compileTranslationTable(table: TranslationTable): CompiledTable 
   for (const k in table) {
     const v = table[k];
     let curr: CompiledTable = result;
-    [...k].forEach((i, ch) => {
-      ch = k[i];
+    [...k].forEach((ch, i) => {
       if (curr[ch] == null) {
         curr[ch] = {};
       }
