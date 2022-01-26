@@ -1,4 +1,4 @@
-export var toNumber = function (ch) {
+export function toNumber(ch) {
     switch (ch.charAt(0)) {
         case '⁰':
         case '₀':
@@ -31,10 +31,11 @@ export var toNumber = function (ch) {
         case '₉':
             return 9;
         default:
-            return void 0;
+            return undefined;
     }
-};
-export var toSub = function (n) {
+}
+;
+export function toSub(n) {
     switch (n) {
         case 0:
             return '₀';
@@ -57,10 +58,11 @@ export var toSub = function (n) {
         case 9:
             return '₉';
         default:
-            return void 0;
+            return undefined;
     }
-};
-export var toSuper = function (n) {
+}
+;
+export function toSuper(n) {
     switch (n) {
         case 0:
             return '⁰';
@@ -83,8 +85,8 @@ export var toSuper = function (n) {
         case 9:
             return '⁹';
         default:
-            return void 0;
+            return undefined;
     }
-};
+}
+;
 // TODO Note that ₀ is unassigned for the moment. Haven't decided what to do with it yet.
-//# sourceMappingURL=super_sub.js.map

@@ -839,7 +839,7 @@ export class SimpleCmd extends AST {
       case '⁷':
       case '⁸':
       case '⁹': {
-        const value = SuperSub.toNumber(this.token.text);
+        const value = SuperSub.toNumber(this.token.text as Str);
         if (value === undefined) {
           throw `Internal error in superscript with ${this.token.text}`;
         }
@@ -854,7 +854,7 @@ export class SimpleCmd extends AST {
       case '₇':
       case '₈':
       case '₉': {
-        const value = SuperSub.toNumber(this.token.text);
+        const value = SuperSub.toNumber(this.token.text as Str);
         if (value === undefined) {
           throw `Internal error in subscript with ${this.token.text}`;
         }

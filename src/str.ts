@@ -2,20 +2,19 @@
 import { StrEncodingError } from './error.js';
 
 // I want random access to individual "characters" in a string without
-// worrying about UTF-16 encoding issues. This class takes a string and
-// converts it to an array of individual characters, so we can get that
-// behavior.
+// worrying about UTF-16 encoding issues. This class takes a string
+// and converts it to an array of individual characters, so we can get
+// that behavior.
 export default class Str {
   private readonly data: string[];
 
-  constructor(data1) {
-    this.data = data1;
+  constructor(data: string[]) {
+    this.data = data;
   }
 
-  static fromString(text) {
-    var data, i;
-    data = [];
-    i = 0;
+  static fromString(text: string): Str {
+    const data: string[] = [];
+    let i = 0;
     while (i < text.length) {
       if (isHighSurrogate(text[i].charCodeAt(0))) {
         // High surrogate
@@ -32,24 +31,24 @@ export default class Str {
     return new Str(data);
   }
 
-  toString() {
+  toString(): string {
     return this.data.join('');
   }
 
-  charAt(n) {
+  charAt(n: number): string {
     return this.data[n];
   }
 
-  codePointAt(n) {
-    return this.data[n].codePointAt(0);
+  codePointAt(n: number): number {
+    return this.data[n].codePointAt(0)!;
   }
 
-  concat(that) {
+  concat(that: Str): Str {
     return new Str(this.data.concat(that.data));
   }
 
-  static fromCodePoint(codepoint) {
-    return new Str(String.fromCodePoint(codepoint));
+  static fromCodePoint(codepoint: number): Str {
+    return Str.fromString(String.fromCodePoint(codepoint));
   }
 
   get length(): number {
