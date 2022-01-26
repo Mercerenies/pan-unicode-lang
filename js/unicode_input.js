@@ -5,7 +5,6 @@ export class InputManager {
         this.handler = null;
         this.downHandler = null;
         this.translations = compileTranslationTable(DEFAULT_TRANSLATION_TABLE);
-        console.log(this.translations);
         this.currentTranslation = null;
         this.currentString = "";
         this.currentPosition = 0;

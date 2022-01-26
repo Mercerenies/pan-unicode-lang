@@ -87,7 +87,6 @@ export class SimpleCmd extends AST {
   }
 
   eval(state: Evaluator): void {
-    var acc, arg, arr, body, c, chomp, cond, curr, deffn, delim, dropCmd, dropper, elem, exc, f, fn, frame, func, i, j, k, l, len, len1, len2, len3, list, m, mod, n, newTerm, num, o, p, preserve, q, r, recoverBlock, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, res, result, results, results1, results2, results3, s, savedStack, t, tryBlock, value, x;
     if (this.isNumberLit()) {
       state.push(new NumberLit(this.token.text as number));
     } else if (this.isStringLit()) {
@@ -940,7 +939,7 @@ export class SimpleCmd extends AST {
         if (value === undefined) {
           throw `Internal error in superscript with ${this.token.text}`;
         }
-        state.push((ref2 = ListOp.nth(state.pop(), value)) != null ? ref2 : SentinelValue.null);
+        state.push(ListOp.nth(state.pop(), value) ?? SentinelValue.null);
         break;
       }
       case '₁':
@@ -956,7 +955,7 @@ export class SimpleCmd extends AST {
         if (value === undefined) {
           throw `Internal error in subscript with ${this.token.text}`;
         }
-        state.push((ref3 = ListOp.nth(state.pop(), -value)) != null ? ref3 : SentinelValue.null);
+        state.push(ListOp.nth(state.pop(), -value) ?? SentinelValue.null);
         break;
       }
       case '∈': // Member ( list x -- idx )
@@ -1143,21 +1142,22 @@ export class SimpleCmd extends AST {
         state.pop();
         state.push(new ArrayLit(result));
         break;
-      case '$': // Call ( ..a ( ..a -- ..b ) -- ..b )
-        fn = state.pop();
+      case '$': { // Call ( ..a ( ..a -- ..b ) -- ..b )
+        const fn = state.pop();
         tryCall(fn, state);
         break;
+      }
       case '😱': // Panic and throw error ( err -- )
         throw state.pop().toException();
         break;
-      case '🙏': // Catch errors ( ..a ( ..a -- ..b) ( ..a err -- ..b ) -- ..b )
-        [tryBlock, recoverBlock] = state.pop(2);
-        savedStack = state.saveStack();
+      case '🙏': { // Catch errors ( ..a ( ..a -- ..b) ( ..a err -- ..b ) -- ..b )
+        const [tryBlock, recoverBlock] = state.pop(2);
+        const savedStack = state.saveStack();
         try {
           // TODO Don't piggyback on JS error handling; implement it in our VM
           tryCall(tryBlock, state);
         } catch (error) {
-          exc = error;
+          const exc = error;
           if (exc instanceof Error.Error) {
             state.loadStack(savedStack);
             state.push(StringLit.fromException(exc));
@@ -1167,20 +1167,22 @@ export class SimpleCmd extends AST {
           }
         }
         break;
+      }
       /* HIGHER ORDER FUNCTIONS */
       case 'ī': // Push identity function
         state.push(new FunctionLit([]));
         break;
-      case 'c': // Make constant function ( x -- ( -- x ) )
+      case 'c': { // Make constant function ( x -- ( -- x ) )
         // Numerical argument (defaults to zero) determines number to
         // pop in resulting function.
-        num = this.getNumMod(0);
-        x = state.pop();
-        dropCmd = new SimpleCmd(new Token("%"));
+        const num = this.getNumMod(0);
+        const x = state.pop();
+        const dropCmd = new SimpleCmd(new Token("%"));
         dropCmd.modifiers.push(new Modifier.NumModifier(num));
-        dropper = new FunctionLit([dropCmd]);
+        const dropper = new FunctionLit([dropCmd]);
         state.push(new ComposedFunction(dropper, new CurriedFunction(x, new FunctionLit([]))));
         break;
+      }
       case '●': // Curry ( x ( ..a x -- ..b ) -- ( ..a -- ..b ) )
         Op.op(state, this, {
           function: function(x, f) {
@@ -1208,32 +1210,36 @@ export class SimpleCmd extends AST {
         });
         break;
       /* BOXING / UNBOXING */
-      case '⊂': // Box ( x -- box )
-        value = state.pop();
+      case '⊂': { // Box ( x -- box )
+        const value = state.pop();
         state.push(new Box(value));
         break;
-      case '⊃': // Unbox ( box -- x )
+      }
+      case '⊃': { // Unbox ( box -- x )
         // No effect if value is not boxed
-        value = state.pop();
+        const value = state.pop();
         state.push(value instanceof Box ? value.value : value);
         break;
+      }
       /* STACK COMBINATORS */
-      case 'D': // Dip ( ..a x ( ..a -- ..b ) -- ..b x )
+      case 'D': { // Dip ( ..a x ( ..a -- ..b ) -- ..b x )
         // (Numerical modifier determines arity)
-        mod = this.getNumMod(1);
-        fn = state.pop();
-        preserve = state.pop(mod);
+        const mod = this.getNumMod(1);
+        const fn = state.pop();
+        const preserve = state.pop(mod);
         tryCall(fn, state);
         state.push(...preserve);
         break;
-      case 'K': // Keep ( ..a x ( ..a x -- ..b ) -- ..b x )
+      }
+      case 'K': { // Keep ( ..a x ( ..a x -- ..b ) -- ..b x )
         // (Numerical modifier determines arity)
-        mod = this.getNumMod(1);
-        fn = state.pop();
-        preserve = state.peek(mod);
+        const mod = this.getNumMod(1);
+        const fn = state.pop();
+        const preserve = state.peek(mod);
         tryCall(fn, state);
         state.push(...preserve);
         break;
+      }
       case '⇉': // "Spread" combinator, in Factor parlance
         // See StackOp.spread for details.
         StackOp.spread(this, state);
