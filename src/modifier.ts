@@ -1,5 +1,5 @@
 
-import { StringLit } from './ast.js';
+import { Token } from './token.js';
 
 export const NUMS: string = "⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
 
@@ -27,7 +27,7 @@ export class PrimeModifier extends Modifier {
 
 };
 
-export function toNumModifier(tok: StringLit): NumModifier | undefined {
+export function toNumModifier(tok: Token): NumModifier | undefined {
   if (tok.text.toString() === "") {
     return undefined;
   }

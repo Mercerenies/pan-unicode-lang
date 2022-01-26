@@ -3,17 +3,15 @@ import { SimpleCmd, FunctionLit, AssignToVar, ReadFromVar } from './ast.js';
 import * as Error from './error.js';
 import * as Modifier from './modifier.js';
 import Str from './str.js';
-// Takes an Str
-export var tokenize = function (str) {
-    var arr, ch, curr, idx, len, nested, num, result;
+export function tokenize(str) {
     if (typeof str === 'string') {
         str = Str.fromString(str);
     }
-    arr = [];
-    idx = 0;
-    len = str.length;
+    const arr = [];
+    let idx = 0;
+    const len = str.length;
     while (idx < len) {
-        ch = str.charAt(idx);
+        const ch = str.charAt(idx);
         if (/\s/.test(ch)) {
             // Whitespace; skip
             idx += 1;
@@ -34,7 +32,7 @@ export var tokenize = function (str) {
         }
         else if (/[0-9]/.test(ch) || (ch === "-" && idx < len - 1 && /[0-9]/.test(str.charAt(idx + 1)))) {
             // Number; parse whole number
-            num = ch;
+            let num = ch;
             idx += 1;
             while (idx < len && /[0-9]/.test(str.charAt(idx))) {
                 num += str.charAt(idx);
@@ -45,7 +43,7 @@ export var tokenize = function (str) {
         else if (ch === '"') {
             // String literal; parse whole string
             idx += 1;
-            result = "";
+            let result = "";
             while (idx < len && str.charAt(idx) !== '"') {
                 if (str.charAt(idx) === '\\') {
                     idx += 1;
@@ -67,13 +65,13 @@ export var tokenize = function (str) {
         }
         else if (ch === '«') {
             // Comment; skip until next matching »
-            nested = 1;
+            let nested = 1;
             idx += 1;
             while (nested > 0) {
                 if (idx >= len) {
                     throw new Error.UnexpectedEOF();
                 }
-                curr = str.charAt(idx);
+                const curr = str.charAt(idx);
                 if (curr === '«') {
                     nested += 1;
                 }
@@ -90,34 +88,28 @@ export var tokenize = function (str) {
         }
     }
     return arr;
-};
+}
 class Parser {
     constructor(tokens, index) {
         this.tokens = tokens;
         this.index = index;
     }
     at() {
-        if (this.atEnd()) {
-            return void 0;
-        }
-        else {
-            return this.tokens[this.index];
-        }
+        return this.tokens[this.index];
     }
     parseTermNoMod() {
-        var curr, inner;
-        curr = this.at();
+        const curr = this.at();
         if (curr == null) {
-            return void 0;
+            return undefined;
         }
         if (curr.isString) {
             this.index += 1;
             return new SimpleCmd(curr);
         }
         switch (curr.text.toString()) {
-            case '[':
+            case '[': {
                 this.index += 1;
-                inner = this.parse();
+                const inner = this.parse();
                 const next = this.at();
                 if ((next == null) || next.text.toString() !== ']') {
                     if (next != null) {
@@ -129,11 +121,12 @@ class Parser {
                 }
                 this.index += 1;
                 return new FunctionLit(inner);
+            }
             case ']':
-                return void 0;
-            case '`':
+                return undefined;
+            case '`': {
                 this.index += 1;
-                inner = this.parseTerm();
+                const inner = this.parseTerm();
                 if (inner == null) {
                     const next = this.at();
                     if (next != null) {
@@ -144,46 +137,48 @@ class Parser {
                     }
                 }
                 return new FunctionLit([inner]);
-            case '→':
+            }
+            case '→': {
                 this.index += 1;
-                inner = this.at();
-                if ((inner != null ? inner.tokenType() : void 0) === TokenType.Command) {
+                const inner = this.at();
+                if ((inner != null) && (inner.tokenType() === TokenType.Command)) {
                     this.index += 1;
                     return new AssignToVar(inner);
                 }
-                else if (this.at() != null) {
+                else if (inner != null) {
                     throw new Error.UnexpectedParseError(this.at());
                 }
                 else {
                     throw new Error.UnexpectedEOF();
                 }
                 break;
-            case '←':
+            }
+            case '←': {
                 this.index += 1;
-                inner = this.at();
-                if ((inner != null ? inner.tokenType() : void 0) === TokenType.Command) {
+                const inner = this.at();
+                if ((inner != null) && (inner.tokenType() === TokenType.Command)) {
                     this.index += 1;
                     return new ReadFromVar(inner);
                 }
-                else if (this.at() != null) {
+                else if (inner != null) {
                     throw new Error.UnexpectedParseError(this.at());
                 }
                 else {
                     throw new Error.UnexpectedEOF();
                 }
                 break;
+            }
             default:
                 this.index += 1;
                 return new SimpleCmd(curr);
         }
     }
     parseTerm() {
-        var mod, result;
-        result = this.parseTermNoMod();
+        const result = this.parseTermNoMod();
         if (result == null) {
             return void 0;
         }
-        mod = this.tryParseMod();
+        let mod = this.tryParseMod();
         while (mod != null) {
             result.modifiers.push(mod);
             mod = this.tryParseMod();
@@ -191,12 +186,11 @@ class Parser {
         return result;
     }
     tryParseMod() {
-        var curr, num;
-        curr = this.at();
+        const curr = this.at();
         if (curr == null) {
-            return void 0;
+            return undefined;
         }
-        num = Modifier.toNumModifier(curr);
+        const num = Modifier.toNumModifier(curr);
         if (num != null) {
             this.index += 1;
             return num;
@@ -206,14 +200,13 @@ class Parser {
             return new Modifier.PrimeModifier();
         }
         else {
-            return void 0;
+            return undefined;
         }
     }
     parse() {
-        var arr, next;
-        arr = [];
+        const arr = [];
         while (!this.atEnd()) {
-            next = this.parseTerm();
+            const next = this.parseTerm();
             if (next == null) {
                 break;
             }
@@ -225,14 +218,11 @@ class Parser {
         return this.index >= this.tokens.length;
     }
 }
-;
-export var parse = function (tokens) {
-    var parser, result;
-    parser = new Parser(tokens, 0);
-    result = parser.parse();
+export function parse(tokens) {
+    const parser = new Parser(tokens, 0);
+    const result = parser.parse();
     if (!parser.atEnd()) {
         throw new Error.UnexpectedParseError(parser.at());
     }
     return result;
-};
-//# sourceMappingURL=parser.js.map
+}
