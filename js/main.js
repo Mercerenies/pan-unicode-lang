@@ -43,7 +43,6 @@ export class InteractiveEvaluator extends Evaluator {
         }
     }
 }
-;
 export function run() {
     const codeField = document.querySelector("#code");
     const outputField = document.querySelector("#output");
@@ -78,10 +77,7 @@ export function run() {
     }
     stackField.innerText = evaluator.stackToString();
 }
-;
-export function initInputManager() {
+export function initInputMgr() {
     const inputManager = new InputManager();
     inputManager.register(document.querySelector("#code"));
 }
-;
-//# sourceMappingURL=main.js.map

@@ -90,7 +90,7 @@ export function run() {
 }
 
 
-export function initInputManager(): void {
+export function initInputMgr(): void {
   const inputManager = new InputManager();
   inputManager.register(document.querySelector("#code")!);
 }
