@@ -613,9 +613,7 @@ export class SimpleCmd extends AST {
           },
           postProcess: Op.boolToInt,
           zero: -1,
-          extension: Op.merge(function(a, b) {
-            return a & b;
-          }),
+          extension: Op.mergeAnd,
           scalarExtend: true,
           whiteFlag: Op.WhiteFlag.ignore
         });
@@ -627,9 +625,7 @@ export class SimpleCmd extends AST {
           },
           postProcess: Op.boolToInt,
           zero: -1,
-          extension: Op.merge(function(a, b) {
-            return a & b;
-          }),
+          extension: Op.mergeAnd,
           scalarExtend: true,
           whiteFlag: Op.WhiteFlag.ignore
         });
@@ -641,9 +637,7 @@ export class SimpleCmd extends AST {
           },
           postProcess: Op.boolToInt,
           zero: -1,
-          extension: Op.merge(function(a, b) {
-            return a & b;
-          }),
+          extension: Op.mergeAnd,
           scalarExtend: true,
           whiteFlag: Op.WhiteFlag.ignore
         });
@@ -655,9 +649,7 @@ export class SimpleCmd extends AST {
           },
           postProcess: Op.boolToInt,
           zero: -1,
-          extension: Op.merge(function(a, b) {
-            return a & b;
-          }),
+          extension: Op.mergeAnd,
           scalarExtend: true,
           whiteFlag: Op.WhiteFlag.ignore
         });
@@ -669,9 +661,7 @@ export class SimpleCmd extends AST {
           },
           postProcess: Op.boolToInt,
           zero: -1,
-          extension: Op.merge(function(a, b) {
-            return a & b;
-          }),
+          extension: Op.mergeAnd,
           scalarExtend: true,
           whiteFlag: Op.WhiteFlag.ignore
         });
@@ -683,13 +673,11 @@ export class SimpleCmd extends AST {
           },
           postProcess: Op.boolToInt,
           zero: -1,
-          extension: Op.merge(function(a, b) {
-            return a & b;
-          }),
+          extension: Op.mergeAnd,
           scalarExtend: true,
           whiteFlag: Op.WhiteFlag.ignore
         });
-        break;
+        break; // TODO More advanced merging for ≠ and ≢ (they're not transitive)
       case '≡': // Same ( x y -- ? )
         // Note: No scalar extension
         Op.op(state, this, {
@@ -698,9 +686,7 @@ export class SimpleCmd extends AST {
           },
           postProcess: Op.boolToInt,
           zero: -1,
-          extension: Op.merge(function(a, b) {
-            return a & b;
-          }),
+          extension: Op.mergeAnd,
           scalarExtend: false,
           whiteFlag: Op.WhiteFlag.ignore
         });
@@ -713,9 +699,7 @@ export class SimpleCmd extends AST {
           },
           postProcess: Op.boolToInt,
           zero: -1,
-          extension: Op.merge(function(a, b) {
-            return a & b;
-          }),
+          extension: Op.mergeAnd,
           scalarExtend: false,
           whiteFlag: Op.WhiteFlag.ignore
         });
