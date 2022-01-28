@@ -32,11 +32,10 @@ export class InteractiveEvaluator extends Evaluator {
   }
 
   readInput(): string | undefined {
-    var result;
     if (this.inputPos >= this.input.length) {
       return undefined;
     } else {
-      result = this.input.charAt(this.inputPos);
+      const result = this.input.charAt(this.inputPos);
       this.inputPos += 1;
       return result;
     }

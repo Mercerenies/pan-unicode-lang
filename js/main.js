@@ -24,12 +24,11 @@ export class InteractiveEvaluator extends Evaluator {
         outputField.innerText += value.toString() + "\n";
     }
     readInput() {
-        var result;
         if (this.inputPos >= this.input.length) {
             return undefined;
         }
         else {
-            result = this.input.charAt(this.inputPos);
+            const result = this.input.charAt(this.inputPos);
             this.inputPos += 1;
             return result;
         }

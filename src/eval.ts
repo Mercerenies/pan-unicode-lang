@@ -15,7 +15,6 @@ export abstract class Evaluator {
   }
 
   eval(arg: AST.AST | AST.AST[]): void {
-    var elem, results;
     if (Array.isArray(arg)) {
       arg.forEach((x) => this.eval(x));
     } else {

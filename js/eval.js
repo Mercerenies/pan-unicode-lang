@@ -8,7 +8,6 @@ export class Evaluator {
         this.globalVars = {};
     }
     eval(arg) {
-        var elem, results;
         if (Array.isArray(arg)) {
             arg.forEach((x) => this.eval(x));
         }
