@@ -142,7 +142,7 @@ class Parser {
         this.index += 1;
         return new AssignToVar(inner);
       } else if (inner != null) {
-        throw new Error.UnexpectedParseError(this.at());
+        throw new Error.UnexpectedParseError(inner);
       } else {
         throw new Error.UnexpectedEOF();
       }
@@ -155,7 +155,7 @@ class Parser {
         this.index += 1;
         return new ReadFromVar(inner);
       } else if (inner != null) {
-        throw new Error.UnexpectedParseError(this.at());
+        throw new Error.UnexpectedParseError(inner);
       } else {
         throw new Error.UnexpectedEOF();
       }
@@ -219,7 +219,7 @@ export function parse(tokens: Token[]): AST[] {
   const parser = new Parser(tokens, 0);
   const result = parser.parse();
   if (!parser.atEnd()) {
-    throw new Error.UnexpectedParseError(parser.at());
+    throw new Error.UnexpectedParseError(parser.at()!);
   }
   return result;
 }

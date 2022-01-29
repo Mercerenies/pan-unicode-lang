@@ -146,7 +146,7 @@ class Parser {
                     return new AssignToVar(inner);
                 }
                 else if (inner != null) {
-                    throw new Error.UnexpectedParseError(this.at());
+                    throw new Error.UnexpectedParseError(inner);
                 }
                 else {
                     throw new Error.UnexpectedEOF();
@@ -161,7 +161,7 @@ class Parser {
                     return new ReadFromVar(inner);
                 }
                 else if (inner != null) {
-                    throw new Error.UnexpectedParseError(this.at());
+                    throw new Error.UnexpectedParseError(inner);
                 }
                 else {
                     throw new Error.UnexpectedEOF();

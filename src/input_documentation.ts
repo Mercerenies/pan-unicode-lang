@@ -7,7 +7,7 @@ export function printTable(node: HTMLElement): void {
   <tr><th>Character</th><th>To Input</th></tr>`;
 
   // Compile the flipped table.
-  const flippedTable = {};
+  const flippedTable: Record<string, string[]> = {};
   for (const k in DEFAULT_TRANSLATION_TABLE) {
     const v = DEFAULT_TRANSLATION_TABLE[k];
     if (flippedTable[v] == null) {
@@ -27,4 +27,4 @@ export function printTable(node: HTMLElement): void {
 
   result += `</table>`;
   node.innerHTML = result;
-};
+}

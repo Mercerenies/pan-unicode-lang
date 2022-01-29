@@ -77,7 +77,7 @@ export class UnexpectedEOF extends Error {
 export class UnexpectedParseError extends Error {
   readonly token: Token;
 
-  constructor(token) {
+  constructor(token: Token) {
     super();
     this.token = token;
   }
@@ -95,7 +95,7 @@ export class UnexpectedParseError extends Error {
 export class CallNonFunction extends Error {
   readonly object: AST;
 
-  constructor(object) {
+  constructor(object: AST) {
     super();
     this.object = object;
   }
@@ -111,9 +111,9 @@ export class CallNonFunction extends Error {
 }
 
 export class InvalidModifier extends Error {
-  readonly token: Token
+  readonly token: Token | AST;
 
-  constructor(token) {
+  constructor(token: Token | AST) {
     super();
     this.token = token;
   }
@@ -152,11 +152,11 @@ export class InvalidInput extends Error {
 
 }
 
-export class TypeError extends Error {
+export class TypeError<T> extends Error {
   readonly expected: string; // TODO Refine?
-  readonly value: AST;
+  readonly value: T;
 
-  constructor(expected, value) {
+  constructor(expected: string, value: T) {
     super();
     this.expected = expected;
     this.value = value;
@@ -175,7 +175,7 @@ export class TypeError extends Error {
 export class StrEncodingError extends Error {
   readonly str: string;
 
-  constructor(str) {
+  constructor(str: string) {
     super();
     this.str = str;
   }
@@ -194,7 +194,7 @@ export class IncomparableValues extends Error {
   readonly lhs: AST;
   readonly rhs: AST;
 
-  constructor(lhs, rhs) {
+  constructor(lhs: AST, rhs: AST) {
     super();
     this.lhs = lhs;
     this.rhs = rhs;
@@ -213,7 +213,7 @@ export class IncomparableValues extends Error {
 export class UserError extends Error {
   readonly value: AST
 
-  constructor(value) {
+  constructor(value: AST) {
     super();
     this.value = value;
   }

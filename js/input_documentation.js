@@ -23,4 +23,3 @@ export function printTable(node) {
     result += `</table>`;
     node.innerHTML = result;
 }
-;
