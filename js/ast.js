@@ -770,7 +770,7 @@ export class SimpleCmd extends AST {
                 case '{':
                 case '⚐':
                 case 'ε': // Sentinel value
-                    state.push(new SentinelValue(this.token.text));
+                    state.push(new SentinelValue(this.token.text)); // TODO Grab the singletons with a static method on SentinelValue.
                     break;
                 case '⚑': { // Construct ⚐ sentinel ( fn deffn -- fn )
                     // Constructs a handler for the ⚐ sentinel. The resulting

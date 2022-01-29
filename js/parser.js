@@ -17,7 +17,7 @@ export function tokenize(str) {
             idx += 1;
         }
         else if (ch === "👿") {
-            arr.push(new Token(0 / 0));
+            arr.push(new Token(NaN));
             idx += 1;
         }
         else if (ch === "∞" || (ch === "-" && idx < len - 1 && str.charAt(idx + 1) === "∞")) {
