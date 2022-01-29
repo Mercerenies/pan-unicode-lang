@@ -22,11 +22,11 @@ export function tokenize(str) {
         }
         else if (ch === "∞" || (ch === "-" && idx < len - 1 && str.charAt(idx + 1) === "∞")) {
             if (ch === "∞") {
-                arr.push(new Token(2e308));
+                arr.push(new Token(Infinity));
                 idx += 1;
             }
             else {
-                arr.push(new Token(-2e308));
+                arr.push(new Token(-Infinity));
                 idx += 2;
             }
         }

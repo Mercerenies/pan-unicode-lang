@@ -732,7 +732,7 @@ export class SimpleCmd extends AST {
                         },
                         preProcess: id,
                         postProcess: id,
-                        zero: -2e308,
+                        zero: -Infinity,
                         extension: Op.binary,
                         scalarExtend: true
                     });
@@ -753,7 +753,7 @@ export class SimpleCmd extends AST {
                         },
                         preProcess: id,
                         postProcess: id,
-                        zero: 2e308,
+                        zero: Infinity,
                         extension: Op.binary,
                         scalarExtend: true
                     });
