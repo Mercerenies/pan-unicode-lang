@@ -170,7 +170,7 @@ export function noExtension(fn, term, state, opts = {}) {
     const [a, b] = state.pop(2);
     state.push(fn(a, b));
 }
-export function binary(fn, term, state, opts = {}) {
+export const binary = function (fn, term, state, opts = {}) {
     let zero = opts.zero;
     let one = opts.one;
     if (typeof zero === 'number') {
@@ -196,9 +196,9 @@ export function binary(fn, term, state, opts = {}) {
         modifierAdjustment: opts.modifierAdjustment,
         defaultModifier: opts.defaultModifier
     });
-}
+};
 // binary but associate to the right
-export function binaryRight(fn, term, state, opts = {}) {
+export const binaryRight = function (fn, term, state, opts = {}) {
     let zero = opts.zero;
     let one = opts.one;
     if (typeof zero === 'number') {
@@ -224,7 +224,7 @@ export function binaryRight(fn, term, state, opts = {}) {
         modifierAdjustment: opts.modifierAdjustment,
         defaultModifier: opts.defaultModifier
     });
-}
+};
 export function merge(reduce) {
     return function (fn, term, state, opts = {}) {
         if (opts.scalarExtend) {

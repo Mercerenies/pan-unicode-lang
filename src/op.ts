@@ -195,65 +195,67 @@ export function noExtension(fn: (a: AST, b: AST) => AST, term: AST, state: Evalu
 }
 
 
-export function binary(fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}): void {
-  let zero = opts.zero;
-  let one = opts.one;
-  if (typeof zero === 'number') {
-    zero = new NumberLit(zero);
-  }
-  if (typeof one === 'number') {
-    one = new NumberLit(one);
-  }
-  if ((zero != null) && typeof zero !== 'function') {
-    const originalZero = zero;
-    zero = () => originalZero;
-  }
-  if ((one != null) && typeof one !== 'function') {
-    const originalOne = one;
-    one = () => originalOne;
-  }
-  if (opts.scalarExtend && (one != null)) {
-    one = scalarExtendUnary(one);
-  }
-  binaryReduce(fn, term, state, {
-    zero: zero,
-    one: one,
-    modifierAdjustment: opts.modifierAdjustment,
-    defaultModifier: opts.defaultModifier
-  });
-}
+export const binary: ExtensionFunction =
+  function(fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}): void {
+    let zero = opts.zero;
+    let one = opts.one;
+    if (typeof zero === 'number') {
+      zero = new NumberLit(zero);
+    }
+    if (typeof one === 'number') {
+      one = new NumberLit(one);
+    }
+    if ((zero != null) && typeof zero !== 'function') {
+      const originalZero = zero;
+      zero = () => originalZero;
+    }
+    if ((one != null) && typeof one !== 'function') {
+      const originalOne = one;
+      one = () => originalOne;
+    }
+    if (opts.scalarExtend && (one != null)) {
+      one = scalarExtendUnary(one);
+    }
+    binaryReduce(fn, term, state, {
+      zero: zero,
+      one: one,
+      modifierAdjustment: opts.modifierAdjustment,
+      defaultModifier: opts.defaultModifier
+    });
+  };
 
 
 // binary but associate to the right
-export function binaryRight(fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}): void {
-  let zero = opts.zero;
-  let one = opts.one;
-  if (typeof zero === 'number') {
-    zero = new NumberLit(zero);
-  }
-  if (typeof one === 'number') {
-    one = new NumberLit(one);
-  }
-  if ((zero != null) && typeof zero !== 'function') {
-    const originalZero = zero;
-    zero = () => originalZero;
-  }
-  if ((one != null) && typeof one !== 'function') {
-    const originalOne = one;
-    one = () => originalOne;
-  }
-  if (opts.scalarExtend && (one != null)) {
-    one = scalarExtendUnary(one);
-  }
-  binaryReduceRight(fn, term, state, {
-    zero: zero,
-    one: one,
-    modifierAdjustment: opts.modifierAdjustment,
-    defaultModifier: opts.defaultModifier
-  });
-}
+export const binaryRight: ExtensionFunction =
+  function(fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}): void {
+    let zero = opts.zero;
+    let one = opts.one;
+    if (typeof zero === 'number') {
+      zero = new NumberLit(zero);
+    }
+    if (typeof one === 'number') {
+      one = new NumberLit(one);
+    }
+    if ((zero != null) && typeof zero !== 'function') {
+      const originalZero = zero;
+      zero = () => originalZero;
+    }
+    if ((one != null) && typeof one !== 'function') {
+      const originalOne = one;
+      one = () => originalOne;
+    }
+    if (opts.scalarExtend && (one != null)) {
+      one = scalarExtendUnary(one);
+    }
+    binaryReduceRight(fn, term, state, {
+      zero: zero,
+      one: one,
+      modifierAdjustment: opts.modifierAdjustment,
+      defaultModifier: opts.defaultModifier
+    });
+  };
 
-export function merge(reduce: (a: AST, b: AST) => AST): (fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions>) => void {
+export function merge(reduce: (a: AST, b: AST) => AST): ExtensionFunction {
   return function(fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}) {
     if (opts.scalarExtend) {
       reduce = scalarExtend(reduce);
@@ -286,7 +288,7 @@ export function merge(reduce: (a: AST, b: AST) => AST): (fn: (a: AST, b: AST) =>
   };
 }
 
-export const mergeAnd: (fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions>) => void =
+export const mergeAnd: ExtensionFunction =
   merge(function(a, b) {
     return new NumberLit(isNumber(a).value & isNumber(b).value);
   });
@@ -395,7 +397,7 @@ export interface BinaryReduceOptions {
 
 
 export interface ExtensionFunction {
-  (fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: any): void;
+  (fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions>): void;
 }
 
 
