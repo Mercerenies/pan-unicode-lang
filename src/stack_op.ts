@@ -2,14 +2,14 @@
 import { Evaluator } from './eval.js';
 import { AST, tryCall } from './ast.js';
 
-export function spread(term: AST, state: Evaluator): void {
+export async function spread(term: AST, state: Evaluator): Promise<void> {
   const [argsEach, funcs] = term.getNumMod(1, 2);
   const everything = state.pop(funcs * (argsEach + 1));
   for (let i = 0; i < funcs - 1; i++) {
     const args = everything.slice(i * argsEach, (i + 1) * argsEach);
     const func = everything[argsEach * funcs + i];
     state.push(...args);
-    tryCall(func, state);
+    await tryCall(func, state);
   }
 }
 
@@ -27,9 +27,9 @@ export function spread(term: AST, state: Evaluator): void {
 // Note: ⤨ is a very general combinator. In many cases, ↘ or ↗ will do
 // what you want with fewer explicit numeric arguments, so consider
 // using those before resorting to this one.
-export function cross(term: AST, state: Evaluator): void {
+export function cross(term: AST, state: Evaluator): Promise<void> {
   const [a, b, f] = term.getNumMod(1, 2, 2);
-  doCross(state, a, b, f);
+  return doCross(state, a, b, f);
 }
 
 
@@ -37,9 +37,9 @@ export function cross(term: AST, state: Evaluator): void {
 // numerical arguments: A and B. A defaults to 1 and B defaults to 2.
 //
 // Mnemonic: We pass several argument groups down to one function.
-export function apply(term: AST, state: Evaluator): void {
+export function apply(term: AST, state: Evaluator): Promise<void> {
   const [a, b] = term.getNumMod(1, 2);
-  doCross(state, a, b, 1);
+  return doCross(state, a, b, 1);
 }
 
 
@@ -47,20 +47,20 @@ export function apply(term: AST, state: Evaluator): void {
 // numerical arguments: A and F. A defaults to 1 and F defaults to 2.
 //
 // Mnemonic: We pass a single argument group up to several functions.
-export function cleave(term: AST, state: Evaluator): void {
+export function cleave(term: AST, state: Evaluator): Promise<void> {
   const [a, f] = term.getNumMod(1, 2);
-  doCross(state, a, 1, f);
+  return doCross(state, a, 1, f);
 }
 
 
-function doCross(state: Evaluator, a: number, b: number, f: number): void {
+async function doCross(state: Evaluator, a: number, b: number, f: number): Promise<void> {
   const everything = state.pop(a * b + f);
   for (let i = 0; i < f; i++) {
     const func = everything[a * b + i];
     for (let j = 0; j < b; j++) {
       const args = everything.slice(a * j, a * (j + 1));
       state.push(...args);
-      tryCall(func, state);
+      await tryCall(func, state);
     }
   }
 }

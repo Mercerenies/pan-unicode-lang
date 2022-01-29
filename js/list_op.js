@@ -5,7 +5,7 @@ import Str from './str.js';
 import { customLT, defaultLT, equals } from './comparison.js';
 import { isList, isNumber, isString } from './type_check.js';
 import { Token } from './token.js';
-import { assertNever, range } from './util.js';
+import { assertNever, range, sortM } from './util.js';
 // Filter (⌿) always takes exactly two arguments off the stack. Its
 // behavior is very general. The numerical modifier determines the
 // maximum depth that we will dig into the list argument (the first
@@ -46,16 +46,16 @@ import { assertNever, range } from './util.js';
 //
 // In any example above, we can replace a function with a number, and
 // it will be treated as a constant function which returns that number.
-export function filter(term, state) {
+export async function filter(term, state) {
     let depth = term.getNumMod(1);
     if (depth === MAX_NUM_MODIFIER) {
         depth = Infinity;
     }
     const [list, func] = state.pop(2);
-    const result = runFilter(depth, list, func, state);
+    const result = await runFilter(depth, list, func, state);
     state.push(...result);
 }
-function filterTestFunc(value, func, state) {
+async function filterTestFunc(value, func, state) {
     if (func instanceof NumberLit) {
         if (!Number.isInteger(func.value)) {
             throw new Error.TypeError("integer", func);
@@ -64,7 +64,7 @@ function filterTestFunc(value, func, state) {
     }
     else {
         state.push(value);
-        tryCall(func, state);
+        await tryCall(func, state);
         const result = isNumber(state.pop());
         if (!Number.isInteger(result.value)) {
             throw new Error.TypeError("integer", result);
@@ -72,9 +72,9 @@ function filterTestFunc(value, func, state) {
         return Math.abs(result.value);
     }
 }
-function runFilter(depth, list, func, state) {
+async function runFilter(depth, list, func, state) {
     if (depth <= 0 || !(list instanceof ArrayLit)) {
-        const count = filterTestFunc(list, func, state);
+        const count = await filterTestFunc(list, func, state);
         return Array(count).fill(list);
     }
     else {
@@ -90,7 +90,7 @@ function runFilter(depth, list, func, state) {
         }
         let result = [];
         for (let i = 0; i < mask.length; i++) {
-            result = result.concat(runFilter(depth - 1, list.data[i], mask[i], state));
+            result = result.concat(await runFilter(depth - 1, list.data[i], mask[i], state));
         }
         return [new ArrayLit(result)];
     }
@@ -115,7 +115,7 @@ function runFilter(depth, list, func, state) {
 //
 // Note that ¨①⓪ is just $ and ¨⓪① will simply pop the function and
 // call it once with no arguments.
-export function map(term, state) {
+export async function map(term, state) {
     let [argCount, depth] = term.getNumMod(1, 1);
     if (depth === MAX_NUM_MODIFIER) {
         depth = Infinity;
@@ -123,9 +123,9 @@ export function map(term, state) {
     const everything = state.pop(argCount + 1);
     const args = everything.slice(0, -1);
     const func = everything[everything.length - 1];
-    const result = runMap(depth, args, func, function (args, func) {
+    const result = await runMap(depth, args, func, async function (args, func) {
         state.push(...args);
-        tryCall(func, state);
+        await tryCall(func, state);
         return state.pop();
     });
     state.push(result);
@@ -155,10 +155,10 @@ function getNodeLength(args) {
     }
     return length;
 }
-function runMap(depth, args, func, baseCase) {
+async function runMap(depth, args, func, baseCase) {
     const len = getNodeLength(args);
     if (depth <= 0 || len === undefined) {
-        return baseCase(args, func);
+        return await baseCase(args, func);
     }
     else {
         // TODO mask does the same thing here as in filter; consolidate?
@@ -182,13 +182,13 @@ function runMap(depth, args, func, baseCase) {
                     return v;
                 }
             });
-            result.push(runMap(depth - 1, newArgs, mask[i], baseCase));
+            result.push(await runMap(depth - 1, newArgs, mask[i], baseCase));
         }
         return new ArrayLit(result);
     }
 }
 // Just like map but doesn't expect a result of any kind.
-export function each(term, state) {
+export async function each(term, state) {
     let [argCount, depth] = term.getNumMod(1, 1);
     if (depth === MAX_NUM_MODIFIER) {
         depth = Infinity;
@@ -196,9 +196,9 @@ export function each(term, state) {
     const everything = state.pop(argCount + 1);
     const args = everything.slice(0, -1);
     const func = everything[everything.length - 1];
-    runMap(depth, args, func, function (args, func) {
+    await runMap(depth, args, func, async function (args, func) {
         state.push(...args);
-        tryCall(func, state);
+        await tryCall(func, state);
         return SentinelValue.null;
     });
 }
@@ -299,7 +299,7 @@ export function nth(value, index) {
 // function (before popping the list) that will be used as the "less
 // than" operator for comparison. Returns a list of indices which
 // indicate the permutation of the list after sorting.
-export function gradeUp(term, state) {
+export async function gradeUp(term, state) {
     let list0;
     let func;
     if (term.getPrimeMod() > 0) {
@@ -313,11 +313,11 @@ export function gradeUp(term, state) {
     }
     const list = isList(list0);
     const indices = range(0, list.length);
-    indices.sort(function (a, b) {
-        if (func(list.data[a], list.data[b])) {
+    await sortM(indices, async function (a, b) {
+        if (await func(list.data[a], list.data[b])) {
             return -1;
         }
-        else if (func(list.data[b], list.data[a])) {
+        else if (await func(list.data[b], list.data[a])) {
             return 1;
         }
         else {
@@ -373,7 +373,7 @@ export function doRavel(depth, list) {
 // If you wish to get a flat result structure (rather than the nested
 // one that ⊗ produces, you should call Flatten (⍪) on the result,
 // with a numerical argument one smaller than the one passed to ⊗.
-export function outerProduct(term, state) {
+export async function outerProduct(term, state) {
     const argCount = term.getNumMod(2);
     const func = state.pop();
     const args = state.pop(argCount);
@@ -381,18 +381,18 @@ export function outerProduct(term, state) {
     for (const arg of args) {
         arglists.push(isList(arg).data);
     }
-    state.push(doOuterProduct(state, func, arglists, 0, []));
+    state.push(await doOuterProduct(state, func, arglists, 0, []));
 }
-export function doOuterProduct(state, func, arglists, n, prefix) {
+export async function doOuterProduct(state, func, arglists, n, prefix) {
     if (n >= arglists.length) {
         state.push(...prefix);
-        tryCall(func, state);
+        await tryCall(func, state);
         return state.pop();
     }
     else {
         const result = [];
         for (const elem of arglists[n]) {
-            const curr = doOuterProduct(state, func, arglists, n + 1, prefix.concat([elem]));
+            const curr = await doOuterProduct(state, func, arglists, n + 1, prefix.concat([elem]));
             result.push(curr);
         }
         return new ArrayLit(result);
@@ -416,24 +416,24 @@ function* cartesianProductRec(lists, n, prefix) {
 // indices at which the element can be found in the list. If used with
 // a prime modifier, the search element is instead a unary function,
 // which is called for each position.
-export function member(term, state) {
+export async function member(term, state) {
     const [list0, needle] = state.pop(2);
     const list = isList(list0);
     let func;
     if (term.getPrimeMod() > 0) {
-        func = function (x) {
+        func = async function (x) {
             state.push(x);
-            tryCall(needle, state);
+            await tryCall(needle, state);
             return isTruthy(state.pop());
         };
     }
     else {
-        func = (x) => equals(x, needle);
+        func = async (x) => equals(x, needle);
     }
     const result = [];
     for (let i = 0; i < list.data.length; i++) {
         const v = list.data[i];
-        if (func(v)) {
+        if (await func(v)) {
             result.push(new NumberLit(i));
         }
     }

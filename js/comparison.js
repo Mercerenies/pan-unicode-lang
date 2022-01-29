@@ -78,13 +78,13 @@ export function compare(a, b) {
         throw new IncomparableValues(a, b);
     }
 }
-export function defaultLT(x, y) {
+export async function defaultLT(x, y) {
     return compare(x, y) === Ordering.LT;
 }
 export function customLT(state, fn) {
-    return function (x, y) {
+    return async function (x, y) {
         state.push(x, y);
-        tryCall(fn, state);
+        await tryCall(fn, state);
         return isTruthy(state.pop());
     };
 }

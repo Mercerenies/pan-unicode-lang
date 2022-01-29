@@ -1,6 +1,6 @@
 import * as Error from './error.js';
 import { NumberLit, ArrayLit, SentinelValue } from './ast.js';
-import { zip } from './util.js';
+import { zip, reduceM } from './util.js';
 import { isNumber } from './type_check.js';
 // TODO Make the functions here generic, where possible, and see if it
 // completely breaks type inference.
@@ -15,7 +15,7 @@ import { isNumber } from './type_check.js';
 //   unmodified.
 // - If two or more are given, the arguments are folded starting
 //   with the deepest on the stack.
-export function binaryReduce(fn, term, state, opts = {}) {
+export async function binaryReduce(fn, term, state, opts = {}) {
     var _a;
     const defaultModifier = (_a = opts.defaultModifier) !== null && _a !== void 0 ? _a : 2;
     let mod = term.getNumMod(defaultModifier);
@@ -32,15 +32,19 @@ export function binaryReduce(fn, term, state, opts = {}) {
     }
     else if ((mod === 1) && (opts.one != null)) {
         const top = state.pop();
-        state.push(opts.one(top));
+        let one = opts.one(top);
+        if (one instanceof Promise) {
+            one = await one;
+        }
+        state.push(one);
     }
     else {
         const arr = state.pop(mod);
-        state.push(arr.reduce(fn));
+        state.push(await reduceM(arr, fn));
     }
 }
 // TODO Common superfunction to this and binaryReduce
-export function binaryReduceRight(fn, term, state, opts = {}) {
+export async function binaryReduceRight(fn, term, state, opts = {}) {
     var _a;
     const defaultModifier = (_a = opts.defaultModifier) !== null && _a !== void 0 ? _a : 2;
     let mod = term.getNumMod(defaultModifier);
@@ -57,11 +61,15 @@ export function binaryReduceRight(fn, term, state, opts = {}) {
     }
     else if ((mod === 1) && (opts.one != null)) {
         const top = state.pop();
-        state.push(opts.one(top));
+        let one = opts.one(top);
+        if (one instanceof Promise) {
+            one = await one;
+        }
+        state.push(one);
     }
     else {
         const arr = state.pop(mod);
-        state.push(arr.slice().reverse().reduce((x, y) => fn(y, x)));
+        state.push(await reduceM(arr.slice().reverse(), (x, y) => fn(y, x)));
     }
 }
 // Takes a binary function and constructs an operation which takes any
@@ -73,7 +81,7 @@ export function binaryReduceRight(fn, term, state, opts = {}) {
 //   undefined, then an exception is thrown.
 // - If two or more are given, every adjacent pair is compared
 //   using the binary function, and the results are reduced.
-export function mergeReduce(fn, reduce, term, state, opts = {}) {
+export async function mergeReduce(fn, reduce, term, state, opts = {}) {
     var _a;
     const defaultModifier = (_a = opts.defaultModifier) !== null && _a !== void 0 ? _a : 2;
     let mod = term.getNumMod(defaultModifier);
@@ -91,7 +99,11 @@ export function mergeReduce(fn, reduce, term, state, opts = {}) {
     else if (mod === 1) {
         if (opts.one != null) {
             const top = state.pop();
-            state.push(opts.one(top));
+            let one = opts.one(top);
+            if (one instanceof Promise) {
+                one = await one;
+            }
+            state.push(one);
         }
         else {
             throw new Error.InvalidModifier(term);
@@ -101,13 +113,13 @@ export function mergeReduce(fn, reduce, term, state, opts = {}) {
         const arr = state.pop(mod);
         const brr = [];
         for (let i = 0; i < arr.length - 1; i++) {
-            brr.push(fn(arr[i], arr[i + 1]));
+            brr.push(await fn(arr[i], arr[i + 1]));
         }
-        state.push(brr.reduce(reduce));
+        state.push(await reduceM(brr, reduce));
     }
 }
 export function scalarExtend(f) {
-    const f1 = function (x, y) {
+    const f1 = async function (x, y) {
         if (x instanceof ArrayLit || y instanceof ArrayLit) {
             if (!(x instanceof ArrayLit)) {
                 x = ArrayLit.filled(y.length, x);
@@ -120,22 +132,29 @@ export function scalarExtend(f) {
             if (x1.length !== y1.length) {
                 throw new Error.IncompatibleArrayLengths();
             }
-            const arr = zip(x1.data, y1.data).map((curr) => f1(...curr));
+            const arr = [];
+            for (const [x1arg, y1arg] of zip(x1.data, y1.data)) {
+                arr.push(await f1(x1arg, y1arg));
+            }
             return new ArrayLit(arr);
         }
         else {
-            return f(x, y);
+            return await f(x, y);
         }
     };
     return f1;
 }
 export function scalarExtendUnary(f) {
-    const f1 = function (x) {
+    const f1 = async function (x) {
         if (x instanceof ArrayLit) {
-            return new ArrayLit(x.data.map(f1));
+            const arr = [];
+            for (const xArg of x.data) {
+                arr.push(await f1(xArg));
+            }
+            return new ArrayLit(arr);
         }
         else {
-            const result = f(x);
+            const result = await f(x);
             if (typeof result === 'number') {
                 return new NumberLit(result);
             }
@@ -146,7 +165,7 @@ export function scalarExtendUnary(f) {
     };
     return f1;
 }
-export function handleWhiteFlag(state, term, default_, f) {
+export async function handleWhiteFlag(state, term, default_, f) {
     if (typeof default_ === 'number') {
         default_ = new NumberLit(default_);
     }
@@ -164,13 +183,13 @@ export function handleWhiteFlag(state, term, default_, f) {
             return;
         }
     }
-    f();
+    await f();
 }
-export function noExtension(fn, term, state) {
+export async function noExtension(fn, term, state) {
     const [a, b] = state.pop(2);
-    state.push(fn(a, b));
+    state.push(await fn(a, b));
 }
-export const binary = function (fn, term, state, opts = {}) {
+export const binary = async function (fn, term, state, opts = {}) {
     let zero = opts.zero;
     let one = opts.one;
     if (typeof zero === 'number') {
@@ -188,9 +207,10 @@ export const binary = function (fn, term, state, opts = {}) {
         one = () => originalOne;
     }
     if (opts.scalarExtend && (one != null)) {
-        one = scalarExtendUnary(one);
+        const originalOne = one;
+        one = scalarExtendUnary(async (x) => originalOne(x));
     }
-    binaryReduce(fn, term, state, {
+    await binaryReduce(fn, term, state, {
         zero: zero,
         one: one,
         modifierAdjustment: opts.modifierAdjustment,
@@ -198,7 +218,7 @@ export const binary = function (fn, term, state, opts = {}) {
     });
 };
 // binary but associate to the right
-export const binaryRight = function (fn, term, state, opts = {}) {
+export const binaryRight = async function (fn, term, state, opts = {}) {
     let zero = opts.zero;
     let one = opts.one;
     if (typeof zero === 'number') {
@@ -216,9 +236,10 @@ export const binaryRight = function (fn, term, state, opts = {}) {
         one = () => originalOne;
     }
     if (opts.scalarExtend && (one != null)) {
-        one = scalarExtendUnary(one);
+        const originalOne = one;
+        one = scalarExtendUnary(async (x) => originalOne(x));
     }
-    binaryReduceRight(fn, term, state, {
+    await binaryReduceRight(fn, term, state, {
         zero: zero,
         one: one,
         modifierAdjustment: opts.modifierAdjustment,
@@ -226,7 +247,7 @@ export const binaryRight = function (fn, term, state, opts = {}) {
     });
 };
 export function merge(reduce) {
-    return function (fn, term, state, opts = {}) {
+    return async function (fn, term, state, opts = {}) {
         if (opts.scalarExtend) {
             reduce = scalarExtend(reduce);
         }
@@ -247,9 +268,10 @@ export function merge(reduce) {
             one = () => originalOne;
         }
         if (opts.scalarExtend && (one != null)) {
-            one = scalarExtendUnary(one);
+            const originalOne = one;
+            one = scalarExtendUnary(async (x) => originalOne(x));
         }
-        return mergeReduce(fn, reduce, term, state, {
+        await mergeReduce(fn, reduce, term, state, {
             zero: zero,
             one: one,
             modifierAdjustment: opts.modifierAdjustment,
@@ -257,7 +279,7 @@ export function merge(reduce) {
         });
     };
 }
-export const mergeAnd = merge(function (a, b) {
+export const mergeAnd = merge(async function (a, b) {
     return new NumberLit(isNumber(a).value & isNumber(b).value);
 });
 export const WhiteFlag = {
@@ -315,9 +337,17 @@ export function boolToInt(x) {
 //   the identity function.
 //
 // - defaultModifier (optional) - Default modifier. Defaults to 2.
-export function op(state, term, opts) {
+export async function op(state, term, opts) {
     var _a;
-    const postprocessor = opts.postProcess;
+    const postprocessor = async function (x) {
+        const result = opts.postProcess(x);
+        if (result instanceof Promise) {
+            return await result;
+        }
+        else {
+            return result;
+        }
+    };
     const preprocessor = opts.preProcess;
     let func = (a, b) => postprocessor(opts.function(preprocessor(a), preprocessor(b)));
     if (opts.scalarExtend) {
@@ -326,14 +356,14 @@ export function op(state, term, opts) {
     let operation = function () {
         var _a;
         const f = (_a = opts.extension) !== null && _a !== void 0 ? _a : noExtension;
-        f(func, term, state, opts);
+        return f(func, term, state, opts);
     };
     const whiteFlag = ((_a = opts.whiteFlag) !== null && _a !== void 0 ? _a : WhiteFlag.inherit)(opts);
     if (whiteFlag != null) {
         const oldOperation = operation;
         operation = function () {
-            handleWhiteFlag(state, term, whiteFlag, oldOperation);
+            return handleWhiteFlag(state, term, whiteFlag, oldOperation);
         };
     }
-    operation();
+    await operation();
 }

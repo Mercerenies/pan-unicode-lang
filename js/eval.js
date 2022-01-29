@@ -7,12 +7,14 @@ export class Evaluator {
         this.callStack = [];
         this.globalVars = {};
     }
-    eval(arg) {
+    async eval(arg) {
         if (Array.isArray(arg)) {
-            arg.forEach((x) => this.eval(x));
+            for (const x of arg) {
+                await this.eval(x);
+            }
         }
         else {
-            arg.eval(this);
+            await arg.eval(this);
         }
     }
     push(...vs) {

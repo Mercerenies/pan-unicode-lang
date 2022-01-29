@@ -23,7 +23,7 @@ export class InteractiveEvaluator extends Evaluator {
         }
         outputField.innerText += value.toString() + "\n";
     }
-    readInput() {
+    async readInput() {
         if (this.inputPos >= this.input.length) {
             return undefined;
         }
@@ -33,7 +33,7 @@ export class InteractiveEvaluator extends Evaluator {
             return result;
         }
     }
-    peekInput() {
+    async peekInput() {
         if (this.inputPos >= this.input.length) {
             return undefined;
         }
@@ -42,7 +42,7 @@ export class InteractiveEvaluator extends Evaluator {
         }
     }
 }
-export function run() {
+export async function run() {
     const codeField = document.querySelector("#code");
     const outputField = document.querySelector("#output");
     const stackField = document.querySelector("#stack");
@@ -63,7 +63,7 @@ export function run() {
         const tokens = tokenize(text);
         const parsed = parse(tokens);
         evaluator.pushCall(new FunctionLit(parsed));
-        evaluator.eval(parsed);
+        await evaluator.eval(parsed);
         evaluator.popCall();
     }
     catch (e) {

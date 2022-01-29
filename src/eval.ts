@@ -14,11 +14,13 @@ export abstract class Evaluator {
     this.globalVars = {};
   }
 
-  eval(arg: AST.AST | AST.AST[]): void {
+  async eval(arg: AST.AST | AST.AST[]): Promise<void> {
     if (Array.isArray(arg)) {
-      arg.forEach((x) => this.eval(x));
+      for (const x of arg) {
+        await this.eval(x);
+      }
     } else {
-      arg.eval(this);
+      await arg.eval(this);
     }
   }
 
@@ -93,10 +95,10 @@ export abstract class Evaluator {
 
   // Read one character from input. Returns undefined if input is
   // empty.
-  abstract readInput(): string | undefined;
+  abstract readInput(): Promise<string | undefined>;
 
   // Read one character from input but don't consume.
-  abstract peekInput(): string | undefined;
+  abstract peekInput(): Promise<string | undefined>;
 
   getGlobal(k: string): AST.AST {
     return this.globalVars[k] ?? new AST.SentinelValue("ε");

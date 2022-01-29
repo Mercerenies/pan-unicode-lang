@@ -63,7 +63,7 @@ export class SimpleCmd extends AST {
     isStringLit() {
         return this.token.tokenType() === TokenType.String;
     }
-    eval(state) {
+    async eval(state) {
         var _a, _b;
         if (this.isNumberLit()) {
             state.push(new NumberLit(this.token.text));
@@ -78,10 +78,10 @@ export class SimpleCmd extends AST {
                     state.print(stringify(state.pop()));
                     break;
                 case ',': // Read integer from input
-                    state.push(readAndParseInt(state));
+                    state.push(await readAndParseInt(state));
                     break;
                 case '📜': { // Read character from input
-                    const char = state.readInput();
+                    const char = await state.readInput();
                     if (char != null) {
                         state.push(new StringLit(char));
                     }
@@ -93,7 +93,7 @@ export class SimpleCmd extends AST {
                 case '📖': { // Read line from input
                     let result = "";
                     while (true) {
-                        const curr = state.readInput();
+                        const curr = await state.readInput();
                         if (curr === undefined) {
                             break;
                         }
@@ -163,7 +163,7 @@ export class SimpleCmd extends AST {
                 /* ARITHMETIC */
                 case '+': // Add ( x y -- z )
                     // (Numerical modifier determines arity)
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(a.value + b.value);
                         },
@@ -175,7 +175,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '-': // Subtract ( x y -- z )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(a.value - b.value);
                         },
@@ -189,7 +189,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '×': // Multiply ( x y -- z )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(a.value * b.value);
                         },
@@ -201,7 +201,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '÷': // Divide ( x y -- z )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(a.value / b.value);
                         },
@@ -215,7 +215,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '*': // Power ( x y -- z )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(a.value ** b.value);
                         },
@@ -227,14 +227,14 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case 'ê': // e^x ( x -- y )
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.exp(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '🌳': // ln(x) ( x -- y )
                     // With prime modifier, it's log_b(a) ( a b -- y )
                     if (this.getPrimeMod() > 0) {
-                        Op.op(state, this, {
+                        await Op.op(state, this, {
                             function: function (a, b) {
                                 return new NumberLit(Math.log(a.value) / Math.log(b.value));
                             },
@@ -245,7 +245,7 @@ export class SimpleCmd extends AST {
                         });
                     }
                     else {
-                        state.push(Op.scalarExtendUnary(function (x) {
+                        state.push(await Op.scalarExtendUnary(async function (x) {
                             return Math.log(TypeCheck.isNumber(x).value);
                         })(state.pop()));
                     }
@@ -253,7 +253,7 @@ export class SimpleCmd extends AST {
                 case '√': // sqrt(x) ( x -- y )
                     // With prime modifier, it's (a ** (1/b)) ( a b -- y )
                     if (this.getPrimeMod() > 0) {
-                        Op.op(state, this, {
+                        await Op.op(state, this, {
                             function: function (a, b) {
                                 return new NumberLit(a.value ** (1 / b.value));
                             },
@@ -264,14 +264,14 @@ export class SimpleCmd extends AST {
                         });
                     }
                     else {
-                        state.push(Op.scalarExtendUnary(function (x) {
+                        state.push(await Op.scalarExtendUnary(async function (x) {
                             return Math.sqrt(TypeCheck.isNumber(x).value);
                         })(state.pop()));
                     }
                     break;
                 case '|': // Remainder ( x y -- z )
                     // This does not extend with modifier; it only scalar extends
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit((a.value % b.value + b.value) % b.value); // "True" mod
                         },
@@ -281,7 +281,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '⩑': // LCM ( x y -- z )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(lcm(a.value, b.value));
                         },
@@ -293,7 +293,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '⩒': // GCD ( x y -- z )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(gcd(a.value, b.value));
                         },
@@ -305,37 +305,37 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '_': // Negate ( x -- y )
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return -TypeCheck.isNumber(x).value;
                     })(state.pop()));
                     break;
                 case '⅟': // Reciprocal ( x -- y )
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return 1 / TypeCheck.isNumber(x).value;
                     })(state.pop()));
                     break;
                 case '⌉': // Ceiling ( x -- y )
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.ceil(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '⌋': // Floor ( x -- y )
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.floor(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case 'A': // Absolute value ( x -- y )
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.abs(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case 'a': // Signum ( x -- y )
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.sign(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '∧': // Bitwise Conjunction ( x y -- z )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(a.value & b.value);
                         },
@@ -347,7 +347,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '∨': // Bitwise Disjunction ( x y -- z )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(a.value | b.value);
                         },
@@ -359,7 +359,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '⊕': // Bitwise Exclusive Or ( x y -- z )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return new NumberLit(a.value ^ b.value);
                         },
@@ -371,14 +371,14 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '¬': // Bitwise Negate ( x -- y )
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return ~TypeCheck.isNumber(x).value;
                     })(state.pop()));
                     break;
                 case '¿': // Defined-or ( x y -- z )
                     // Returns the first argument unless it's ε, in which
                     // case it returns the second.
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             if (equals(a, SentinelValue.null)) {
                                 return b;
@@ -396,62 +396,62 @@ export class SimpleCmd extends AST {
                     break;
                 /* TRIGONOMETRY */
                 case '◐':
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.sin(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '◑':
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.asin(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '◒':
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.cos(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '◓':
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.acos(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '◔':
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.tan(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '◕':
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.atan(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '◖':
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.sinh(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '◗':
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.asinh(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '◌':
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.cosh(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '◍':
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.acosh(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '◎':
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.tanh(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
                 case '◉':
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return Math.atanh(TypeCheck.isNumber(x).value);
                     })(state.pop()));
                     break;
@@ -526,7 +526,7 @@ export class SimpleCmd extends AST {
                 case '⋄': // Concatenate ( x y -- z )
                     // (Numerical modifier determines arity)
                     // No scalar extension. Works on lists and on strings.
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: catenate,
                         preProcess: TypeCheck.isStringOrList,
                         postProcess: id,
@@ -568,7 +568,7 @@ export class SimpleCmd extends AST {
                         const result = x.charAt(x.length - 1) === '\n' ? Str.fromString(x.toString().slice(0, x.length - 1)) : x;
                         return new StringLit(result);
                     };
-                    state.push(Op.scalarExtendUnary(function (x) {
+                    state.push(await Op.scalarExtendUnary(async function (x) {
                         return chomp(TypeCheck.isString(x));
                     })(state.pop()));
                     break;
@@ -611,7 +611,7 @@ export class SimpleCmd extends AST {
                 }
                 /* COMPARISONS */
                 case '=': // Equal ( x y -- ? )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return equals(a, b);
                         },
@@ -624,7 +624,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '<': // LT ( x y -- ? )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return compare(a, b) === Ordering.LT;
                         },
@@ -637,7 +637,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '>': // GT ( x y -- ? )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return compare(a, b) === Ordering.GT;
                         },
@@ -650,7 +650,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '≤': // LE ( x y -- ? )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return compare(a, b) !== Ordering.GT;
                         },
@@ -663,7 +663,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '≥': // GE ( x y -- ? )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return compare(a, b) !== Ordering.LT;
                         },
@@ -676,7 +676,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '≠': // Not Equal ( x y -- ? )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return !equals(a, b);
                         },
@@ -690,7 +690,7 @@ export class SimpleCmd extends AST {
                     break; // TODO More advanced merging for ≠ and ≢ (they're not transitive)
                 case '≡': // Same ( x y -- ? )
                     // Note: No scalar extension
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return equals(a, b);
                         },
@@ -704,7 +704,7 @@ export class SimpleCmd extends AST {
                     break;
                 case '≢': // Not Same ( x y -- ? )
                     // Note: No scalar extension
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (a, b) {
                             return !equals(a, b);
                         },
@@ -720,9 +720,9 @@ export class SimpleCmd extends AST {
                     // With prime, pops a function and uses it instead of
                     // default less-than.
                     const func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT;
-                    Op.op(state, this, {
-                        function: function (a, b) {
-                            if (func(b, a)) {
+                    await Op.op(state, this, {
+                        function: async function (a, b) {
+                            if (await func(b, a)) {
                                 return a;
                             }
                             else {
@@ -730,7 +730,7 @@ export class SimpleCmd extends AST {
                             }
                         },
                         preProcess: id,
-                        postProcess: id,
+                        postProcess: idPromise,
                         zero: -Infinity,
                         extension: Op.binary,
                         scalarExtend: true
@@ -741,9 +741,9 @@ export class SimpleCmd extends AST {
                     // With prime, pops a function and uses it instead of
                     // default less-than.
                     const func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT;
-                    Op.op(state, this, {
-                        function: function (a, b) {
-                            if (func(a, b)) {
+                    await Op.op(state, this, {
+                        function: async function (a, b) {
+                            if (await func(a, b)) {
                                 return a;
                             }
                             else {
@@ -751,7 +751,7 @@ export class SimpleCmd extends AST {
                             }
                         },
                         preProcess: id,
-                        postProcess: id,
+                        postProcess: idPromise,
                         zero: Infinity,
                         extension: Op.binary,
                         scalarExtend: true
@@ -821,15 +821,15 @@ export class SimpleCmd extends AST {
                     const list = TypeCheck.isList(list0);
                     if (list.length <= 0) {
                         state.push(SentinelValue.whiteFlag);
-                        tryCall(func, state);
+                        await tryCall(func, state);
                     }
                     else {
                         const acc = list.data[0];
                         state.push(acc);
-                        list.data.slice(1).forEach(function (datum) {
+                        for (const datum of list.data.slice(1)) {
                             state.push(datum);
-                            tryCall(func, state);
-                        });
+                            await tryCall(func, state);
+                        }
                     }
                     break;
                 }
@@ -847,11 +847,11 @@ export class SimpleCmd extends AST {
                         const acc = list.data[0];
                         const result = [];
                         state.push(acc);
-                        list.data.slice(1).forEach(function (datum) {
+                        for (const datum of list.data.slice(1)) {
                             result.push(state.peek());
                             state.push(datum);
-                            tryCall(func, state);
-                        });
+                            await tryCall(func, state);
+                        }
                         result.push(state.pop());
                         state.push(new ArrayLit(result));
                     }
@@ -865,44 +865,44 @@ export class SimpleCmd extends AST {
                     // repeat the value. Numerical argument (default=1)
                     // determines how many nested lists to go. See documentation
                     // for ListOp.filter for more specific details.
-                    ListOp.filter(this, state);
+                    await ListOp.filter(this, state);
                     break;
                 case '¨': // Map ( ..a list ( ..a x -- ..a y ) -- ..a list )
                     // Nests arbitrarily deep with a numerical argument, like
                     // filter. See ListOp.map for full details.
-                    ListOp.map(this, state);
+                    await ListOp.map(this, state);
                     break;
                 case 'ė': // Each ( ..a list ( ..a x -- ..a ) -- ..a )
                     // Nests arbitrarily deep with a numerical argument, like
                     // filter. See ListOp.each for full details.
-                    ListOp.each(this, state);
+                    await ListOp.each(this, state);
                     break;
                 case 'n': // Nested Query ( list index -- result )
                     // Works on lists or strings. See ListOp.nestedQuery
                     // for details.
-                    ListOp.nestedQuery(this, state);
+                    await ListOp.nestedQuery(this, state);
                     break;
                 case '⊇': // Select ( list index -- result )
                     // Works on lists or strings. See ListOp.select
                     // for details.
-                    ListOp.select(this, state);
+                    await ListOp.select(this, state);
                     break;
                 case '⍋': // Grade Up
                     // Sorting function. See ListOp.gradeUp for full details.
-                    ListOp.gradeUp(this, state);
+                    await ListOp.gradeUp(this, state);
                     break;
                 case '⍪': // Ravel / Flatten
                     // Flattens lists. See ListOp.ravel for full details.
-                    ListOp.ravel(this, state);
+                    await ListOp.ravel(this, state);
                     break;
                 case '⊗': // Outer Product
                     // Outer product of lists under some operation. See ListOp.outerProduct.
-                    ListOp.outerProduct(this, state);
+                    await ListOp.outerProduct(this, state);
                     break;
                 case '∷': // Prepend / Append
                     if (this.getPrimeMod() === 0) {
                         // With no prime, prepends some number of elements to a list
-                        Op.op(state, this, {
+                        await Op.op(state, this, {
                             function: function (x, list) {
                                 return new ArrayLit([x].concat(TypeCheck.isList(list).data));
                             },
@@ -918,7 +918,7 @@ export class SimpleCmd extends AST {
                     }
                     else {
                         // With prime, appends some number of elements to a list
-                        Op.op(state, this, {
+                        await Op.op(state, this, {
                             function: function (x, list) {
                                 return new ArrayLit(TypeCheck.isList(list).data.concat([x]));
                             },
@@ -968,7 +968,7 @@ export class SimpleCmd extends AST {
                 }
                 case '∈': // Member ( list x -- idx )
                     // List membership. See ListOp.member for details
-                    ListOp.member(this, state);
+                    await ListOp.member(this, state);
                     break;
                 case '#': // Length ( list -- n )
                     // List length. See ListOp.length for details
@@ -1026,7 +1026,7 @@ export class SimpleCmd extends AST {
                     const result = [];
                     for (const elem of list.data) {
                         state.push(elem);
-                        tryCall(f, state);
+                        await tryCall(f, state);
                         const curr = isTruthy(state.pop());
                         if (!curr) {
                             break;
@@ -1042,7 +1042,7 @@ export class SimpleCmd extends AST {
                     const result = [];
                     for (const elem of list.data.slice().reverse()) {
                         state.push(elem);
-                        tryCall(f, state);
+                        await tryCall(f, state);
                         const curr = isTruthy(state.pop());
                         if (!curr) {
                             break;
@@ -1058,7 +1058,7 @@ export class SimpleCmd extends AST {
                     let i = 0;
                     for (const elem of list.data) {
                         state.push(elem);
-                        tryCall(f, state);
+                        await tryCall(f, state);
                         const curr = isTruthy(state.pop());
                         if (!curr) {
                             break;
@@ -1074,7 +1074,7 @@ export class SimpleCmd extends AST {
                     let i = 0;
                     for (const elem of list.data.slice().reverse()) {
                         state.push(elem);
-                        tryCall(f, state);
+                        await tryCall(f, state);
                         const curr = isTruthy(state.pop());
                         if (!curr) {
                             break;
@@ -1102,22 +1102,22 @@ export class SimpleCmd extends AST {
                 case 'i': { // If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
                     const [c, t, f] = state.pop(3);
                     if (isTruthy(c)) {
-                        tryCall(t, state);
+                        await tryCall(t, state);
                     }
                     else {
-                        tryCall(f, state);
+                        await tryCall(f, state);
                     }
                     break;
                 }
                 case 'w': { // While ( ..a ( ..a -- ..b ? ) ( ..b -- ..a ) -- ..b )
                     const [cond, body] = state.pop(2);
                     while (true) {
-                        tryCall(cond, state);
+                        await tryCall(cond, state);
                         const result = state.pop();
                         if (!isTruthy(result)) {
                             break;
                         }
-                        tryCall(body, state);
+                        await tryCall(body, state);
                     }
                     break;
                 }
@@ -1125,7 +1125,7 @@ export class SimpleCmd extends AST {
                     // Like w but with no explicit body.
                     const cond = state.pop();
                     while (true) {
-                        tryCall(cond, state);
+                        await tryCall(cond, state);
                         const result = state.pop();
                         if (!isTruthy(result)) {
                             break;
@@ -1137,7 +1137,7 @@ export class SimpleCmd extends AST {
                     const [n, body] = state.pop(2);
                     for (let i = 0; i < TypeCheck.isNumber(n).value; i++) {
                         state.push(i);
-                        tryCall(body, state);
+                        await tryCall(body, state);
                     }
                     break;
                 }
@@ -1146,7 +1146,7 @@ export class SimpleCmd extends AST {
                     const result = [state.peek()];
                     for (let i = 0; i < TypeCheck.isNumber(n).value; i++) {
                         state.push(i);
-                        tryCall(body, state);
+                        await tryCall(body, state);
                         result.push(state.peek());
                     }
                     state.pop();
@@ -1155,7 +1155,7 @@ export class SimpleCmd extends AST {
                 }
                 case '$': { // Call ( ..a ( ..a -- ..b ) -- ..b )
                     const fn = state.pop();
-                    tryCall(fn, state);
+                    await tryCall(fn, state);
                     break;
                 }
                 case '😱': // Panic and throw error ( err -- )
@@ -1166,14 +1166,14 @@ export class SimpleCmd extends AST {
                     const savedStack = state.saveStack();
                     try {
                         // TODO Don't piggyback on JS error handling; implement it in our VM
-                        tryCall(tryBlock, state);
+                        await tryCall(tryBlock, state);
                     }
                     catch (error) {
                         const exc = error;
                         if (exc instanceof Error.Error) {
                             state.loadStack(savedStack);
                             state.push(StringLit.fromException(exc));
-                            tryCall(recoverBlock, state);
+                            await tryCall(recoverBlock, state);
                         }
                         else {
                             throw exc;
@@ -1197,7 +1197,7 @@ export class SimpleCmd extends AST {
                     break;
                 }
                 case '●': // Curry ( x ( ..a x -- ..b ) -- ( ..a -- ..b ) )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (x, f) {
                             return new CurriedFunction(x, f);
                         },
@@ -1212,7 +1212,7 @@ export class SimpleCmd extends AST {
                     });
                     break;
                 case '○': // Compose ( ( ..a -- ..b ) ( ..b -- ..c ) -- ( ..a -- ..c ) )
-                    Op.op(state, this, {
+                    await Op.op(state, this, {
                         function: function (f, g) {
                             return new ComposedFunction(f, g);
                         },
@@ -1244,7 +1244,7 @@ export class SimpleCmd extends AST {
                     const mod = this.getNumMod(1);
                     const fn = state.pop();
                     const preserve = state.pop(mod);
-                    tryCall(fn, state);
+                    await tryCall(fn, state);
                     state.push(...preserve);
                     break;
                 }
@@ -1253,25 +1253,25 @@ export class SimpleCmd extends AST {
                     const mod = this.getNumMod(1);
                     const fn = state.pop();
                     const preserve = state.peek(mod);
-                    tryCall(fn, state);
+                    await tryCall(fn, state);
                     state.push(...preserve);
                     break;
                 }
                 case '⇉': // "Spread" combinator, in Factor parlance
                     // See StackOp.spread for details.
-                    StackOp.spread(this, state);
+                    await StackOp.spread(this, state);
                     break;
                 case '⤨': // "Cross" combinator
                     // See StackOp.cross for details
-                    StackOp.cross(this, state);
+                    await StackOp.cross(this, state);
                     break;
                 case '↘': // "Apply" combinator
                     // See StackOp.cleave for details
-                    StackOp.apply(this, state);
+                    await StackOp.apply(this, state);
                     break;
                 case '↗': // "Cleave" combinator
                     // See StackOp.apply for details
-                    StackOp.cleave(this, state);
+                    await StackOp.cleave(this, state);
                     break;
                 default:
                     throw new Error.UnknownCommandError(this.token);
@@ -1288,7 +1288,7 @@ export class AssignToVar extends AST {
         super();
         this.target = target.toString();
     }
-    eval(state) {
+    async eval(state) {
         state.setGlobal(this.target, state.pop());
     }
     toString() {
@@ -1300,7 +1300,7 @@ export class ReadFromVar extends AST {
         super();
         this.target = target.toString();
     }
-    eval(state) {
+    async eval(state) {
         state.push(state.getGlobal(this.target));
     }
     toString() {
@@ -1338,7 +1338,7 @@ export class StringLit extends AST {
     hasException() {
         return this.exception != null;
     }
-    eval(state) {
+    async eval(state) {
         state.push(this);
     }
     toReOrStr() {
@@ -1369,7 +1369,7 @@ export class NumberLit extends AST {
         super();
         this.value = value;
     }
-    eval(state) {
+    async eval(state) {
         state.push(this);
     }
     toString() {
@@ -1392,11 +1392,11 @@ export class FunctionLit extends AST {
         super();
         this.body = body;
     }
-    eval(state) {
+    async eval(state) {
         state.push(this);
     }
-    call(state) {
-        state.eval(this.body);
+    async call(state) {
+        await state.eval(this.body);
     }
     toString() {
         return `[ ${this.body.join(" ")} ]${this.modifiers.join("")}`;
@@ -1408,12 +1408,12 @@ export class CurriedFunction extends AST {
         this.arg = arg;
         this.function = _function;
     }
-    eval(state) {
+    async eval(state) {
         state.push(this);
     }
-    call(state) {
+    async call(state) {
         state.push(this.arg);
-        tryCall(this.function, state);
+        await tryCall(this.function, state);
     }
     toString() {
         // toString "lies" a bit, in that it prints as a FunctionLit
@@ -1429,12 +1429,12 @@ export class ComposedFunction extends AST {
         this.first = first;
         this.second = second;
     }
-    eval(state) {
+    async eval(state) {
         state.push(this);
     }
-    call(state) {
-        tryCall(this.first, state);
-        tryCall(this.second, state);
+    async call(state) {
+        await tryCall(this.first, state);
+        await tryCall(this.second, state);
     }
     toString() {
         // toString "lies" a bit, in that it prints as a FunctionLit
@@ -1459,7 +1459,7 @@ export class SentinelValue extends AST {
     toString() {
         return this.type + this.modifiers.join("");
     }
-    eval(state) {
+    async eval(state) {
         state.push(this);
     }
 }
@@ -1474,7 +1474,7 @@ export class Box extends AST {
     toString() {
         return `${this.value} ⊂${this.modifiers.join("")}`;
     }
-    eval(state) {
+    async eval(state) {
         state.push(this);
     }
 }
@@ -1489,18 +1489,18 @@ export class ArrayLit extends AST {
     toString() {
         return `{ ${this.data.join(" ")} }${this.modifiers.join("")}`;
     }
-    eval(state) {
+    async eval(state) {
         state.push(this);
     }
     get length() {
         return this.data.length;
     }
 }
-export function tryCall(fn, state) {
+export async function tryCall(fn, state) {
     if (fn instanceof AST) {
         state.pushCall(fn);
         try {
-            fn.call(state);
+            await fn.call(state);
         }
         finally {
             state.popCall();
@@ -1511,33 +1511,33 @@ export function tryCall(fn, state) {
     }
 }
 // TODO Why is this being done both here and in the parser? Consolidate?
-function readAndParseInt(state) {
+async function readAndParseInt(state) {
     // Skip to the next number
-    let input = state.peekInput();
+    let input = await state.peekInput();
     while ((input != null) && /[^-+0-9]/.test(input)) {
-        state.readInput();
-        input = state.peekInput();
+        await state.readInput();
+        input = await state.peekInput();
     }
     // Start reading
     let valid = false;
     let sign = (x) => x;
-    const signInput = state.peekInput();
+    const signInput = await state.peekInput();
     if ((signInput != null) && /[-+]/.test(signInput)) {
-        const ch = state.readInput();
+        const ch = await state.readInput();
         if (ch === '-') {
             sign = (x) => -x;
         }
         valid = true;
     }
     let v = 0;
-    let next = state.peekInput();
+    let next = await state.peekInput();
     while ((next != null) && /[0-9]/.test(next)) {
         valid = true;
-        state.readInput();
+        await state.readInput();
         v = v * 10 + parseInt(next, 10);
-        next = state.peekInput();
+        next = await state.peekInput();
     }
-    if (state.peekInput() === undefined && valid === false) {
+    if (await state.peekInput() === undefined && valid === false) {
         return SentinelValue.null;
     }
     if (!valid) {
@@ -1561,6 +1561,10 @@ export function catenate(a, b) {
         throw new Error.TypeError("arrays or strings", new ArrayLit([a, b]));
     }
 }
+// Two specializations of the identity function, used to aid in type inference when calling Op.op.
 function id(a) {
+    return a;
+}
+function idPromise(a) {
     return a;
 }

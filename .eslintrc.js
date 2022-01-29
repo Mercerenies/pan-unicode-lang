@@ -11,7 +11,8 @@ module.exports = {
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 12,
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": "./tsconfig.json",
   },
   "plugins": [
     "@typescript-eslint"
@@ -50,5 +51,9 @@ module.exports = {
         "checkLoops": false,
       },
     ],
+    "@typescript-eslint/no-floating-promises": [
+      "error",
+      {},
+    ]
   }
 };

@@ -1,12 +1,12 @@
 import { tryCall } from './ast.js';
-export function spread(term, state) {
+export async function spread(term, state) {
     const [argsEach, funcs] = term.getNumMod(1, 2);
     const everything = state.pop(funcs * (argsEach + 1));
     for (let i = 0; i < funcs - 1; i++) {
         const args = everything.slice(i * argsEach, (i + 1) * argsEach);
         const func = everything[argsEach * funcs + i];
         state.push(...args);
-        tryCall(func, state);
+        await tryCall(func, state);
     }
 }
 // ⤨ (Cross, an amalgamation of the operators Factor calls apply and
@@ -24,7 +24,7 @@ export function spread(term, state) {
 // using those before resorting to this one.
 export function cross(term, state) {
     const [a, b, f] = term.getNumMod(1, 2, 2);
-    doCross(state, a, b, f);
+    return doCross(state, a, b, f);
 }
 // ↘ (Apply) is ⤨ but with F=1 automatically. Cleave takes two
 // numerical arguments: A and B. A defaults to 1 and B defaults to 2.
@@ -32,7 +32,7 @@ export function cross(term, state) {
 // Mnemonic: We pass several argument groups down to one function.
 export function apply(term, state) {
     const [a, b] = term.getNumMod(1, 2);
-    doCross(state, a, b, 1);
+    return doCross(state, a, b, 1);
 }
 // ↗ (Cleave) is ⤨ but with B=1 automatically. Apply takes two
 // numerical arguments: A and F. A defaults to 1 and F defaults to 2.
@@ -40,16 +40,16 @@ export function apply(term, state) {
 // Mnemonic: We pass a single argument group up to several functions.
 export function cleave(term, state) {
     const [a, f] = term.getNumMod(1, 2);
-    doCross(state, a, 1, f);
+    return doCross(state, a, 1, f);
 }
-function doCross(state, a, b, f) {
+async function doCross(state, a, b, f) {
     const everything = state.pop(a * b + f);
     for (let i = 0; i < f; i++) {
         const func = everything[a * b + i];
         for (let j = 0; j < b; j++) {
             const args = everything.slice(a * j, a * (j + 1));
             state.push(...args);
-            tryCall(func, state);
+            await tryCall(func, state);
         }
     }
 }

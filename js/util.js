@@ -41,3 +41,79 @@ export function range(a, b) {
     }
     return x;
 }
+// The built-in sort() doesn't support promises, and in the abstract
+// we may be eval'ing user code during a sort function. Even though
+// doing so is a Bad Idea(tm), it is technically allowed by our
+// implementation, so we implement our own sort here.
+//
+// Note: Like the built-in sorting function, this sorts in-place; no
+// copy is made.
+//
+// This is the first time in many years I've bothered to write a
+// sorting algorithm on my own, amusingly. Using Wikipedia to get a
+// nice, stable one:
+// https://en.wikipedia.org/wiki/Merge_sort#Algorithm
+export async function sortM(arr, compareFn) {
+    const comparison = compareFn !== null && compareFn !== void 0 ? compareFn : defaultCompare;
+    const tmp = arr.slice();
+    const merge = async function (begin, middle, end) {
+        let [i, j] = [begin, middle];
+        for (let k = begin; k < end; k++) {
+            const cmp = await comparison(tmp[i], tmp[j]);
+            if (i < middle && (j >= end || cmp <= 0)) {
+                arr[k] = tmp[i];
+                i += 1;
+            }
+            else {
+                arr[k] = tmp[j];
+                j += 1;
+            }
+        }
+    };
+    const splitMerge = async function (begin, end) {
+        if (end - begin <= 1) {
+            return;
+        }
+        const middle = Math.floor((end + begin) / 2);
+        await splitMerge(begin, middle);
+        await splitMerge(middle, end);
+        await merge(begin, middle, end);
+    };
+    await splitMerge(0, arr.length);
+    return arr;
+}
+async function defaultCompare(a, b) {
+    const aStr = "" + a;
+    const bStr = "" + b;
+    if (aStr < bStr) {
+        return -1;
+    }
+    else if (aStr > bStr) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+export async function reduceM(arr, callback, ...v) {
+    let prev;
+    let index;
+    if (v.length === 0) {
+        // Get the initial value from the array
+        if (arr.length === 0) {
+            throw TypeError("Empty array on reduceM and no initial value supplied.");
+        }
+        else {
+            prev = arr[0]; // In this case, we're in the first overload, so A == B
+            index = 1;
+        }
+    }
+    else {
+        prev = v[0];
+        index = 0;
+    }
+    for (; index < arr.length; index++) {
+        prev = await callback(prev, arr[index], index, arr);
+    }
+    return prev;
+}

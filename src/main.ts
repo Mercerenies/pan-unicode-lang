@@ -9,6 +9,7 @@ import Str from './str.js';
 // Main entrypoint for the online interactive interpreter.
 const DEBUG_MODE = false;
 
+
 export class InteractiveEvaluator extends Evaluator {
   private readonly input: Str;
   private inputPos: number;
@@ -31,7 +32,7 @@ export class InteractiveEvaluator extends Evaluator {
     outputField.innerText += value.toString() + "\n";
   }
 
-  readInput(): string | undefined {
+  async readInput(): Promise<string | undefined> {
     if (this.inputPos >= this.input.length) {
       return undefined;
     } else {
@@ -41,7 +42,7 @@ export class InteractiveEvaluator extends Evaluator {
     }
   }
 
-  peekInput(): string | undefined {
+  async peekInput(): Promise<string | undefined> {
     if (this.inputPos >= this.input.length) {
       return undefined;
     } else {
@@ -52,7 +53,7 @@ export class InteractiveEvaluator extends Evaluator {
 }
 
 
-export function run() {
+export async function run(): Promise<void> {
 
   const codeField = document.querySelector("#code");
   const outputField = document.querySelector("#output");
@@ -76,7 +77,7 @@ export function run() {
     const tokens = tokenize(text);
     const parsed = parse(tokens);
     evaluator.pushCall(new FunctionLit(parsed));
-    evaluator.eval(parsed);
+    await evaluator.eval(parsed);
     evaluator.popCall();
   } catch (e) {
     if (e instanceof Error && !DEBUG_MODE) {

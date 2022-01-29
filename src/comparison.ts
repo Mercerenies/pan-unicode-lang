@@ -79,15 +79,15 @@ export function compare(a: AST, b: AST): Ordering {
 }
 
 
-export function defaultLT(x: AST, y: AST): boolean {
+export async function defaultLT(x: AST, y: AST): Promise<boolean> {
   return compare(x, y) === Ordering.LT;
 }
 
 
-export function customLT(state: Evaluator, fn: AST): (x: AST, y: AST) => boolean {
-  return function(x: AST, y: AST): boolean {
+export function customLT(state: Evaluator, fn: AST): (x: AST, y: AST) => Promise<boolean> {
+  return async function(x: AST, y: AST): Promise<boolean> {
     state.push(x, y);
-    tryCall(fn, state);
+    await tryCall(fn, state);
     return isTruthy(state.pop());
   };
 }
