@@ -1,7 +1,6 @@
 export const NUMS = "⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
 export class Modifier {
 }
-;
 export class NumModifier extends Modifier {
     constructor(value) {
         super();
@@ -11,13 +10,11 @@ export class NumModifier extends Modifier {
         return NUMS.charAt(this.value);
     }
 }
-;
 export class PrimeModifier extends Modifier {
     toString() {
         return "′";
     }
 }
-;
 export function toNumModifier(tok) {
     if (tok.text.toString() === "") {
         return undefined;
@@ -30,5 +27,4 @@ export function toNumModifier(tok) {
         return undefined;
     }
 }
-;
 export const MAX_NUM_MODIFIER = 20;

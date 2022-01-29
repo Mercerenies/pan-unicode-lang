@@ -81,7 +81,6 @@ export function compare(a, b) {
 export function defaultLT(x, y) {
     return compare(x, y) === Ordering.LT;
 }
-;
 export function customLT(state, fn) {
     return function (x, y) {
         state.push(x, y);
@@ -89,4 +88,3 @@ export function customLT(state, fn) {
         return isTruthy(state.pop());
     };
 }
-;

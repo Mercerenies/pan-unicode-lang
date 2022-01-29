@@ -18,19 +18,23 @@ function checkOrThrow<A, B extends A>(expecting: string, p: (value: A) => boolea
       throw new TypeError(expecting, value);
     }
   };
-};
+}
+
 
 export const isNumber: CheckedCast<AST, NumberLit> = checkOrThrow("number", function(v) {
   return v instanceof NumberLit;
 });
 
+
 export const isString: CheckedCast<AST, StringLit> = checkOrThrow("string", function(v) {
   return v instanceof StringLit;
 });
 
+
 export const isList: CheckedCast<AST, ArrayLit> = checkOrThrow("list", function(v) {
   return v instanceof ArrayLit;
 });
+
 
 export const isStringOrList: CheckedCast<AST, StringLit | ArrayLit> = checkOrThrow("string or list", function(v) {
   return v instanceof StringLit || v instanceof ArrayLit;

@@ -1,4 +1,4 @@
-export function assertNever(x) {
+export function assertNever(_x) {
     throw "assertNever failed";
 }
 export function zip(a, b) {

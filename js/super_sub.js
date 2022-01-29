@@ -34,7 +34,6 @@ export function toNumber(ch) {
             return undefined;
     }
 }
-;
 export function toSub(n) {
     switch (n) {
         case 0:
@@ -61,7 +60,6 @@ export function toSub(n) {
             return undefined;
     }
 }
-;
 export function toSuper(n) {
     switch (n) {
         case 0:
@@ -88,5 +86,4 @@ export function toSuper(n) {
             return undefined;
     }
 }
-;
 // TODO Note that ₀ is unassigned for the moment. Haven't decided what to do with it yet.

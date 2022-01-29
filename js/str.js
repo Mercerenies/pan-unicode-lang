@@ -33,10 +33,11 @@ export default class Str {
         return this.data[n];
     }
     codePointAt(n) {
-        return this.data[n].codePointAt(0);
+        var _a;
+        return (_a = this.data[n].codePointAt(0)) !== null && _a !== void 0 ? _a : 0;
     }
     codePoints() {
-        return this.data.map((x) => x.codePointAt(0));
+        return this.data.map((x) => { var _a; return (_a = x.codePointAt(0)) !== null && _a !== void 0 ? _a : 0; });
     }
     concat(that) {
         return new Str(this.data.concat(that.data));
@@ -51,12 +52,9 @@ export default class Str {
         return new Str(this.data.slice().reverse());
     }
 }
-;
 function isHighSurrogate(n) {
     return (n & 0xFC00) === 0xD800;
 }
-;
 function isLowSurrogate(n) {
     return (n & 0xFC00) === 0xDC00;
 }
-;

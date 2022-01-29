@@ -78,5 +78,6 @@ export function run() {
 }
 export function initInputMgr() {
     const inputManager = new InputManager();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     inputManager.register(document.querySelector("#code"));
 }

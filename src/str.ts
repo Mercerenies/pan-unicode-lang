@@ -40,11 +40,11 @@ export default class Str {
   }
 
   codePointAt(n: number): number {
-    return this.data[n].codePointAt(0)!;
+    return this.data[n].codePointAt(0) ?? 0;
   }
 
   codePoints(): number[] {
-    return this.data.map((x) => x.codePointAt(0)!);
+    return this.data.map((x) => x.codePointAt(0) ?? 0);
   }
 
   concat(that: Str): Str {
@@ -63,12 +63,14 @@ export default class Str {
     return new Str(this.data.slice().reverse());
   }
 
-};
+}
+
 
 function isHighSurrogate(n: number): boolean {
   return (n & 0xFC00) === 0xD800;
-};
+}
+
 
 function isLowSurrogate(n: number): boolean {
   return (n & 0xFC00) === 0xDC00;
-};
+}

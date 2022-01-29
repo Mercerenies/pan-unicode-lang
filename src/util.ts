@@ -1,5 +1,5 @@
 
-export function assertNever(x: never): never {
+export function assertNever(_x: never): never {
   throw "assertNever failed";
 }
 

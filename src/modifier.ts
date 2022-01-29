@@ -3,7 +3,8 @@ import { Token } from './token.js';
 
 export const NUMS: string = "⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
 
-export class Modifier {};
+export class Modifier {}
+
 
 export class NumModifier extends Modifier {
   readonly value: number;
@@ -17,7 +18,8 @@ export class NumModifier extends Modifier {
     return NUMS.charAt(this.value);
   }
 
-};
+}
+
 
 export class PrimeModifier extends Modifier {
 
@@ -25,7 +27,8 @@ export class PrimeModifier extends Modifier {
     return "′";
   }
 
-};
+}
+
 
 export function toNumModifier(tok: Token): NumModifier | undefined {
   if (tok.text.toString() === "") {
@@ -37,6 +40,7 @@ export function toNumModifier(tok: Token): NumModifier | undefined {
   } else {
     return undefined;
   }
-};
+}
+
 
 export const MAX_NUM_MODIFIER: number = 20;

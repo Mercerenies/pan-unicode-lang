@@ -118,7 +118,7 @@ export abstract class Evaluator {
     this.stack = savedStack;
   }
 
-};
+}
 
 
 export type SavedStack = AST.AST[] & { readonly __tag: unique symbol };

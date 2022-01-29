@@ -189,7 +189,7 @@ export function handleWhiteFlag(state: Evaluator, term: AST, default_: ASTOrNila
 }
 
 
-export function noExtension(fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: unknown = {}): void {
+export function noExtension(fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator): void {
   const [a, b] = state.pop(2);
   state.push(fn(a, b));
 }
@@ -300,20 +300,20 @@ export const WhiteFlag = {
     return opts.zero;
   },
   // Use a constant value.
-  value: function(n: AST): (opts: unknown) => AST {
-    return function(opts: unknown) {
+  value: function(n: AST): () => AST {
+    return function() {
       return n;
     };
   },
   // Perform no special handling.
-  ignore: function(opts: unknown): undefined {
+  ignore: function(): undefined {
     return undefined;
   }
 };
 
 export function boolToInt(x: boolean): NumberLit {
   return new NumberLit(x ? -1 : 0);
-};
+}
 
 // This function is an attempt to summarize all of the above,
 // providing all of that functionality as keyword arguments. The
@@ -369,22 +369,6 @@ export function op<A, B>(state: Evaluator, term: AST, opts: OpOptions<A, B>): vo
     };
   }
   operation();
-}
-
-
-// Takes a value that may or may not be a function. If it's not a
-// function, wraps it in a trivial constant function.
-export function wrapInFunction<A extends Array<unknown>, B>(value: Exclude<B, Function> | ((...a: A) => B)): (...a: A) => B {
-  if (typeof value === 'function') {
-    // Exclude<B, Function> & Function is an empty type. I can't seem
-    // to prove that to the type checker, but it is. There's no value
-    // which is simultaneously a function and not a function.
-    //
-    // TODO ...Prove it
-    return value as (...a: A) => B;
-  } else {
-    return () => value;
-  }
 }
 
 

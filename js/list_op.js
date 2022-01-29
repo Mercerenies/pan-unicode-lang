@@ -55,7 +55,6 @@ export function filter(term, state) {
     const result = runFilter(depth, list, func, state);
     state.push(...result);
 }
-;
 function filterTestFunc(value, func, state) {
     if (func instanceof NumberLit) {
         if (!Number.isInteger(func.value)) {
@@ -73,7 +72,6 @@ function filterTestFunc(value, func, state) {
         return Math.abs(result.value);
     }
 }
-;
 function runFilter(depth, list, func, state) {
     if (depth <= 0 || !(list instanceof ArrayLit)) {
         const count = filterTestFunc(list, func, state);
@@ -97,7 +95,6 @@ function runFilter(depth, list, func, state) {
         return [new ArrayLit(result)];
     }
 }
-;
 // Map (¨). Takes two arguments: a list and a function. The first
 // numerical argument controls the number of lists to pop (Map will
 // always pop one more total argument than its first numerical

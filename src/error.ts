@@ -4,8 +4,6 @@ import { AST } from './ast.js';
 
 export class Error {
 
-  constructor() {}
-
   id(): number {
     return -1;
   }

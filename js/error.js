@@ -1,5 +1,4 @@
 export class Error {
-    constructor() { }
     id() {
         return -1;
     }

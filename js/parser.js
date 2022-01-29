@@ -222,6 +222,7 @@ export function parse(tokens) {
     const parser = new Parser(tokens, 0);
     const result = parser.parse();
     if (!parser.atEnd()) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         throw new Error.UnexpectedParseError(parser.at());
     }
     return result;

@@ -166,7 +166,7 @@ export function handleWhiteFlag(state, term, default_, f) {
     }
     f();
 }
-export function noExtension(fn, term, state, opts = {}) {
+export function noExtension(fn, term, state) {
     const [a, b] = state.pop(2);
     state.push(fn(a, b));
 }
@@ -268,19 +268,18 @@ export const WhiteFlag = {
     },
     // Use a constant value.
     value: function (n) {
-        return function (opts) {
+        return function () {
             return n;
         };
     },
     // Perform no special handling.
-    ignore: function (opts) {
+    ignore: function () {
         return undefined;
     }
 };
 export function boolToInt(x) {
     return new NumberLit(x ? -1 : 0);
 }
-;
 // This function is an attempt to summarize all of the above,
 // providing all of that functionality as keyword arguments. The
 // available keyword arguments are listed below.
@@ -337,19 +336,4 @@ export function op(state, term, opts) {
         };
     }
     operation();
-}
-// Takes a value that may or may not be a function. If it's not a
-// function, wraps it in a trivial constant function.
-export function wrapInFunction(value) {
-    if (typeof value === 'function') {
-        // Exclude<B, Function> & Function is an empty type. I can't seem
-        // to prove that to the type checker, but it is. There's no value
-        // which is simultaneously a function and not a function.
-        //
-        // TODO ...Prove it
-        return value;
-    }
-    else {
-        return () => value;
-    }
 }

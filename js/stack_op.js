@@ -26,7 +26,6 @@ export function cross(term, state) {
     const [a, b, f] = term.getNumMod(1, 2, 2);
     doCross(state, a, b, f);
 }
-;
 // ↘ (Apply) is ⤨ but with F=1 automatically. Cleave takes two
 // numerical arguments: A and B. A defaults to 1 and B defaults to 2.
 //
@@ -35,7 +34,6 @@ export function apply(term, state) {
     const [a, b] = term.getNumMod(1, 2);
     doCross(state, a, b, 1);
 }
-;
 // ↗ (Cleave) is ⤨ but with B=1 automatically. Apply takes two
 // numerical arguments: A and F. A defaults to 1 and F defaults to 2.
 //
@@ -44,7 +42,6 @@ export function cleave(term, state) {
     const [a, f] = term.getNumMod(1, 2);
     doCross(state, a, 1, f);
 }
-;
 function doCross(state, a, b, f) {
     const everything = state.pop(a * b + f);
     for (let i = 0; i < f; i++) {
@@ -56,4 +53,3 @@ function doCross(state, a, b, f) {
         }
     }
 }
-;

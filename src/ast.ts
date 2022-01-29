@@ -7,7 +7,7 @@ import * as TypeCheck from './type_check.js';
 import * as Op from './op.js';
 import * as ListOp from './list_op.js';
 import * as StackOp from './stack_op.js';
-import { arrayEq, gcd, lcm } from './util.js';
+import { gcd, lcm } from './util.js';
 import { Token, TokenType, escapeString } from './token.js';
 import Str from './str.js';
 import { equals, compare, Ordering, defaultLT, customLT } from './comparison.js';
@@ -20,7 +20,7 @@ export abstract class AST {
     this.modifiers = [];
   }
 
-  call(state: Evaluator): void {
+  call(_state: Evaluator): void {
     throw new Error.CallNonFunction(this);
   }
 
@@ -68,7 +68,8 @@ export abstract class AST {
     return n;
   }
 
-};
+}
+
 
 export class SimpleCmd extends AST {
   readonly token: Token;
@@ -839,7 +840,7 @@ export class SimpleCmd extends AST {
           list.data.slice(1).forEach(function(datum: AST) {
             state.push(datum);
             tryCall(func, state);
-          })
+          });
         }
         break;
       }
@@ -1147,7 +1148,7 @@ export class SimpleCmd extends AST {
         }
         break;
       }
-      case '⍸': // Repeat N times and accumulate ( ..a x n ( ..a x i -- ..a x ) -- ..a list )
+      case '⍸': { // Repeat N times and accumulate ( ..a x n ( ..a x i -- ..a x ) -- ..a list )
         const [n, body] = state.pop(2);
         const result = [state.peek()];
         for (let i = 0; i < TypeCheck.isNumber(n).value; i++) {
@@ -1158,6 +1159,7 @@ export class SimpleCmd extends AST {
         state.pop();
         state.push(new ArrayLit(result));
         break;
+      }
       case '$': { // Call ( ..a ( ..a -- ..b ) -- ..b )
         const fn = state.pop();
         tryCall(fn, state);
@@ -1306,7 +1308,8 @@ export class AssignToVar extends AST {
     return "→" + this.target;
   }
 
-};
+}
+
 
 export class ReadFromVar extends AST {
   readonly target: string;
@@ -1324,7 +1327,7 @@ export class ReadFromVar extends AST {
     return "←" + this.target;
   }
 
-};
+}
 
 // StringLit actually encompasses a few things here. A string literal
 // consists of, obviously, a sequence of characters. Additionally, a
@@ -1394,7 +1397,8 @@ export class StringLit extends AST {
     return new StringLit(Str.fromString(exc.toString())).markWithException(exc);
   }
 
-};
+}
+
 
 export class NumberLit extends AST {
   readonly value: number;
@@ -1420,7 +1424,8 @@ export class NumberLit extends AST {
     }
   }
 
-};
+}
+
 
 export class FunctionLit extends AST {
   readonly body: AST[];
@@ -1442,7 +1447,8 @@ export class FunctionLit extends AST {
     return `[ ${this.body.join(" ")} ]${this.modifiers.join("")}`;
   }
 
-};
+}
+
 
 export class CurriedFunction extends AST {
   readonly arg: AST;
@@ -1471,7 +1477,7 @@ export class CurriedFunction extends AST {
     return `[ ${this.arg} ${this.function} $ ]${this.modifiers.join("")}`;
   }
 
-};
+}
 
 export class ComposedFunction extends AST {
   readonly first: AST;
@@ -1500,7 +1506,7 @@ export class ComposedFunction extends AST {
     return `[ ${this.first} $ ${this.second} $ ]${this.modifiers.join("")}`;
   }
 
-};
+}
 
 // Types
 // "{" - Array start
@@ -1575,7 +1581,8 @@ export class ArrayLit extends AST {
     return this.data.length;
   }
 
-};
+}
+
 
 export function tryCall(fn: AST, state: Evaluator): void {
   if (fn instanceof AST) {
@@ -1588,7 +1595,8 @@ export function tryCall(fn: AST, state: Evaluator): void {
   } else {
     throw new Error.CallNonFunction(fn);
   }
-};
+}
+
 
 // TODO Why is this being done both here and in the parser? Consolidate?
 function readAndParseInt(state: Evaluator): NumberLit | SentinelValue {

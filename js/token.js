@@ -31,7 +31,6 @@ export class Token {
         }
     }
 }
-;
 export var TokenType;
 (function (TokenType) {
     TokenType["Number"] = "TokenType.Number";
@@ -48,13 +47,16 @@ export function escapeString(s) {
         switch (ch) {
             case '"':
                 contents += '\\"';
+                break;
             case '\n':
                 contents += '\\n';
+                break;
             default:
                 contents += ch;
+                break;
         }
     }
-    return `\"${contents}\"`;
+    return `"${contents}"`;
 }
 export function translateEscape(ch) {
     switch (ch) {

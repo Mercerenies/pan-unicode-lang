@@ -35,7 +35,7 @@ export class Token {
     }
   }
 
-};
+}
 
 export enum TokenType {
   Number = "TokenType.Number",
@@ -53,13 +53,16 @@ export function escapeString(s: Str | string): string {
     switch (ch) {
     case '"':
       contents += '\\"';
+      break;
     case '\n':
       contents += '\\n';
+      break;
     default:
       contents += ch;
+      break;
     }
   }
-  return `\"${contents}\"`;
+  return `"${contents}"`;
 }
 
 export function translateEscape(ch: string): string {

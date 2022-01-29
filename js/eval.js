@@ -95,7 +95,6 @@ export class Evaluator {
         this.stack = savedStack;
     }
 }
-;
 function wrapPrimitive(v) {
     if (typeof v === 'number') {
         return new AST.NumberLit(v);

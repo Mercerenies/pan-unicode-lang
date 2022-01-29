@@ -30,7 +30,8 @@ export function spread(term: AST, state: Evaluator): void {
 export function cross(term: AST, state: Evaluator): void {
   const [a, b, f] = term.getNumMod(1, 2, 2);
   doCross(state, a, b, f);
-};
+}
+
 
 // ↘ (Apply) is ⤨ but with F=1 automatically. Cleave takes two
 // numerical arguments: A and B. A defaults to 1 and B defaults to 2.
@@ -39,7 +40,8 @@ export function cross(term: AST, state: Evaluator): void {
 export function apply(term: AST, state: Evaluator): void {
   const [a, b] = term.getNumMod(1, 2);
   doCross(state, a, b, 1);
-};
+}
+
 
 // ↗ (Cleave) is ⤨ but with B=1 automatically. Apply takes two
 // numerical arguments: A and F. A defaults to 1 and F defaults to 2.
@@ -48,7 +50,8 @@ export function apply(term: AST, state: Evaluator): void {
 export function cleave(term: AST, state: Evaluator): void {
   const [a, f] = term.getNumMod(1, 2);
   doCross(state, a, 1, f);
-};
+}
+
 
 function doCross(state: Evaluator, a: number, b: number, f: number): void {
   const everything = state.pop(a * b + f);
@@ -60,4 +63,4 @@ function doCross(state: Evaluator, a: number, b: number, f: number): void {
       tryCall(func, state);
     }
   }
-};
+}

@@ -1,13 +1,13 @@
 
 import * as Error from './error.js';
-import { AST, ArrayLit, FunctionLit, NumberLit, StringLit, SentinelValue, tryCall, isTruthy, SimpleCmd } from './ast.js';
+import { AST, ArrayLit, NumberLit, StringLit, SentinelValue, tryCall, isTruthy, SimpleCmd } from './ast.js';
 import { NumModifier, MAX_NUM_MODIFIER } from './modifier.js';
 import Str from './str.js';
 import { customLT, defaultLT, equals } from './comparison.js';
 import { isList, isNumber, isString } from './type_check.js';
 import { Token } from './token.js';
 import { Evaluator } from './eval.js';
-import { zip, assertNever, range } from './util.js';
+import { assertNever, range } from './util.js';
 
 // Filter (⌿) always takes exactly two arguments off the stack. Its
 // behavior is very general. The numerical modifier determines the
@@ -57,7 +57,8 @@ export function filter(term: AST, state: Evaluator): void {
   const [list, func] = state.pop(2);
   const result = runFilter(depth, list, func, state);
   state.push(...result);
-};
+}
+
 
 function filterTestFunc(value: AST, func: AST, state: Evaluator): number {
   if (func instanceof NumberLit) {
@@ -74,7 +75,8 @@ function filterTestFunc(value: AST, func: AST, state: Evaluator): number {
     }
     return Math.abs(result.value);
   }
-};
+}
+
 
 function runFilter(depth: number, list: AST, func: AST, state: Evaluator): AST[] {
   if (depth <= 0 || !(list instanceof ArrayLit)) {
@@ -96,7 +98,8 @@ function runFilter(depth: number, list: AST, func: AST, state: Evaluator): AST[]
     }
     return [new ArrayLit(result)];
   }
-};
+}
+
 
 // Map (¨). Takes two arguments: a list and a function. The first
 // numerical argument controls the number of lists to pop (Map will

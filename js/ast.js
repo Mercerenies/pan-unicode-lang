@@ -14,7 +14,7 @@ export class AST {
     constructor() {
         this.modifiers = [];
     }
-    call(state) {
+    call(_state) {
         throw new Error.CallNonFunction(this);
     }
     toException() {
@@ -52,7 +52,6 @@ export class AST {
         return n;
     }
 }
-;
 export class SimpleCmd extends AST {
     constructor(token) {
         super();
@@ -1142,7 +1141,7 @@ export class SimpleCmd extends AST {
                     }
                     break;
                 }
-                case '⍸': // Repeat N times and accumulate ( ..a x n ( ..a x i -- ..a x ) -- ..a list )
+                case '⍸': { // Repeat N times and accumulate ( ..a x n ( ..a x i -- ..a x ) -- ..a list )
                     const [n, body] = state.pop(2);
                     const result = [state.peek()];
                     for (let i = 0; i < TypeCheck.isNumber(n).value; i++) {
@@ -1153,6 +1152,7 @@ export class SimpleCmd extends AST {
                     state.pop();
                     state.push(new ArrayLit(result));
                     break;
+                }
                 case '$': { // Call ( ..a ( ..a -- ..b ) -- ..b )
                     const fn = state.pop();
                     tryCall(fn, state);
@@ -1295,7 +1295,6 @@ export class AssignToVar extends AST {
         return "→" + this.target;
     }
 }
-;
 export class ReadFromVar extends AST {
     constructor(target) {
         super();
@@ -1308,7 +1307,6 @@ export class ReadFromVar extends AST {
         return "←" + this.target;
     }
 }
-;
 // StringLit actually encompasses a few things here. A string literal
 // consists of, obviously, a sequence of characters. Additionally, a
 // string literal can consist of a regex flag (Boolean) which
@@ -1366,7 +1364,6 @@ export class StringLit extends AST {
         return new StringLit(Str.fromString(exc.toString())).markWithException(exc);
     }
 }
-;
 export class NumberLit extends AST {
     constructor(value) {
         super();
@@ -1390,7 +1387,6 @@ export class NumberLit extends AST {
         }
     }
 }
-;
 export class FunctionLit extends AST {
     constructor(body) {
         super();
@@ -1406,7 +1402,6 @@ export class FunctionLit extends AST {
         return `[ ${this.body.join(" ")} ]${this.modifiers.join("")}`;
     }
 }
-;
 export class CurriedFunction extends AST {
     constructor(arg, _function) {
         super();
@@ -1428,7 +1423,6 @@ export class CurriedFunction extends AST {
         return `[ ${this.arg} ${this.function} $ ]${this.modifiers.join("")}`;
     }
 }
-;
 export class ComposedFunction extends AST {
     constructor(first, second) {
         super();
@@ -1450,7 +1444,6 @@ export class ComposedFunction extends AST {
         return `[ ${this.first} $ ${this.second} $ ]${this.modifiers.join("")}`;
     }
 }
-;
 // Types
 // "{" - Array start
 // "⚐" - Empty fold argument
@@ -1503,7 +1496,6 @@ export class ArrayLit extends AST {
         return this.data.length;
     }
 }
-;
 export function tryCall(fn, state) {
     if (fn instanceof AST) {
         state.pushCall(fn);
@@ -1518,7 +1510,6 @@ export function tryCall(fn, state) {
         throw new Error.CallNonFunction(fn);
     }
 }
-;
 // TODO Why is this being done both here and in the parser? Consolidate?
 function readAndParseInt(state) {
     // Skip to the next number

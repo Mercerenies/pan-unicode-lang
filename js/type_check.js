@@ -12,7 +12,6 @@ function checkOrThrow(expecting, p) {
         }
     };
 }
-;
 export const isNumber = checkOrThrow("number", function (v) {
     return v instanceof NumberLit;
 });

@@ -46,6 +46,11 @@ export class InputManager {
     }
     onInput(event) {
         if (event.inputType === "insertText") {
+            const data = event.data;
+            if (data == undefined) {
+                console.warn("Undefined data in InputEvent (unicode_input.ts)");
+                return;
+            }
             const target = event.target;
             let resolution = 0;
             const tryToResolve = () => {
@@ -57,7 +62,7 @@ export class InputManager {
                     this.currentTranslation = this.translations;
                     this.currentPosition = target.selectionStart - 1;
                 }
-                const next = this.currentTranslation[event.data];
+                const next = this.currentTranslation[data];
                 this.currentString += event.data;
                 if (this.currentPosition !== target.selectionStart - 1) {
                     this.currentTranslation = null;
@@ -97,7 +102,7 @@ export function compileTranslationTable(table) {
     for (const k in table) {
         const v = table[k];
         let curr = result;
-        [...k].forEach((ch, i) => {
+        [...k].forEach((ch) => {
             if (curr[ch] == null) {
                 curr[ch] = {};
             }

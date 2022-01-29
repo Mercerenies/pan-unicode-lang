@@ -78,9 +78,11 @@ export function compare(a: AST, b: AST): Ordering {
   }
 }
 
+
 export function defaultLT(x: AST, y: AST): boolean {
   return compare(x, y) === Ordering.LT;
-};
+}
+
 
 export function customLT(state: Evaluator, fn: AST): (x: AST, y: AST) => boolean {
   return function(x: AST, y: AST): boolean {
@@ -88,4 +90,4 @@ export function customLT(state: Evaluator, fn: AST): (x: AST, y: AST) => boolean
     tryCall(fn, state);
     return isTruthy(state.pop());
   };
-};
+}
