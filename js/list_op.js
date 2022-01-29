@@ -339,7 +339,7 @@ export function ravel(term, state) {
         depth = Infinity;
     }
     const list = isList(state.pop());
-    return state.push(new ArrayLit(doRavel(depth, list.data)));
+    state.push(new ArrayLit(doRavel(depth, list.data)));
 }
 export function doRavel(depth, list) {
     if (depth <= 0) {
@@ -458,7 +458,7 @@ export function length(term, state) {
     newTerm.modifiers.push(new NumModifier(num === MAX_NUM_MODIFIER || num === 0 ? num : num - 1));
     ravel(newTerm, state);
     const list = isList(state.pop());
-    return state.push(list.length);
+    state.push(list.length);
 }
 // Reshape (⍴) takes two arguments: a list and a shape. Its numerical
 // argument defaults to 20 (which equates to infinity). The first thing
