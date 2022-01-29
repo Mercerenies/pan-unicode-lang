@@ -168,7 +168,10 @@ export function scalarExtendUnary(f: (x: AST) => AST | number): (x: AST) => AST 
 }
 
 
-export function handleWhiteFlag(state: Evaluator, term: AST, default_: ASTOrNilad, f: () => void): void {
+export function handleWhiteFlag(state: Evaluator, term: AST, default_: ASTOrNilad | number, f: () => void): void {
+  if (typeof default_ === 'number') {
+    default_ = new NumberLit(default_);
+  }
   const mod = term.getNumMod(2);
   if (mod > 0) {
     const top = state.peek();
@@ -192,40 +195,57 @@ export function noExtension(fn: (a: AST, b: AST) => AST, term: AST, state: Evalu
 }
 
 
-export function binary(fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: any = {}) {
+export function binary(fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}): void {
   let zero = opts.zero;
   let one = opts.one;
+  if (typeof zero === 'number') {
+    zero = new NumberLit(zero);
+  }
+  if (typeof one === 'number') {
+    one = new NumberLit(one);
+  }
   if ((zero != null) && typeof zero !== 'function') {
-    zero = () => opts.zero;
+    const originalZero = zero;
+    zero = () => originalZero;
   }
   if ((one != null) && typeof one !== 'function') {
-    one = () => opts.one;
+    const originalOne = one;
+    one = () => originalOne;
   }
   if (opts.scalarExtend && (one != null)) {
     one = scalarExtendUnary(one);
   }
-  return binaryReduce(fn, term, state, {
+  binaryReduce(fn, term, state, {
     zero: zero,
     one: one,
     modifierAdjustment: opts.modifierAdjustment,
     defaultModifier: opts.defaultModifier
   });
 }
+
 
 // binary but associate to the right
-export function binaryRight(fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: any = {}): void {
+export function binaryRight(fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}): void {
   let zero = opts.zero;
   let one = opts.one;
+  if (typeof zero === 'number') {
+    zero = new NumberLit(zero);
+  }
+  if (typeof one === 'number') {
+    one = new NumberLit(one);
+  }
   if ((zero != null) && typeof zero !== 'function') {
-    zero = () => opts.zero;
+    const originalZero = zero;
+    zero = () => originalZero;
   }
   if ((one != null) && typeof one !== 'function') {
-    one = () => opts.one;
+    const originalOne = one;
+    one = () => originalOne;
   }
   if (opts.scalarExtend && (one != null)) {
     one = scalarExtendUnary(one);
   }
-  return binaryReduceRight(fn, term, state, {
+  binaryReduceRight(fn, term, state, {
     zero: zero,
     one: one,
     modifierAdjustment: opts.modifierAdjustment,
@@ -233,18 +253,26 @@ export function binaryRight(fn: (a: AST, b: AST) => AST, term: AST, state: Evalu
   });
 }
 
-export function merge(reduce: (a: AST, b: AST) => AST): (fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: any) => void {
-  return function(fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: any = {}) {
+export function merge(reduce: (a: AST, b: AST) => AST): (fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions>) => void {
+  return function(fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}) {
     if (opts.scalarExtend) {
       reduce = scalarExtend(reduce);
     }
     let zero = opts.zero;
     let one = opts.one;
+    if (typeof zero === 'number') {
+      zero = new NumberLit(zero);
+    }
+    if (typeof one === 'number') {
+      one = new NumberLit(one);
+    }
     if ((zero != null) && typeof zero !== 'function') {
-      zero = () => opts.zero;
+      const originalZero = zero;
+      zero = () => originalZero;
     }
     if ((one != null) && typeof one !== 'function') {
-      one = () => opts.one;
+      const originalOne = one;
+      one = () => originalOne;
     }
     if (opts.scalarExtend && (one != null)) {
       one = scalarExtendUnary(one);
@@ -258,7 +286,7 @@ export function merge(reduce: (a: AST, b: AST) => AST): (fn: (a: AST, b: AST) =>
   };
 }
 
-export const mergeAnd: (fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: any) => void =
+export const mergeAnd: (fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions>) => void =
   merge(function(a, b) {
     return new NumberLit(isNumber(a).value & isNumber(b).value);
   });
@@ -266,17 +294,17 @@ export const mergeAnd: (fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator
 export const WhiteFlag = {
   // Inherit from the zero argument, if provided. If not, behaves like
   // ignore.
-  inherit: function(opts: any): AST {
+  inherit: function(opts: { zero?: number | AST | (() => AST) }): number | AST | (() => AST) | undefined {
     return opts.zero;
   },
   // Use a constant value.
-  value: function(n: AST): (opts: any) => AST {
-    return function(opts: any) {
+  value: function(n: AST): (opts: unknown) => AST {
+    return function(opts: unknown) {
       return n;
     };
   },
   // Perform no special handling.
-  ignore: function(opts: any): undefined {
+  ignore: function(opts: unknown): undefined {
     return undefined;
   }
 };
@@ -291,10 +319,10 @@ export function boolToInt(x: boolean): NumberLit {
 //
 // - function (required) - The function to apply.
 //
-// - postProcess (optional) - Unary function; runs after the original
+// - postProcess (required) - Unary function; runs after the original
 //   function. Defaults to the identity function.
 //
-// - preProcess (optional) - Unary function; runs on each argument to
+// - preProcess (required) - Unary function; runs on each argument to
 //   the original function. Generally, this is a type check of some
 //   variety.
 //
@@ -320,20 +348,10 @@ export function boolToInt(x: boolean): NumberLit {
 //   the identity function.
 //
 // - defaultModifier (optional) - Default modifier. Defaults to 2.
-export function op(state: Evaluator, term: AST, opts: any = {}): void {
-  let func = opts.function;
-  if (opts.postProcess) {
-    const unpostprocessedFunc = func;
-    func = function(a, b) {
-      return opts.postProcess(unpostprocessedFunc(a, b));
-    };
-  }
-  if (opts.preProcess) {
-    const unpreprocessedFunc = func;
-    func = function(a, b) {
-      return unpreprocessedFunc(opts.preProcess(a), opts.preProcess(b));
-    };
-  }
+export function op<A, B>(state: Evaluator, term: AST, opts: OpOptions<A, B>): void {
+  const postprocessor: ((x: B) => AST) = opts.postProcess;
+  const preprocessor: ((x: AST) => A) = opts.preProcess;
+  let func = (a: AST, b: AST) => postprocessor(opts.function(preprocessor(a), preprocessor(b)));
   if (opts.scalarExtend) {
     func = scalarExtend(func);
   }
@@ -349,7 +367,23 @@ export function op(state: Evaluator, term: AST, opts: any = {}): void {
     };
   }
   operation();
-};
+}
+
+
+// Takes a value that may or may not be a function. If it's not a
+// function, wraps it in a trivial constant function.
+export function wrapInFunction<A extends Array<unknown>, B>(value: Exclude<B, Function> | ((...a: A) => B)): (...a: A) => B {
+  if (typeof value === 'function') {
+    // Exclude<B, Function> & Function is an empty type. I can't seem
+    // to prove that to the type checker, but it is. There's no value
+    // which is simultaneously a function and not a function.
+    //
+    // TODO ...Prove it
+    return value as (...a: A) => B;
+  } else {
+    return () => value;
+  }
+}
 
 
 export interface BinaryReduceOptions {
@@ -357,6 +391,36 @@ export interface BinaryReduceOptions {
   modifierAdjustment(mod: number): number;
   zero(): AST;
   one(top: AST): AST;
+}
+
+
+export interface ExtensionFunction {
+  (fn: (a: AST, b: AST) => AST, term: AST, state: Evaluator, opts: any): void;
+}
+
+
+// Will be converted into a BinaryReduceOptions but allows more
+// flexibility for use in our DSL.
+export interface BinaryReduceExtOptions {
+  defaultModifier: number;
+  modifierAdjustment(mod: number): number;
+  scalarExtend: boolean;
+  zero: number | AST | (() => AST);
+  one: number | AST | ((top: AST) => AST);
+}
+
+
+interface OpOptions<A, B> {
+  function: (x: A, y: A) => B;
+  preProcess: (x: AST) => A;
+  postProcess: (y: B) => AST;
+  extension?: ExtensionFunction;
+  scalarExtend?: boolean;
+  zero?: number | AST | (() => AST);
+  one?: number | AST | ((top: AST) => AST);
+  whiteFlag?: (opts: OpOptions<A, B>) => number | ASTOrNilad | undefined;
+  modifierAdjustment?: (n: number) => number;
+  defaultModifier?: number;
 }
 
 

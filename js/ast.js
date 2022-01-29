@@ -169,6 +169,7 @@ export class SimpleCmd extends AST {
                             return new NumberLit(a.value + b.value);
                         },
                         preProcess: TypeCheck.isNumber,
+                        postProcess: id,
                         zero: 0,
                         extension: Op.binary,
                         scalarExtend: true
@@ -180,8 +181,9 @@ export class SimpleCmd extends AST {
                             return new NumberLit(a.value - b.value);
                         },
                         preProcess: TypeCheck.isNumber,
+                        postProcess: id,
                         one: function (a) {
-                            return new NumberLit(-a.value);
+                            return new NumberLit(-TypeCheck.isNumber(a).value);
                         },
                         extension: Op.binary,
                         scalarExtend: true
@@ -193,6 +195,7 @@ export class SimpleCmd extends AST {
                             return new NumberLit(a.value * b.value);
                         },
                         preProcess: TypeCheck.isNumber,
+                        postProcess: id,
                         zero: 1,
                         extension: Op.binary,
                         scalarExtend: true
@@ -204,8 +207,9 @@ export class SimpleCmd extends AST {
                             return new NumberLit(a.value / b.value);
                         },
                         preProcess: TypeCheck.isNumber,
+                        postProcess: id,
                         one: function (a) {
-                            return new NumberLit(1 / a.value);
+                            return new NumberLit(1 / TypeCheck.isNumber(a).value);
                         },
                         extension: Op.binary,
                         scalarExtend: true
@@ -217,6 +221,7 @@ export class SimpleCmd extends AST {
                             return new NumberLit(a.value ** b.value);
                         },
                         preProcess: TypeCheck.isNumber,
+                        postProcess: id,
                         zero: 1,
                         extension: Op.binaryRight,
                         scalarExtend: true
@@ -232,9 +237,10 @@ export class SimpleCmd extends AST {
                     if (this.getPrimeMod() > 0) {
                         Op.op(state, this, {
                             function: function (a, b) {
-                                new NumberLit(Math.log(a.value) / Math.log(b.value));
+                                return new NumberLit(Math.log(a.value) / Math.log(b.value));
                             },
                             preProcess: TypeCheck.isNumber,
+                            postProcess: id,
                             extension: Op.binary,
                             scalarExtend: true
                         });
@@ -250,9 +256,10 @@ export class SimpleCmd extends AST {
                     if (this.getPrimeMod() > 0) {
                         Op.op(state, this, {
                             function: function (a, b) {
-                                new NumberLit(a.value ** (1 / b.value));
+                                return new NumberLit(a.value ** (1 / b.value));
                             },
                             preProcess: TypeCheck.isNumber,
+                            postProcess: id,
                             extension: Op.binary,
                             scalarExtend: true
                         });
@@ -270,6 +277,7 @@ export class SimpleCmd extends AST {
                             return new NumberLit((a.value % b.value + b.value) % b.value); // "True" mod
                         },
                         preProcess: TypeCheck.isNumber,
+                        postProcess: id,
                         scalarExtend: true
                     });
                     break;
@@ -279,6 +287,7 @@ export class SimpleCmd extends AST {
                             return new NumberLit(lcm(a.value, b.value));
                         },
                         preProcess: TypeCheck.isNumber,
+                        postProcess: id,
                         zero: 1,
                         extension: Op.binary,
                         scalarExtend: true
@@ -290,6 +299,7 @@ export class SimpleCmd extends AST {
                             return new NumberLit(gcd(a.value, b.value));
                         },
                         preProcess: TypeCheck.isNumber,
+                        postProcess: id,
                         zero: 0,
                         extension: Op.binary,
                         scalarExtend: true
@@ -328,9 +338,10 @@ export class SimpleCmd extends AST {
                 case '∧': // Bitwise Conjunction ( x y -- z )
                     Op.op(state, this, {
                         function: function (a, b) {
-                            return a.value & b.value;
+                            return new NumberLit(a.value & b.value);
                         },
                         preProcess: TypeCheck.isNumber,
+                        postProcess: id,
                         zero: -1,
                         extension: Op.binary,
                         scalarExtend: true
@@ -339,9 +350,10 @@ export class SimpleCmd extends AST {
                 case '∨': // Bitwise Disjunction ( x y -- z )
                     Op.op(state, this, {
                         function: function (a, b) {
-                            return a.value | b.value;
+                            return new NumberLit(a.value | b.value);
                         },
                         preProcess: TypeCheck.isNumber,
+                        postProcess: id,
                         zero: 0,
                         extension: Op.binary,
                         scalarExtend: true
@@ -350,9 +362,10 @@ export class SimpleCmd extends AST {
                 case '⊕': // Bitwise Exclusive Or ( x y -- z )
                     Op.op(state, this, {
                         function: function (a, b) {
-                            return a.value ^ b.value;
+                            return new NumberLit(a.value ^ b.value);
                         },
                         preProcess: TypeCheck.isNumber,
+                        postProcess: id,
                         zero: 0,
                         extension: Op.binary,
                         scalarExtend: true
@@ -375,6 +388,8 @@ export class SimpleCmd extends AST {
                                 return a;
                             }
                         },
+                        preProcess: id,
+                        postProcess: id,
                         zero: SentinelValue.null,
                         extension: Op.binary,
                         scalarExtend: false
@@ -515,6 +530,7 @@ export class SimpleCmd extends AST {
                     Op.op(state, this, {
                         function: catenate,
                         preProcess: TypeCheck.isStringOrList,
+                        postProcess: id,
                         zero: new StringLit(""),
                         extension: Op.binary,
                         scalarExtend: false
@@ -600,6 +616,7 @@ export class SimpleCmd extends AST {
                         function: function (a, b) {
                             return equals(a, b);
                         },
+                        preProcess: id,
                         postProcess: Op.boolToInt,
                         zero: -1,
                         extension: Op.mergeAnd,
@@ -612,6 +629,7 @@ export class SimpleCmd extends AST {
                         function: function (a, b) {
                             return compare(a, b) === Ordering.LT;
                         },
+                        preProcess: id,
                         postProcess: Op.boolToInt,
                         zero: -1,
                         extension: Op.mergeAnd,
@@ -624,6 +642,7 @@ export class SimpleCmd extends AST {
                         function: function (a, b) {
                             return compare(a, b) === Ordering.GT;
                         },
+                        preProcess: id,
                         postProcess: Op.boolToInt,
                         zero: -1,
                         extension: Op.mergeAnd,
@@ -636,6 +655,7 @@ export class SimpleCmd extends AST {
                         function: function (a, b) {
                             return compare(a, b) !== Ordering.GT;
                         },
+                        preProcess: id,
                         postProcess: Op.boolToInt,
                         zero: -1,
                         extension: Op.mergeAnd,
@@ -648,6 +668,7 @@ export class SimpleCmd extends AST {
                         function: function (a, b) {
                             return compare(a, b) !== Ordering.LT;
                         },
+                        preProcess: id,
                         postProcess: Op.boolToInt,
                         zero: -1,
                         extension: Op.mergeAnd,
@@ -660,6 +681,7 @@ export class SimpleCmd extends AST {
                         function: function (a, b) {
                             return !equals(a, b);
                         },
+                        preProcess: id,
                         postProcess: Op.boolToInt,
                         zero: -1,
                         extension: Op.mergeAnd,
@@ -673,6 +695,7 @@ export class SimpleCmd extends AST {
                         function: function (a, b) {
                             return equals(a, b);
                         },
+                        preProcess: id,
                         postProcess: Op.boolToInt,
                         zero: -1,
                         extension: Op.mergeAnd,
@@ -686,6 +709,7 @@ export class SimpleCmd extends AST {
                         function: function (a, b) {
                             return !equals(a, b);
                         },
+                        preProcess: id,
                         postProcess: Op.boolToInt,
                         zero: -1,
                         extension: Op.mergeAnd,
@@ -706,6 +730,8 @@ export class SimpleCmd extends AST {
                                 return b;
                             }
                         },
+                        preProcess: id,
+                        postProcess: id,
                         zero: -2e308,
                         extension: Op.binary,
                         scalarExtend: true
@@ -725,6 +751,8 @@ export class SimpleCmd extends AST {
                                 return b;
                             }
                         },
+                        preProcess: id,
+                        postProcess: id,
                         zero: 2e308,
                         extension: Op.binary,
                         scalarExtend: true
@@ -879,6 +907,8 @@ export class SimpleCmd extends AST {
                             function: function (x, list) {
                                 return new ArrayLit([x].concat(TypeCheck.isList(list).data));
                             },
+                            preProcess: id,
+                            postProcess: id,
                             extension: Op.binaryRight,
                             scalarExtend: false,
                             defaultModifier: 1,
@@ -893,6 +923,8 @@ export class SimpleCmd extends AST {
                             function: function (x, list) {
                                 return new ArrayLit(TypeCheck.isList(list).data.concat([x]));
                             },
+                            preProcess: id,
+                            postProcess: id,
                             extension: Op.binaryRight,
                             scalarExtend: false,
                             defaultModifier: 1,
@@ -1169,6 +1201,8 @@ export class SimpleCmd extends AST {
                         function: function (x, f) {
                             return new CurriedFunction(x, f);
                         },
+                        preProcess: id,
+                        postProcess: id,
                         extension: Op.binaryRight,
                         scalarExtend: false,
                         defaultModifier: 1,
@@ -1182,6 +1216,8 @@ export class SimpleCmd extends AST {
                         function: function (f, g) {
                             return new ComposedFunction(f, g);
                         },
+                        preProcess: id,
+                        postProcess: id,
                         extension: Op.binaryRight,
                         scalarExtend: false,
                         zero: function () {
@@ -1533,4 +1569,7 @@ export function catenate(a, b) {
     else {
         throw new Error.TypeError("arrays or strings", new ArrayLit([a, b]));
     }
+}
+function id(a) {
+    return a;
 }

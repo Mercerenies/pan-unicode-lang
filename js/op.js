@@ -147,6 +147,9 @@ export function scalarExtendUnary(f) {
     return f1;
 }
 export function handleWhiteFlag(state, term, default_, f) {
+    if (typeof default_ === 'number') {
+        default_ = new NumberLit(default_);
+    }
     const mod = term.getNumMod(2);
     if (mod > 0) {
         const top = state.peek();
@@ -170,16 +173,24 @@ export function noExtension(fn, term, state, opts = {}) {
 export function binary(fn, term, state, opts = {}) {
     let zero = opts.zero;
     let one = opts.one;
+    if (typeof zero === 'number') {
+        zero = new NumberLit(zero);
+    }
+    if (typeof one === 'number') {
+        one = new NumberLit(one);
+    }
     if ((zero != null) && typeof zero !== 'function') {
-        zero = () => opts.zero;
+        const originalZero = zero;
+        zero = () => originalZero;
     }
     if ((one != null) && typeof one !== 'function') {
-        one = () => opts.one;
+        const originalOne = one;
+        one = () => originalOne;
     }
     if (opts.scalarExtend && (one != null)) {
         one = scalarExtendUnary(one);
     }
-    return binaryReduce(fn, term, state, {
+    binaryReduce(fn, term, state, {
         zero: zero,
         one: one,
         modifierAdjustment: opts.modifierAdjustment,
@@ -190,16 +201,24 @@ export function binary(fn, term, state, opts = {}) {
 export function binaryRight(fn, term, state, opts = {}) {
     let zero = opts.zero;
     let one = opts.one;
+    if (typeof zero === 'number') {
+        zero = new NumberLit(zero);
+    }
+    if (typeof one === 'number') {
+        one = new NumberLit(one);
+    }
     if ((zero != null) && typeof zero !== 'function') {
-        zero = () => opts.zero;
+        const originalZero = zero;
+        zero = () => originalZero;
     }
     if ((one != null) && typeof one !== 'function') {
-        one = () => opts.one;
+        const originalOne = one;
+        one = () => originalOne;
     }
     if (opts.scalarExtend && (one != null)) {
         one = scalarExtendUnary(one);
     }
-    return binaryReduceRight(fn, term, state, {
+    binaryReduceRight(fn, term, state, {
         zero: zero,
         one: one,
         modifierAdjustment: opts.modifierAdjustment,
@@ -213,11 +232,19 @@ export function merge(reduce) {
         }
         let zero = opts.zero;
         let one = opts.one;
+        if (typeof zero === 'number') {
+            zero = new NumberLit(zero);
+        }
+        if (typeof one === 'number') {
+            one = new NumberLit(one);
+        }
         if ((zero != null) && typeof zero !== 'function') {
-            zero = () => opts.zero;
+            const originalZero = zero;
+            zero = () => originalZero;
         }
         if ((one != null) && typeof one !== 'function') {
-            one = () => opts.one;
+            const originalOne = one;
+            one = () => originalOne;
         }
         if (opts.scalarExtend && (one != null)) {
             one = scalarExtendUnary(one);
@@ -260,10 +287,10 @@ export function boolToInt(x) {
 //
 // - function (required) - The function to apply.
 //
-// - postProcess (optional) - Unary function; runs after the original
+// - postProcess (required) - Unary function; runs after the original
 //   function. Defaults to the identity function.
 //
-// - preProcess (optional) - Unary function; runs on each argument to
+// - preProcess (required) - Unary function; runs on each argument to
 //   the original function. Generally, this is a type check of some
 //   variety.
 //
@@ -289,21 +316,11 @@ export function boolToInt(x) {
 //   the identity function.
 //
 // - defaultModifier (optional) - Default modifier. Defaults to 2.
-export function op(state, term, opts = {}) {
+export function op(state, term, opts) {
     var _a;
-    let func = opts.function;
-    if (opts.postProcess) {
-        const unpostprocessedFunc = func;
-        func = function (a, b) {
-            return opts.postProcess(unpostprocessedFunc(a, b));
-        };
-    }
-    if (opts.preProcess) {
-        const unpreprocessedFunc = func;
-        func = function (a, b) {
-            return unpreprocessedFunc(opts.preProcess(a), opts.preProcess(b));
-        };
-    }
+    const postprocessor = opts.postProcess;
+    const preprocessor = opts.preProcess;
+    let func = (a, b) => postprocessor(opts.function(preprocessor(a), preprocessor(b)));
     if (opts.scalarExtend) {
         func = scalarExtend(func);
     }
@@ -321,4 +338,18 @@ export function op(state, term, opts = {}) {
     }
     operation();
 }
-;
+// Takes a value that may or may not be a function. If it's not a
+// function, wraps it in a trivial constant function.
+export function wrapInFunction(value) {
+    if (typeof value === 'function') {
+        // Exclude<B, Function> & Function is an empty type. I can't seem
+        // to prove that to the type checker, but it is. There's no value
+        // which is simultaneously a function and not a function.
+        //
+        // TODO ...Prove it
+        return value;
+    }
+    else {
+        return () => value;
+    }
+}
