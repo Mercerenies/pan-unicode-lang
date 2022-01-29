@@ -95,7 +95,7 @@ export class SimpleCmd extends AST {
                     let result = "";
                     while (true) {
                         const curr = state.readInput();
-                        if (curr === void 0) {
+                        if (curr === undefined) {
                             break;
                         }
                         result += curr;
@@ -115,7 +115,7 @@ export class SimpleCmd extends AST {
                     let result = "";
                     while (true) {
                         const curr = state.readInput();
-                        if (curr === void 0) {
+                        if (curr === undefined) {
                             break;
                         }
                         result += curr;

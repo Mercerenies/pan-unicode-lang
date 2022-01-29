@@ -176,7 +176,7 @@ class Parser {
     parseTerm() {
         const result = this.parseTermNoMod();
         if (result == null) {
-            return void 0;
+            return undefined;
         }
         let mod = this.tryParseMod();
         while (mod != null) {
