@@ -1,6 +1,6 @@
 
 import * as Error from './error.js';
-import { AST, NumberLit, ArrayLit, SentinelValue } from './ast.js';
+import { AST, SimpleCmd, NumberLit, ArrayLit, SentinelValue } from './ast.js';
 import { zip, reduceM } from './util.js';
 import { Evaluator } from './eval.js';
 import { isNumber } from './type_check.js';
@@ -22,7 +22,7 @@ import { isNumber } from './type_check.js';
 //   with the deepest on the stack.
 export async function binaryReduce(
   fn: (a: AST, b: AST) => Promise<AST>,
-  term: AST,
+  term: SimpleCmd,
   state: Evaluator,
   opts: Partial<BinaryReduceOptions> = {},
 ): Promise<void> {
@@ -56,7 +56,7 @@ export async function binaryReduce(
 // TODO Common superfunction to this and binaryReduce
 export async function binaryReduceRight(
   fn: (a: AST, b: AST) => Promise<AST>,
-  term: AST,
+  term: SimpleCmd,
   state: Evaluator,
   opts: Partial<BinaryReduceOptions> = {},
 ): Promise<void> {
@@ -99,7 +99,7 @@ export async function binaryReduceRight(
 export async function mergeReduce(
   fn: (a: AST, b: AST) => Promise<AST>,
   reduce: (a: AST, b: AST) => Promise<AST>,
-  term: AST,
+  term: SimpleCmd,
   state: Evaluator,
   opts: Partial<BinaryReduceOptions> = {},
 ): Promise<void> {
@@ -187,7 +187,7 @@ export function scalarExtendUnary(f: (x: AST) => Promise<AST | number>): (x: AST
 }
 
 
-export async function handleWhiteFlag(state: Evaluator, term: AST, default_: ASTOrNilad | number, f: () => Promise<void>): Promise<void> {
+export async function handleWhiteFlag(state: Evaluator, term: SimpleCmd, default_: ASTOrNilad | number, f: () => Promise<void>): Promise<void> {
   if (typeof default_ === 'number') {
     default_ = new NumberLit(default_);
   }
@@ -208,14 +208,14 @@ export async function handleWhiteFlag(state: Evaluator, term: AST, default_: AST
 }
 
 
-export async function noExtension(fn: (a: AST, b: AST) => Promise<AST>, term: AST, state: Evaluator): Promise<void> {
+export async function noExtension(fn: (a: AST, b: AST) => Promise<AST>, term: SimpleCmd, state: Evaluator): Promise<void> {
   const [a, b] = state.pop(2);
   state.push(await fn(a, b));
 }
 
 
 export const binary: ExtensionFunction =
-  async function(fn: (a: AST, b: AST) => Promise<AST>, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}): Promise<void> {
+  async function(fn: (a: AST, b: AST) => Promise<AST>, term: SimpleCmd, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}): Promise<void> {
     let zero = opts.zero;
     let one = opts.one;
     if (typeof zero === 'number') {
@@ -247,7 +247,7 @@ export const binary: ExtensionFunction =
 
 // binary but associate to the right
 export const binaryRight: ExtensionFunction =
-  async function(fn: (a: AST, b: AST) => Promise<AST>, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}): Promise<void> {
+  async function(fn: (a: AST, b: AST) => Promise<AST>, term: SimpleCmd, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}): Promise<void> {
     let zero = opts.zero;
     let one = opts.one;
     if (typeof zero === 'number') {
@@ -277,7 +277,7 @@ export const binaryRight: ExtensionFunction =
   };
 
 export function merge(reduce: (a: AST, b: AST) => Promise<AST>): ExtensionFunction {
-  return async function(fn: (a: AST, b: AST) => Promise<AST>, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}): Promise<void> {
+  return async function(fn: (a: AST, b: AST) => Promise<AST>, term: SimpleCmd, state: Evaluator, opts: Partial<BinaryReduceExtOptions> = {}): Promise<void> {
     if (opts.scalarExtend) {
       reduce = scalarExtend(reduce);
     }
@@ -372,7 +372,7 @@ export function boolToInt(x: boolean): NumberLit {
 //   the identity function.
 //
 // - defaultModifier (optional) - Default modifier. Defaults to 2.
-export async function op<A, B>(state: Evaluator, term: AST, opts: OpOptions<A, B>): Promise<void> {
+export async function op<A, B>(state: Evaluator, term: SimpleCmd, opts: OpOptions<A, B>): Promise<void> {
   const postprocessor: ((x: B) => Promise<AST>) = async function(x: B): Promise<AST> {
     const result = opts.postProcess(x);
     if (result instanceof Promise) {
@@ -410,7 +410,7 @@ export interface BinaryReduceOptions {
 
 
 export interface ExtensionFunction {
-  (fn: (a: AST, b: AST) => Promise<AST>, term: AST, state: Evaluator, opts: Partial<BinaryReduceExtOptions>): Promise<void>;
+  (fn: (a: AST, b: AST) => Promise<AST>, term: SimpleCmd, state: Evaluator, opts: Partial<BinaryReduceExtOptions>): Promise<void>;
 }
 
 

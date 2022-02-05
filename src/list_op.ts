@@ -49,7 +49,7 @@ import { assertNever, range, sortM } from './util.js';
 //
 // In any example above, we can replace a function with a number, and
 // it will be treated as a constant function which returns that number.
-export async function filter(term: AST, state: Evaluator): Promise<void> {
+export async function filter(term: SimpleCmd, state: Evaluator): Promise<void> {
   let depth = term.getNumMod(1);
   if (depth === MAX_NUM_MODIFIER) {
     depth = Infinity;
@@ -121,7 +121,7 @@ async function runFilter(depth: number, list: AST, func: AST, state: Evaluator):
 //
 // Note that ¨①⓪ is just $ and ¨⓪① will simply pop the function and
 // call it once with no arguments.
-export async function map(term: AST, state: Evaluator): Promise<void> {
+export async function map(term: SimpleCmd, state: Evaluator): Promise<void> {
   let [argCount, depth] = term.getNumMod(1, 1);
   if (depth === MAX_NUM_MODIFIER) {
     depth = Infinity;
@@ -195,7 +195,7 @@ async function runMap(depth: number, args: AST[], func: AST, baseCase: (args: AS
 
 
 // Just like map but doesn't expect a result of any kind.
-export async function each(term: AST, state: Evaluator): Promise<void> {
+export async function each(term: SimpleCmd, state: Evaluator): Promise<void> {
   let [argCount, depth] = term.getNumMod(1, 1);
   if (depth === MAX_NUM_MODIFIER) {
     depth = Infinity;
@@ -214,7 +214,7 @@ export async function each(term: AST, state: Evaluator): Promise<void> {
 // Nested query (n) Takes two arguments: a list/string and an index,
 // which can be either a number or a list. The index is traversed in
 // order, taking the nth element of the list/string at each step.
-export function nestedQuery(term: AST, state: Evaluator): void {
+export function nestedQuery(term: SimpleCmd, state: Evaluator): void {
   const [list, index0] = state.pop(2);
   let index: AST[];
   if (index0 instanceof NumberLit) {
@@ -241,7 +241,7 @@ export function nestedQuery(term: AST, state: Evaluator): void {
 // treated a a singleton list. A new list/string is formed by taking
 // the elements at the given positions. Any invalid indices are
 // ignored.
-export function select(term: AST, state: Evaluator): void {
+export function select(term: SimpleCmd, state: Evaluator): void {
   const [list, index0] = state.pop(2);
   let index: AST[];
   if (index0 instanceof NumberLit) {
@@ -308,7 +308,7 @@ export function nth(value: AST, index: number | AST): AST {
 // function (before popping the list) that will be used as the "less
 // than" operator for comparison. Returns a list of indices which
 // indicate the permutation of the list after sorting.
-export async function gradeUp(term: AST, state: Evaluator): Promise<void> {
+export async function gradeUp(term: SimpleCmd, state: Evaluator): Promise<void> {
   let list0: AST;
   let func: (x: AST, y: AST) => Promise<boolean>;
   if (term.getPrimeMod() > 0) {
@@ -338,7 +338,7 @@ export async function gradeUp(term: AST, state: Evaluator): Promise<void> {
 // determines how many layers to flatten. Numerical argument of 20 is
 // treated as infinity. Numerical argument of 0 results in no change
 // to the list.
-export function ravel(term: AST, state: Evaluator): void {
+export function ravel(term: SimpleCmd, state: Evaluator): void {
   let depth = term.getNumMod(1);
   if (depth === MAX_NUM_MODIFIER) {
     depth = Infinity;
@@ -383,7 +383,7 @@ export function doRavel(depth: number, list: AST[]): AST[] {
 // If you wish to get a flat result structure (rather than the nested
 // one that ⊗ produces, you should call Flatten (⍪) on the result,
 // with a numerical argument one smaller than the one passed to ⊗.
-export async function outerProduct(term: AST, state: Evaluator): Promise<void> {
+export async function outerProduct(term: SimpleCmd, state: Evaluator): Promise<void> {
   const argCount = term.getNumMod(2);
   const func = state.pop();
   const args = state.pop(argCount);
@@ -432,7 +432,7 @@ function* cartesianProductRec<T>(lists: T[][], n: number, prefix: T[]): Iterable
 // indices at which the element can be found in the list. If used with
 // a prime modifier, the search element is instead a unary function,
 // which is called for each position.
-export async function member(term: AST, state: Evaluator): Promise<void> {
+export async function member(term: SimpleCmd, state: Evaluator): Promise<void> {
   const [list0, needle] = state.pop(2);
   const list = isList(list0);
   let func: (x: AST) => Promise<boolean>;
@@ -460,7 +460,7 @@ export async function member(term: AST, state: Evaluator): Promise<void> {
 // numerical modifier, this will happily nest deeper and count the
 // length of sublists as well. Numerical argument of 20 is treated as
 // infinity.
-export function length(term: AST, state: Evaluator): void {
+export function length(term: SimpleCmd, state: Evaluator): void {
   const num = term.getNumMod(1);
   if (num === 0) {
     // There's one thing, if we ignore all depth. Simple and dumb result.
@@ -481,7 +481,7 @@ export function length(term: AST, state: Evaluator): void {
 // it does is ravel the list to the depth of its own numerical
 // argument. Then it produces a new list of the specified shape, where
 // the shape should either be a number or a list of numbers.
-export function reshape(term: AST, state: Evaluator): void {
+export function reshape(term: SimpleCmd, state: Evaluator): void {
   const shape0 = state.pop();
   let shape: ArrayLit;
   if (shape0 instanceof ArrayLit) {

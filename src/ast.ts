@@ -14,11 +14,6 @@ import { equals, compare, Ordering, defaultLT, customLT } from './comparison.js'
 import * as SuperSub from './super_sub.js';
 
 export abstract class AST {
-  readonly modifiers: Modifier.Modifier[];
-
-  constructor() {
-    this.modifiers = [];
-  }
 
   call(_state: Evaluator): Promise<void> {
     throw new Error.CallNonFunction(this);
@@ -30,11 +25,23 @@ export abstract class AST {
     return new Error.UserError(this);
   }
 
+}
+
+
+export class SimpleCmd extends AST {
+  readonly token: Token;
+  readonly modifiers: Modifier.Modifier[];
+
+  constructor(token: Token, modifiers: Modifier.Modifier[] = []) {
+    super();
+    this.token = token;
+    this.modifiers = modifiers;
+  }
+
   getNumMod(arg: number): number;
   getNumMod(arg1: number, arg2: number, ...args: number[]): number[];
   getNumMod(...args: number[]): number | number[] {
-    const result: number[] = [];
-
+    const result = [];
     // Take modifiers that we have.
     for (const mod of this.modifiers) {
       if (mod instanceof Modifier.NumModifier) {
@@ -44,18 +51,16 @@ export abstract class AST {
         }
       }
     }
-
     // Pad from args for everything left.
     while (result.length < args.length) {
       result.push(args[result.length]);
     }
-
     if (args.length === 1) {
       return result[0];
-    } else {
+    }
+    else {
       return result.slice(0, args.length);
     }
-
   }
 
   getPrimeMod(): number {
@@ -68,16 +73,8 @@ export abstract class AST {
     return n;
   }
 
-}
 
-
-export class SimpleCmd extends AST {
-  readonly token: Token;
-
-  constructor(token: Token) {
-    super();
-    this.token = token;
-  }
+  // TODO Remove the two below functions
 
   isNumberLit(): boolean {
     return this.token.tokenType() === TokenType.Number;
@@ -1435,7 +1432,7 @@ export class FunctionLit extends AST {
   }
 
   toString(): string {
-    return `[ ${this.body.join(" ")} ]${this.modifiers.join("")}`;
+    return `[ ${this.body.join(" ")} ]`;
   }
 
 }
@@ -1465,7 +1462,7 @@ export class CurriedFunction extends AST {
     // quotation. If you try to read this representation back in, you
     // will get a FunctionLit, not a CurriedFunction. But it's
     // accurate enough for most purposes.
-    return `[ ${this.arg} ${this.function} $ ]${this.modifiers.join("")}`;
+    return `[ ${this.arg} ${this.function} $ ]`;
   }
 
 }
@@ -1494,7 +1491,7 @@ export class ComposedFunction extends AST {
     // quotation. If you try to read this representation back in, you
     // will get a FunctionLit, not a CurriedFunction. But it's
     // accurate enough for most purposes.
-    return `[ ${this.first} $ ${this.second} $ ]${this.modifiers.join("")}`;
+    return `[ ${this.first} $ ${this.second} $ ]`;
   }
 
 }
@@ -1515,7 +1512,7 @@ export class SentinelValue extends AST {
   }
 
   toString(): string {
-    return this.type + this.modifiers.join("");
+    return this.type.toString();
   }
 
   async eval(state: Evaluator): Promise<void> {
@@ -1538,7 +1535,7 @@ export class Box extends AST {
   }
 
   toString(): string {
-    return `${this.value} ⊂${this.modifiers.join("")}`;
+    return `${this.value} ⊂`;
   }
 
   async eval(state: Evaluator): Promise<void> {
@@ -1561,7 +1558,7 @@ export class ArrayLit extends AST {
   }
 
   toString(): string {
-    return `{ ${this.data.join(" ")} }${this.modifiers.join("")}`;
+    return `{ ${this.data.join(" ")} }`;
   }
 
   async eval(state: Evaluator): Promise<void> {

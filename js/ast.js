@@ -11,14 +11,18 @@ import Str from './str.js';
 import { equals, compare, Ordering, defaultLT, customLT } from './comparison.js';
 import * as SuperSub from './super_sub.js';
 export class AST {
-    constructor() {
-        this.modifiers = [];
-    }
     call(_state) {
         throw new Error.CallNonFunction(this);
     }
     toException() {
         return new Error.UserError(this);
+    }
+}
+export class SimpleCmd extends AST {
+    constructor(token, modifiers = []) {
+        super();
+        this.token = token;
+        this.modifiers = modifiers;
     }
     getNumMod(...args) {
         const result = [];
@@ -51,12 +55,7 @@ export class AST {
         }
         return n;
     }
-}
-export class SimpleCmd extends AST {
-    constructor(token) {
-        super();
-        this.token = token;
-    }
+    // TODO Remove the two below functions
     isNumberLit() {
         return this.token.tokenType() === TokenType.Number;
     }
@@ -1390,7 +1389,7 @@ export class FunctionLit extends AST {
         await state.eval(this.body);
     }
     toString() {
-        return `[ ${this.body.join(" ")} ]${this.modifiers.join("")}`;
+        return `[ ${this.body.join(" ")} ]`;
     }
 }
 export class CurriedFunction extends AST {
@@ -1411,7 +1410,7 @@ export class CurriedFunction extends AST {
         // quotation. If you try to read this representation back in, you
         // will get a FunctionLit, not a CurriedFunction. But it's
         // accurate enough for most purposes.
-        return `[ ${this.arg} ${this.function} $ ]${this.modifiers.join("")}`;
+        return `[ ${this.arg} ${this.function} $ ]`;
     }
 }
 export class ComposedFunction extends AST {
@@ -1432,7 +1431,7 @@ export class ComposedFunction extends AST {
         // quotation. If you try to read this representation back in, you
         // will get a FunctionLit, not a CurriedFunction. But it's
         // accurate enough for most purposes.
-        return `[ ${this.first} $ ${this.second} $ ]${this.modifiers.join("")}`;
+        return `[ ${this.first} $ ${this.second} $ ]`;
     }
 }
 // Types
@@ -1448,7 +1447,7 @@ export class SentinelValue extends AST {
         this.type = type;
     }
     toString() {
-        return this.type + this.modifiers.join("");
+        return this.type.toString();
     }
     async eval(state) {
         state.push(this);
@@ -1463,7 +1462,7 @@ export class Box extends AST {
         this.value = value;
     }
     toString() {
-        return `${this.value} ⊂${this.modifiers.join("")}`;
+        return `${this.value} ⊂`;
     }
     async eval(state) {
         state.push(this);
@@ -1478,7 +1477,7 @@ export class ArrayLit extends AST {
         return new ArrayLit(Array(n).fill(x));
     }
     toString() {
-        return `{ ${this.data.join(" ")} }${this.modifiers.join("")}`;
+        return `{ ${this.data.join(" ")} }`;
     }
     async eval(state) {
         state.push(this);

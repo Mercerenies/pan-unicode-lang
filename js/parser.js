@@ -97,7 +97,7 @@ class Parser {
     at() {
         return this.tokens[this.index];
     }
-    parseTermNoMod() {
+    parseTerm() {
         const curr = this.at();
         if (curr == null) {
             return undefined;
@@ -168,22 +168,17 @@ class Parser {
                 }
                 break;
             }
-            default:
+            default: {
                 this.index += 1;
-                return new SimpleCmd(curr);
+                const cmd = new SimpleCmd(curr);
+                let mod = this.tryParseMod();
+                while (mod != null) {
+                    cmd.modifiers.push(mod);
+                    mod = this.tryParseMod();
+                }
+                return cmd;
+            }
         }
-    }
-    parseTerm() {
-        const result = this.parseTermNoMod();
-        if (result == null) {
-            return undefined;
-        }
-        let mod = this.tryParseMod();
-        while (mod != null) {
-            result.modifiers.push(mod);
-            mod = this.tryParseMod();
-        }
-        return result;
     }
     tryParseMod() {
         const curr = this.at();
