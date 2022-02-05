@@ -10,6 +10,9 @@ interpreter](https://mercerenies.github.io/pan-unicode-lang/index.html).
 Note that the language is a work-in-progress, so expect some changes,
 and in particular more thorough documentation is coming soon.
 
+If you wish, you can also run this offline with Node, via `node
+./js/repl.js`.
+
 In the meantime, here are some examples.
 
 ## Hello World
