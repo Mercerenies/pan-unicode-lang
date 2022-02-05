@@ -21,9 +21,6 @@ describe('type_check.ts', function () {
         });
         it('should reject non-StringLit values', function () {
             const value = new AST.NumberLit(9);
-            console.log("_________________");
-            console.log(Object.getPrototypeOf(new Error.TypeError("A", null)));
-            console.log(Object.getPrototypeOf(new Error.InvalidInput()));
             expect(() => TypeCheck.isString(value)).to.throw(Error.TypeError);
         });
     });
