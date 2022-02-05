@@ -1048,6 +1048,7 @@ export class SimpleCmd extends AST {
           }
           result.push(elem);
         }
+        result.reverse();
         state.push(new ArrayLit(result));
         break;
       }
