@@ -1,6 +1,6 @@
 
 import { Token, TokenType, translateEscape } from './token.js';
-import { AST, SimpleCmd, FunctionLit, AssignToVar, ReadFromVar } from './ast.js';
+import { AST, SimpleCmd, FunctionLit, StringLit, NumberLit, AssignToVar, ReadFromVar } from './ast.js';
 import * as Error from './error.js';
 import * as Modifier from './modifier.js';
 import Str from './str.js';
@@ -101,9 +101,13 @@ class Parser {
     if (curr == null) {
       return undefined;
     }
-    if (curr.isString) {
+    if ((curr.text instanceof Str) && (curr.isString)) {
       this.index += 1;
-      return new SimpleCmd(curr);
+      return new StringLit(curr.text);
+    }
+    if (typeof curr.text === 'number') {
+      this.index += 1;
+      return new NumberLit(curr.text);
     }
     switch (curr.text.toString()) {
     case '[': {

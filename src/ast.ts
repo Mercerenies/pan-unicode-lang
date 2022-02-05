@@ -73,23 +73,7 @@ export class SimpleCmd extends AST {
     return n;
   }
 
-
-  // TODO Remove the two below functions
-
-  isNumberLit(): boolean {
-    return this.token.tokenType() === TokenType.Number;
-  }
-
-  isStringLit(): boolean {
-    return this.token.tokenType() === TokenType.String;
-  }
-
   async eval(state: Evaluator): Promise<void> {
-    if (this.isNumberLit()) {
-      state.push(new NumberLit(this.token.text as number));
-    } else if (this.isStringLit()) {
-      state.push(new StringLit(this.token.text as Str));
-    } else {
       switch (this.token.text.toString()) {
       /* IO */
       case '.': // Pretty print ( x -- )
@@ -1270,7 +1254,6 @@ export class SimpleCmd extends AST {
         throw new Error.UnknownCommandError(this.token);
         break;
       }
-    }
   }
 
   toString(): string {
