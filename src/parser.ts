@@ -163,13 +163,13 @@ class Parser {
     }
     default: {
       this.index += 1;
-      const cmd = new SimpleCmd(curr);
+      const modifiers: Modifier.Modifier[] = [];
       let mod = this.tryParseMod();
       while (mod != null) {
-        cmd.modifiers.push(mod);
+        modifiers.push(mod);
         mod = this.tryParseMod();
       }
-      return cmd;
+      return new SimpleCmd(curr, modifiers);
     }
     }
   }
