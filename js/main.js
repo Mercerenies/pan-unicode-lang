@@ -1,6 +1,6 @@
 import { tokenize, parse } from './parser.js';
 import { Evaluator } from './eval.js';
-import { Error } from './error.js';
+import { BaseError } from './error.js';
 import { FunctionLit } from './ast.js';
 import { InputManager } from './unicode_input.js';
 import Str from './str.js';
@@ -67,7 +67,7 @@ export async function run() {
         evaluator.popCall();
     }
     catch (e) {
-        if (e instanceof Error && !DEBUG_MODE) {
+        if (e instanceof BaseError && !DEBUG_MODE) {
             outputField.innerText += "\n\n" + e.toString() + "\n";
         }
         else {

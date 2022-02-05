@@ -26,7 +26,7 @@ export abstract class AST {
 
   abstract eval(state: Evaluator): Promise<void>;
 
-  toException(): Error.Error {
+  toException(): Error.BaseError {
     return new Error.UserError(this);
   }
 
@@ -1166,7 +1166,7 @@ export class SimpleCmd extends AST {
           await tryCall(tryBlock, state);
         } catch (error) {
           const exc = error;
-          if (exc instanceof Error.Error) {
+          if (exc instanceof Error.BaseError) {
             state.loadStack(savedStack);
             state.push(StringLit.fromException(exc));
             await tryCall(recoverBlock, state);
@@ -1331,9 +1331,9 @@ export class ReadFromVar extends AST {
 export class StringLit extends AST {
   readonly text: Str;
   readonly regexp: boolean;
-  readonly exception: Error.Error | undefined;
+  readonly exception: Error.BaseError | undefined;
 
-  constructor(text: string | Str, regexp?: boolean, exception?: Error.Error) {
+  constructor(text: string | Str, regexp?: boolean, exception?: Error.BaseError) {
     super();
     if (typeof text === 'string') {
       text = Str.fromString(text);
@@ -1347,7 +1347,7 @@ export class StringLit extends AST {
     return new StringLit(this.text, true, this.exception);
   }
 
-  markWithException(exc: Error.Error): StringLit {
+  markWithException(exc: Error.BaseError): StringLit {
     return new StringLit(this.text, this.regexp, exc);
   }
 
@@ -1375,7 +1375,7 @@ export class StringLit extends AST {
     return escapeString(this.text) + (this.isRegexp() ? "r" : "");
   }
 
-  toException(): Error.Error {
+  toException(): Error.BaseError {
     if (this.exception != null) {
       return this.exception;
     } else {
@@ -1383,7 +1383,7 @@ export class StringLit extends AST {
     }
   }
 
-  static fromException(exc: Error.Error): StringLit {
+  static fromException(exc: Error.BaseError): StringLit {
     return new StringLit(Str.fromString(exc.toString())).markWithException(exc);
   }
 

@@ -1160,7 +1160,7 @@ export class SimpleCmd extends AST {
                     }
                     catch (error) {
                         const exc = error;
-                        if (exc instanceof Error.Error) {
+                        if (exc instanceof Error.BaseError) {
                             state.loadStack(savedStack);
                             state.push(StringLit.fromException(exc));
                             await tryCall(recoverBlock, state);

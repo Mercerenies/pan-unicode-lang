@@ -2,23 +2,23 @@
 import { Token } from './token.js';
 import { AST } from './ast.js';
 
-export class Error {
+export class BaseError extends Error {
 
   id(): number {
     return -1;
   }
 
-  message(): string {
+  get message(): string {
     return "Error";
   }
 
   toString(): string {
-    return this.message();
+    return this.message;
   }
 
 }
 
-export class UnknownCommandError extends Error {
+export class UnknownCommandError extends BaseError {
   readonly token: Token;
 
   constructor(token: Token) {
@@ -30,49 +30,49 @@ export class UnknownCommandError extends Error {
     return 1;
   }
 
-  message(): string {
+  get message(): string {
     return `Unknown command ${this.token}`;
   }
 
 }
 
-export class StackUnderflowError extends Error {
+export class StackUnderflowError extends BaseError {
 
   id(): number {
     return 2;
   }
 
-  message(): string {
+  get message(): string {
     return "Stack underflow";
   }
 
 }
 
-export class CallStackUnderflowError extends Error {
+export class CallStackUnderflowError extends BaseError {
 
   id(): number {
     return 3;
   }
 
-  message(): string {
+  get message(): string {
     return "Call stack underflow";
   }
 
 }
 
-export class UnexpectedEOF extends Error {
+export class UnexpectedEOF extends BaseError {
 
   id(): number {
     return 4;
   }
 
-  message(): string {
+  get message(): string {
     return "Unexpected EOF";
   }
 
 }
 
-export class UnexpectedParseError extends Error {
+export class UnexpectedParseError extends BaseError {
   readonly token: Token;
 
   constructor(token: Token) {
@@ -84,13 +84,13 @@ export class UnexpectedParseError extends Error {
     return 5;
   }
 
-  message(): string {
+  get message(): string {
     return `Unexpected token ${this.token}`;
   }
 
 }
 
-export class CallNonFunction extends Error {
+export class CallNonFunction extends BaseError {
   readonly object: AST;
 
   constructor(object: AST) {
@@ -102,13 +102,13 @@ export class CallNonFunction extends Error {
     return 6;
   }
 
-  message(): string {
+  get message(): string {
     return `Attempt to call non-function ${this.object}`;
   }
 
 }
 
-export class InvalidModifier extends Error {
+export class InvalidModifier extends BaseError {
   readonly token: Token | AST;
 
   constructor(token: Token | AST) {
@@ -120,37 +120,37 @@ export class InvalidModifier extends Error {
     return 7;
   }
 
-  message(): string {
+  get message(): string {
     return `Invalid modifier(s) on ${this.token}`;
   }
 
 }
 
-export class IncompatibleArrayLengths extends Error {
+export class IncompatibleArrayLengths extends BaseError {
 
   id(): number {
     return 8;
   }
 
-  message(): string {
+  get message(): string {
     return "Incompatible array lengths";
   }
 
 }
 
-export class InvalidInput extends Error {
+export class InvalidInput extends BaseError {
 
   id(): number {
     return 9;
   }
 
-  message(): string {
+  get message(): string {
     return "Invalid input";
   }
 
 }
 
-export class TypeError<T> extends Error {
+export class TypeError<T> extends BaseError {
   readonly expected: string; // TODO Refine?
   readonly value: T;
 
@@ -164,13 +164,13 @@ export class TypeError<T> extends Error {
     return 10;
   }
 
-  message(): string {
+  get message(): string {
     return `Type error (Expected ${this.expected} got ${this.value})`;
   }
 
 }
 
-export class StrEncodingError extends Error {
+export class StrEncodingError extends BaseError {
   readonly str: string;
 
   constructor(str: string) {
@@ -182,13 +182,13 @@ export class StrEncodingError extends Error {
     return 11;
   }
 
-  message(): string {
+  get message(): string {
     return `String encoding error (${this.str})`;
   }
 
 }
 
-export class IncomparableValues extends Error {
+export class IncomparableValues extends BaseError {
   readonly lhs: AST;
   readonly rhs: AST;
 
@@ -202,13 +202,13 @@ export class IncomparableValues extends Error {
     return 12;
   }
 
-  message(): string {
+  get message(): string {
     return `Attempt to compare ${this.lhs} and ${this.rhs}`;
   }
 
 }
 
-export class UserError extends Error {
+export class UserError extends BaseError {
   readonly value: AST
 
   constructor(value: AST) {
@@ -220,7 +220,7 @@ export class UserError extends Error {
     return 13;
   }
 
-  message(): string {
+  get message(): string {
     return `User error ${this.value}`;
   }
 

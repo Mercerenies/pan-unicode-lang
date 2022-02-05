@@ -1,15 +1,15 @@
-export class Error {
+export class BaseError extends Error {
     id() {
         return -1;
     }
-    message() {
+    get message() {
         return "Error";
     }
     toString() {
-        return this.message();
+        return this.message;
     }
 }
-export class UnknownCommandError extends Error {
+export class UnknownCommandError extends BaseError {
     constructor(token) {
         super();
         this.token = token;
@@ -17,35 +17,35 @@ export class UnknownCommandError extends Error {
     id() {
         return 1;
     }
-    message() {
+    get message() {
         return `Unknown command ${this.token}`;
     }
 }
-export class StackUnderflowError extends Error {
+export class StackUnderflowError extends BaseError {
     id() {
         return 2;
     }
-    message() {
+    get message() {
         return "Stack underflow";
     }
 }
-export class CallStackUnderflowError extends Error {
+export class CallStackUnderflowError extends BaseError {
     id() {
         return 3;
     }
-    message() {
+    get message() {
         return "Call stack underflow";
     }
 }
-export class UnexpectedEOF extends Error {
+export class UnexpectedEOF extends BaseError {
     id() {
         return 4;
     }
-    message() {
+    get message() {
         return "Unexpected EOF";
     }
 }
-export class UnexpectedParseError extends Error {
+export class UnexpectedParseError extends BaseError {
     constructor(token) {
         super();
         this.token = token;
@@ -53,11 +53,11 @@ export class UnexpectedParseError extends Error {
     id() {
         return 5;
     }
-    message() {
+    get message() {
         return `Unexpected token ${this.token}`;
     }
 }
-export class CallNonFunction extends Error {
+export class CallNonFunction extends BaseError {
     constructor(object) {
         super();
         this.object = object;
@@ -65,11 +65,11 @@ export class CallNonFunction extends Error {
     id() {
         return 6;
     }
-    message() {
+    get message() {
         return `Attempt to call non-function ${this.object}`;
     }
 }
-export class InvalidModifier extends Error {
+export class InvalidModifier extends BaseError {
     constructor(token) {
         super();
         this.token = token;
@@ -77,27 +77,27 @@ export class InvalidModifier extends Error {
     id() {
         return 7;
     }
-    message() {
+    get message() {
         return `Invalid modifier(s) on ${this.token}`;
     }
 }
-export class IncompatibleArrayLengths extends Error {
+export class IncompatibleArrayLengths extends BaseError {
     id() {
         return 8;
     }
-    message() {
+    get message() {
         return "Incompatible array lengths";
     }
 }
-export class InvalidInput extends Error {
+export class InvalidInput extends BaseError {
     id() {
         return 9;
     }
-    message() {
+    get message() {
         return "Invalid input";
     }
 }
-export class TypeError extends Error {
+export class TypeError extends BaseError {
     constructor(expected, value) {
         super();
         this.expected = expected;
@@ -106,11 +106,11 @@ export class TypeError extends Error {
     id() {
         return 10;
     }
-    message() {
+    get message() {
         return `Type error (Expected ${this.expected} got ${this.value})`;
     }
 }
-export class StrEncodingError extends Error {
+export class StrEncodingError extends BaseError {
     constructor(str) {
         super();
         this.str = str;
@@ -118,11 +118,11 @@ export class StrEncodingError extends Error {
     id() {
         return 11;
     }
-    message() {
+    get message() {
         return `String encoding error (${this.str})`;
     }
 }
-export class IncomparableValues extends Error {
+export class IncomparableValues extends BaseError {
     constructor(lhs, rhs) {
         super();
         this.lhs = lhs;
@@ -131,11 +131,11 @@ export class IncomparableValues extends Error {
     id() {
         return 12;
     }
-    message() {
+    get message() {
         return `Attempt to compare ${this.lhs} and ${this.rhs}`;
     }
 }
-export class UserError extends Error {
+export class UserError extends BaseError {
     constructor(value) {
         super();
         this.value = value;
@@ -143,7 +143,7 @@ export class UserError extends Error {
     id() {
         return 13;
     }
-    message() {
+    get message() {
         return `User error ${this.value}`;
     }
 }

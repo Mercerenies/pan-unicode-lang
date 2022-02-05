@@ -1,7 +1,7 @@
 
 import { tokenize, parse } from './parser.js';
 import { Evaluator } from './eval.js';
-import { Error } from './error.js';
+import { BaseError } from './error.js';
 import { FunctionLit, AST } from './ast.js';
 import { StreamReader } from './stream_reader.js';
 
@@ -53,7 +53,7 @@ export async function main() {
       await evaluator.eval(parsed);
       evaluator.popCall();
     } catch (e) {
-      if (e instanceof Error) {
+      if (e instanceof BaseError) {
         console.log(`ERROR ${e.id()}! ${e.toString()}`);
       } else {
         throw e;
