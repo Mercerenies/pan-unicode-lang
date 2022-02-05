@@ -50,7 +50,7 @@ export async function run() {
         throw "Could not find code field";
     }
     if ((outputField == null) || (!(outputField instanceof HTMLElement))) {
-        throw "Could not find code field";
+        throw "Could not find output field";
     }
     if ((stackField == null) || (!(stackField instanceof HTMLElement))) {
         throw "Could not find stack field";
