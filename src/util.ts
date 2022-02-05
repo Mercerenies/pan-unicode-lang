@@ -1,13 +1,23 @@
 
+// Asserts that the value is of type 'never'. This function will,
+// naturally, never actually be called, unless a value is cast to type
+// 'never'.
 export function assertNever(_x: never): never {
   throw "assertNever failed";
 }
 
+
+// Zips the two lists together, returning a list of 2-tuples. The
+// resulting list will always have length equal to that of the first
+// list and will be padded with undefined as needed.
 export function zip<A, B>(a: A[], b: B[]): [A, B][] {
   return a.map((v, i) => [v, b[i]]);
 }
 
 
+// Validates that the elements of the two arrays are equal according
+// to the given equality predicate. If the arrays have differing
+// lengths, returns false unconditionally.
 export function arrayEq<A, B>(a: A[], b: B[], fn: (a: A, b: B) => boolean) {
   if (a.length !== b.length) {
     return false;
@@ -22,11 +32,14 @@ export function arrayEq<A, B>(a: A[], b: B[], fn: (a: A, b: B) => boolean) {
 }
 
 
+// Inserts sub into str, replacing the characters from index a to
+// index b.
 export function spliceStr(str: string, sub: string, a: number, b: number): string {
   return str.substring(0, a) + sub + str.substring(b);
 }
 
 
+// Mathematical gcd. Returns the gcd of the two numbers.
 export function gcd(a: number, b: number): number {
   while (b !== 0) {
     [a, b] = [b, (a % b + b) % b];
@@ -35,6 +48,7 @@ export function gcd(a: number, b: number): number {
 }
 
 
+// Mathematical lcm. Returns the lcm of the two numbers.
 export function lcm(a: number, b: number): number {
   const d = gcd(a, b);
   if (d === 0) {
@@ -45,6 +59,8 @@ export function lcm(a: number, b: number): number {
 }
 
 
+// A list of the values from a up to b. If a > b then returns the
+// empty list.
 export function range(a: number, b: number): number[] {
   const x: number[] = [];
   for (let i = a; i < b; i++) {
@@ -71,31 +87,31 @@ export async function sortM<T>(arr: T[], compareFn?: (a: T, B: T) => Promise<num
 
   const tmp: T[] = arr.slice();
 
-  const merge = async function(begin: number, middle: number, end: number): Promise<void> {
+  const merge = async function(a: T[], b: T[], begin: number, middle: number, end: number): Promise<void> {
     let [i, j] = [begin, middle];
     for (let k = begin; k < end; k++) {
-      const cmp = await comparison(tmp[i], tmp[j]);
+      const cmp = await comparison(a[i], a[j]);
       if (i < middle && (j >= end || cmp <= 0)) {
-        arr[k] = tmp[i];
+        b[k] = a[i];
         i += 1;
       } else {
-        arr[k] = tmp[j];
+        b[k] = a[j];
         j += 1;
       }
     }
   };
 
-  const splitMerge = async function(begin: number, end: number): Promise<void> {
+  const splitMerge = async function(a: T[], b: T[], begin: number, end: number): Promise<void> {
     if (end - begin <= 1) {
       return;
     }
     const middle = Math.floor((end + begin) / 2);
-    await splitMerge(begin, middle);
-    await splitMerge(middle, end);
-    await merge(begin, middle, end);
+    await splitMerge(b, a, begin, middle);
+    await splitMerge(b, a, middle, end);
+    await merge(a, b, begin, middle, end);
   };
 
-  await splitMerge(0, arr.length);
+  await splitMerge(tmp, arr, 0, arr.length);
 
   return arr;
 }
@@ -112,6 +128,8 @@ async function defaultCompare<T>(a: T, b: T): Promise<number> {
   }
 }
 
+// As the built-in reduce() function, but takes a promise as the
+// reduction callback.
 export function reduceM<A>(arr: A[], callback: (prev: A, next: A, index: number, array: A[]) => Promise<A>): Promise<A>;
 export function reduceM<A, B>(arr: B[], callback: (prev: A, next: B, index: number, array: B[]) => Promise<A>, initial: A): Promise<A>;
 export async function reduceM<A, B>(arr: B[], callback: (prev: A, next: B, index: number, array: B[]) => Promise<A>, ...v: [] | [A]): Promise<A> {

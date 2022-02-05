@@ -1,9 +1,18 @@
+// Asserts that the value is of type 'never'. This function will,
+// naturally, never actually be called, unless a value is cast to type
+// 'never'.
 export function assertNever(_x) {
     throw "assertNever failed";
 }
+// Zips the two lists together, returning a list of 2-tuples. The
+// resulting list will always have length equal to that of the first
+// list and will be padded with undefined as needed.
 export function zip(a, b) {
     return a.map((v, i) => [v, b[i]]);
 }
+// Validates that the elements of the two arrays are equal according
+// to the given equality predicate. If the arrays have differing
+// lengths, returns false unconditionally.
 export function arrayEq(a, b, fn) {
     if (a.length !== b.length) {
         return false;
@@ -16,15 +25,19 @@ export function arrayEq(a, b, fn) {
     }
     return true;
 }
+// Inserts sub into str, replacing the characters from index a to
+// index b.
 export function spliceStr(str, sub, a, b) {
     return str.substring(0, a) + sub + str.substring(b);
 }
+// Mathematical gcd. Returns the gcd of the two numbers.
 export function gcd(a, b) {
     while (b !== 0) {
         [a, b] = [b, (a % b + b) % b];
     }
     return a;
 }
+// Mathematical lcm. Returns the lcm of the two numbers.
 export function lcm(a, b) {
     const d = gcd(a, b);
     if (d === 0) {
@@ -34,6 +47,8 @@ export function lcm(a, b) {
         return a * b / d;
     }
 }
+// A list of the values from a up to b. If a > b then returns the
+// empty list.
 export function range(a, b) {
     const x = [];
     for (let i = a; i < b; i++) {
@@ -56,30 +71,30 @@ export function range(a, b) {
 export async function sortM(arr, compareFn) {
     const comparison = compareFn !== null && compareFn !== void 0 ? compareFn : defaultCompare;
     const tmp = arr.slice();
-    const merge = async function (begin, middle, end) {
+    const merge = async function (a, b, begin, middle, end) {
         let [i, j] = [begin, middle];
         for (let k = begin; k < end; k++) {
-            const cmp = await comparison(tmp[i], tmp[j]);
+            const cmp = await comparison(a[i], a[j]);
             if (i < middle && (j >= end || cmp <= 0)) {
-                arr[k] = tmp[i];
+                b[k] = a[i];
                 i += 1;
             }
             else {
-                arr[k] = tmp[j];
+                b[k] = a[j];
                 j += 1;
             }
         }
     };
-    const splitMerge = async function (begin, end) {
+    const splitMerge = async function (a, b, begin, end) {
         if (end - begin <= 1) {
             return;
         }
         const middle = Math.floor((end + begin) / 2);
-        await splitMerge(begin, middle);
-        await splitMerge(middle, end);
-        await merge(begin, middle, end);
+        await splitMerge(b, a, begin, middle);
+        await splitMerge(b, a, middle, end);
+        await merge(a, b, begin, middle, end);
     };
-    await splitMerge(0, arr.length);
+    await splitMerge(tmp, arr, 0, arr.length);
     return arr;
 }
 async function defaultCompare(a, b) {
