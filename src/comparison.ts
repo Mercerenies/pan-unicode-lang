@@ -1,5 +1,5 @@
 
-import { AST, SimpleCmd, SentinelValue, ArrayLit, StringLit, NumberLit, Box, isTruthy, tryCall } from './ast.js';
+import { AST, SymbolLit, SentinelValue, ArrayLit, StringLit, NumberLit, Box, isTruthy, tryCall } from './ast.js';
 import { IncomparableValues } from './error.js';
 import { Evaluator } from './eval.js';
 import { arrayEq } from './util.js';
@@ -20,7 +20,7 @@ export function equals(a: AST, b: AST): boolean {
   if (a === b) {
     return true;
   }
-  if (a instanceof SimpleCmd && b instanceof SimpleCmd) {
+  if (a instanceof SymbolLit && b instanceof SymbolLit) {
     if (symbolCmp(a, b) == Ordering.EQ) {
       return true;
     }
@@ -56,7 +56,7 @@ export function compare(a: AST, b: AST): Ordering {
     return toOrdering(a.value - b.value);
   } else if (a instanceof ArrayLit && b instanceof ArrayLit) {
     return arrayCmp(a.data, b.data, compare);
-  } else if (a instanceof SimpleCmd && b instanceof SimpleCmd) {
+  } else if (a instanceof SymbolLit && b instanceof SymbolLit) {
     return symbolCmp(a, b);
   } else if (a instanceof StringLit && b instanceof StringLit) {
     const a1 = a.text.toString();
@@ -87,7 +87,7 @@ function arrayCmp<A, B>(a: A[], b: B[], comparator: (a: A, b: B) => Ordering): O
 }
 
 
-function symbolCmp(a: SimpleCmd, b: SimpleCmd): Ordering {
+function symbolCmp(a: SymbolLit, b: SymbolLit): Ordering {
   if (a.token.text < b.token.text) {
     return Ordering.LT;
   } else if (a.token.text > b.token.text) {

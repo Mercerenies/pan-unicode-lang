@@ -1,5 +1,5 @@
 import * as Error from './error.js';
-import { AST, ArrayLit, NumberLit, StringLit, SentinelValue, tryCall, isTruthy, SimpleCmd } from './ast.js';
+import { AST, ArrayLit, NumberLit, StringLit, SentinelValue, tryCall, isTruthy, SymbolLit } from './ast.js';
 import { NumModifier, MAX_NUM_MODIFIER } from './modifier.js';
 import Str from './str.js';
 import { customLT, defaultLT, equals } from './comparison.js';
@@ -451,7 +451,7 @@ export function length(term, state) {
         state.push(1);
         return;
     }
-    const newTerm = new SimpleCmd(new Token('⍪'));
+    const newTerm = new SymbolLit(new Token('⍪'));
     newTerm.modifiers.push(new NumModifier(num === MAX_NUM_MODIFIER || num === 0 ? num : num - 1));
     ravel(newTerm, state);
     const list = isList(state.pop());
@@ -475,7 +475,7 @@ export function reshape(term, state) {
     if (depth === MAX_NUM_MODIFIER) {
         depth = Infinity;
     }
-    const newTerm = new SimpleCmd(new Token('⍪'));
+    const newTerm = new SymbolLit(new Token('⍪'));
     newTerm.modifiers.push(new NumModifier(depth));
     ravel(newTerm, state);
     const list = isList(state.pop());

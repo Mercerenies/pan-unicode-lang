@@ -1,5 +1,5 @@
 import { Token, TokenType, translateEscape } from './token.js';
-import { SimpleCmd, FunctionLit, StringLit, NumberLit, AssignToVar, ReadFromVar } from './ast.js';
+import { SymbolLit, FunctionLit, StringLit, NumberLit, AssignToVar, ReadFromVar } from './ast.js';
 import * as Error from './error.js';
 import * as Modifier from './modifier.js';
 import Str from './str.js';
@@ -180,7 +180,7 @@ class Parser {
                     modifiers.push(mod);
                     mod = this.tryParseMod();
                 }
-                return new SimpleCmd(curr, modifiers);
+                return new SymbolLit(curr, modifiers);
             }
         }
     }

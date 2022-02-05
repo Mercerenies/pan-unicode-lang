@@ -28,8 +28,7 @@ export abstract class AST {
 }
 
 
-// TODO Rename to SymbolLit
-export class SimpleCmd extends AST {
+export class SymbolLit extends AST {
   readonly token: Token;
   readonly modifiers: Modifier.Modifier[];
 
@@ -765,7 +764,7 @@ export class SimpleCmd extends AST {
       case '{':
       case '⚐':
       case 'ε': // Sentinel value
-        state.push(new SimpleCmd(this.token, [])); // Remove modifiers
+        state.push(new SymbolLit(this.token, [])); // Remove modifiers
         break;
       case '⚑': { // Construct ⚐ sentinel ( fn deffn -- fn )
         // Constructs a handler for the ⚐ sentinel. The resulting
@@ -779,16 +778,16 @@ export class SimpleCmd extends AST {
         // list, but returns 999 rather than 0 if the list is empty.
         const [fn, deffn] = state.pop(2);
         state.push(new FunctionLit([
-          new SimpleCmd(new Token(":")),
-          new SimpleCmd(new Token("⚐")),
-          new SimpleCmd(new Token("≡")),
+          new SymbolLit(new Token(":")),
+          new SymbolLit(new Token("⚐")),
+          new SymbolLit(new Token("≡")),
           new FunctionLit([
-            new SimpleCmd(new Token('%')),
+            new SymbolLit(new Token('%')),
             deffn,
-            new SimpleCmd(new Token('$')),
+            new SymbolLit(new Token('$')),
           ]),
           fn,
-          new SimpleCmd(new Token("i")),
+          new SymbolLit(new Token("i")),
         ]));
         break;
       }
@@ -971,7 +970,7 @@ export class SimpleCmd extends AST {
       case '🗋': { // Empty ( list -- ? )
         // With prime modifier, flattens before checking
         if (this.getPrimeMod() > 0) {
-          const newTerm = new SimpleCmd(new Token('⍪'));
+          const newTerm = new SymbolLit(new Token('⍪'));
           newTerm.modifiers.push(new Modifier.NumModifier(Modifier.MAX_NUM_MODIFIER));
           ListOp.ravel(newTerm, state);
         }
@@ -1181,7 +1180,7 @@ export class SimpleCmd extends AST {
         // pop in resulting function.
         const num = this.getNumMod(0);
         const x = state.pop();
-        const dropCmd = new SimpleCmd(new Token("%"));
+        const dropCmd = new SymbolLit(new Token("%"));
         dropCmd.modifiers.push(new Modifier.NumModifier(num));
         const dropper = new FunctionLit([dropCmd]);
         state.push(new ComposedFunction(dropper, new CurriedFunction(x, new FunctionLit([]))));
@@ -1499,9 +1498,9 @@ export class ComposedFunction extends AST {
 // "⚐" - Empty fold argument
 // "ε" - Null value
 export const SentinelValue = {
-  null: new SimpleCmd("ε"),
-  whiteFlag: new SimpleCmd("⚐"),
-  arrayStart: new SimpleCmd("{"),
+  null: new SymbolLit("ε"),
+  whiteFlag: new SymbolLit("⚐"),
+  arrayStart: new SymbolLit("{"),
 };
 
 
