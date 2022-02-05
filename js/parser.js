@@ -1,5 +1,5 @@
 import { Token, TokenType, translateEscape } from './token.js';
-import { Quoted, SymbolLit, FunctionLit, StringLit, NumberLit, AssignToVar, ReadFromVar } from './ast.js';
+import { Box, SymbolLit, FunctionLit, StringLit, NumberLit, AssignToVar, ReadFromVar } from './ast.js';
 import * as Error from './error.js';
 import * as Modifier from './modifier.js';
 import Str from './str.js';
@@ -154,7 +154,7 @@ class Parser {
                         throw new Error.UnexpectedEOF();
                     }
                 }
-                return new Quoted(inner);
+                return new Box(inner);
             }
             case '→': {
                 this.index += 1;

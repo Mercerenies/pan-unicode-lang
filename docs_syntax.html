@@ -12,10 +12,10 @@
     <p>
       Pancode is mostly whitespace-insensitive, as most commands are a
       single character in length. Anything which is not subject to the
-      below rules is simply treated as an individual single-character
-      command. Note that this applies to characters which do not have
-      an assigned command yet, and in this case it is an error to
-      execute such a nonexistent command.
+      below rules is simply treated as a symbol command, i.e. an
+      individual single-character command. Note that this applies to
+      characters which do not have an assigned command yet, and in
+      this case it is an error to execute such a nonexistent command.
     </p>
     <h2>Whitespace</h2>
     <p>
@@ -96,16 +96,45 @@
       ASCII digits, whitespace, and comment delimiters (<code>«</code>
       and <code>»</code>)
     </p>
+    <h2>Quoted Commands</h2>
+    <p>
+      A single <code>'</code> apostrophe causes the next command to be
+      treated specially. The apostrophe and the following command form
+      a composite command which, when evaluated, simply pushes the
+      given value to the stack. If the following command is a symbol,
+      this pushes the symbol (and all attached modifiers) rather than
+      evaluating it as a plain symbol command would. If the following
+      command is a string or numerical literal, this pushes the string
+      or number.
+    </p>
+    <p>
+      The runtime representation of a quoted command is a <a href="docs_types.html#boxes">box</a>.
+      That is, the expression <code>''a</code>, when evaluated, will
+      push a box containing the symbol <code>a</code> onto the stack.
+      It is equivalent, at runtime, to the expression <code>'a ⊂</code>.
+    </p>
+    <p>
+      The command following <code>'</code> shall not be an assignment
+      to or query from a global variable. If it is, the behavior is
+      undefined. This behavior may be specified in a future version of
+      Pancode.
+    </p>
     <h2>Modifiers</h2>
     <p>
-      Every command is succeeded by zero or more modifiers, which in
-      some cases may change the behavior of the command. There are
-      currently two types of modifiers in Pancode. The first is
+      Every symbol command is succeeded by zero or more modifiers,
+      which in some cases may change the behavior of the command.
+      There are currently two types of modifiers in Pancode. The first
+      is
       <a href="docs_concepts.html#numerical-modifier">numerical
       modifiers</a>, supplied as numbers from 0 to 20 using the
       characters ⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳. The second
       is <a href="docs_concepts.html#prime-modifier">prime
       modifiers</a>, supplied using the <code>′</code> character.
+    </p>
+    <p>
+      Note that only symbol commands can have modifiers. It is a
+      syntax error to have a modifier attached to a number, string,
+      global variable assignment, or any other kind of command.
     </p>
     <div>
       <a href="docs.html">Documentation Index</a>

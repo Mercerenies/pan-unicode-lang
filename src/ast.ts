@@ -25,6 +25,10 @@ export abstract class AST {
     return new Error.UserError(this);
   }
 
+  toStringUnquoted(): string {
+    return this.toString();
+  }
+
 }
 
 
@@ -1270,12 +1274,17 @@ export class SymbolLit extends AST {
   }
 
   toString(): string {
+    return "'" + this.token.toString() + this.modifiers.join("");
+  }
+
+  toStringUnquoted(): string {
     return this.token.toString() + this.modifiers.join("");
   }
 
 }
 
 
+// TODO What happens if we quote this?
 export class AssignToVar extends AST {
   readonly target: string;
 
@@ -1295,6 +1304,7 @@ export class AssignToVar extends AST {
 }
 
 
+// TODO What happens if we quote this?
 export class ReadFromVar extends AST {
   readonly target: string;
 
@@ -1313,23 +1323,6 @@ export class ReadFromVar extends AST {
 
 }
 
-export class Quoted extends AST {
-  readonly ast: AST;
-
-  constructor(ast: AST) {
-    super();
-    this.ast = ast;
-  }
-
-  async eval(state: Evaluator): Promise<void> {
-    state.push(this.ast);
-  }
-
-  toString(): string {
-    return "'" + this.ast.toString();
-  }
-
-}
 
 // StringLit actually encompasses a few things here. A string literal
 // consists of, obviously, a sequence of characters. Additionally, a
@@ -1446,7 +1439,7 @@ export class FunctionLit extends AST {
   }
 
   toString(): string {
-    return `[ ${this.body.join(" ")} ]`;
+    return `[ ${this.body.map((x) => x.toStringUnquoted()).join(" ")} ]`;
   }
 
 }
@@ -1535,7 +1528,7 @@ export class Box extends AST {
   }
 
   async eval(state: Evaluator): Promise<void> {
-    state.push(this);
+    state.push(this.value);
   }
 
 }

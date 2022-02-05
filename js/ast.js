@@ -17,6 +17,9 @@ export class AST {
     toException() {
         return new Error.UserError(this);
     }
+    toStringUnquoted() {
+        return this.toString();
+    }
 }
 export class SymbolLit extends AST {
     constructor(token, modifiers = []) {
@@ -1267,9 +1270,13 @@ export class SymbolLit extends AST {
         }
     }
     toString() {
+        return "'" + this.token.toString() + this.modifiers.join("");
+    }
+    toStringUnquoted() {
         return this.token.toString() + this.modifiers.join("");
     }
 }
+// TODO What happens if we quote this?
 export class AssignToVar extends AST {
     constructor(target) {
         super();
@@ -1282,6 +1289,7 @@ export class AssignToVar extends AST {
         return "→" + this.target;
     }
 }
+// TODO What happens if we quote this?
 export class ReadFromVar extends AST {
     constructor(target) {
         super();
@@ -1292,18 +1300,6 @@ export class ReadFromVar extends AST {
     }
     toString() {
         return "←" + this.target;
-    }
-}
-export class Quoted extends AST {
-    constructor(ast) {
-        super();
-        this.ast = ast;
-    }
-    async eval(state) {
-        state.push(this.ast);
-    }
-    toString() {
-        return "'" + this.ast.toString();
     }
 }
 // StringLit actually encompasses a few things here. A string literal
@@ -1398,7 +1394,7 @@ export class FunctionLit extends AST {
         await state.eval(this.body);
     }
     toString() {
-        return `[ ${this.body.join(" ")} ]`;
+        return `[ ${this.body.map((x) => x.toStringUnquoted()).join(" ")} ]`;
     }
 }
 export class CurriedFunction extends AST {
@@ -1461,7 +1457,7 @@ export class Box extends AST {
         return `${this.value} ⊂`;
     }
     async eval(state) {
-        state.push(this);
+        state.push(this.value);
     }
 }
 export class ArrayLit extends AST {

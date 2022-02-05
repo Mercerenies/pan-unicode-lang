@@ -13,9 +13,9 @@
       As in most programming languages, Pancode deals with different
       types of data. Pancode is dynamically typed and has several
       built-in types of data. The types in Pancode are: numbers,
-      strings, lists, functions, boxes, and sentinels. I'll discuss
-      each of these in detail below. There is no formal Boolean type
-      in Pancode: any value other than zero is truthy (although
+      strings, lists, functions, boxes, and symbols. I'll discuss each
+      of these in detail below. There is no formal Boolean type in
+      Pancode: any value other than zero is truthy (although
       conventionally -1 is used to represent the canonical "true"),
       and zero is falsy.
     </p>
@@ -121,18 +121,45 @@
       contents, and it is an error to attempt to order two boxes whose
       contents are not orderable.
     </p>
-    <h2 id="sentinels">Sentinels</h2>
+    <h2 id="symbols">Symbols</h2>
     <p>
-      Sentinels are special singleton values which are used in various
-      places in the Pancode standard library to signal miscellaneous
-      things. Two sentinels compare equal if and only if they are the
-      same sentinel, and it is an error to try to order sentinels.
+      Symbols are the basic structure of Pancode programs. A symbol
+      consists of a single character representation and zero or more
+      modifiers. Every single-character command which is not
+      interpreted as special syntax is itself a symbol command. If a
+      literal symbol command appears in the code, it will normally be
+      evaluated. Thus, to push an actual symbol to the stack, the
+      single quote <code>'</code> special
+      command can be used. That is, when it appears literally in the
+      code, <code>+</code> is a command which adds numbers, but <code>'+</code> is
+      a command which, when evaluated, pushes the symbol <code>+</code> to
+      the stack. This is also different from the backtick syntax, as <code>`+</code> is
+      equivalent to `<code>[+]</code>, i.e. a function which adds numbers.
+    </p>
+    <p>
+      Two symbols are equal if they have the same character and the
+      same modifiers. Numerical modifiers are compared sequentially,
+      and so are prime modifiers, but the order of different types of
+      modifiers is irrelevant, so <code>+⓪′</code> is equal to <code>+′⓪</code> but <code>+⓪①</code> and <code>+①⓪</code> are
+      distinct. When symbols are compared for ordering, they are first
+      compared for their characters, then for the numerical modifiers
+      in order, then finally for the prime modifier.
+    </p>
+    <p>
+      Certain symbols have special designated meanings in Pancode.
+      These symbols are sometimes called sentinel values and are used
+      to indicate certain behaviors to built-in commands. When using a
+      symbol as a sentinel value, one should take care to ensure that
+      the symbol has no modifiers attached. For instance, <code>ε</code> is
+      the null sentinel (see below), but <code>ε⓪</code> is a distinct
+      symbol which happens to have the same text but different
+      modifiers. Pancode operations will not treat the latter as a
+      sentinel value. Sentinel values, when used as symbol commands,
+      always push themselves onto the stack, discarding any modifiers.
     </p>
     <p>
       Currently, there are three sentinels defined in Pancode. Each
-      sentinel is represented by a single character, and that
-      character can also be used as a command to push the
-      corresponding sentinel to the stack.
+      sentinel is represented by a single character.
     </p>
     <ul>
       <li><code>{</code>, the array start sentinel, is used by the <code>}</code> command
