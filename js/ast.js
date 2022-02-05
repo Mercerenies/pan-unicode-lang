@@ -1294,6 +1294,18 @@ export class ReadFromVar extends AST {
         return "←" + this.target;
     }
 }
+export class Quoted extends AST {
+    constructor(ast) {
+        super();
+        this.ast = ast;
+    }
+    async eval(state) {
+        state.push(this.ast);
+    }
+    toString() {
+        return "'" + this.ast.toString();
+    }
+}
 // StringLit actually encompasses a few things here. A string literal
 // consists of, obviously, a sequence of characters. Additionally, a
 // string literal can consist of a regex flag (Boolean) which

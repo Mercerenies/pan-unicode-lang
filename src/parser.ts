@@ -1,6 +1,6 @@
 
 import { Token, TokenType, translateEscape } from './token.js';
-import { AST, SymbolLit, FunctionLit, StringLit, NumberLit, AssignToVar, ReadFromVar } from './ast.js';
+import { AST, Quoted, SymbolLit, FunctionLit, StringLit, NumberLit, AssignToVar, ReadFromVar } from './ast.js';
 import * as Error from './error.js';
 import * as Modifier from './modifier.js';
 import Str from './str.js';
@@ -138,6 +138,19 @@ class Parser {
         }
       }
       return new FunctionLit([inner]);
+    }
+    case "'": {
+      this.index += 1;
+      const inner = this.parseTerm();
+      if (inner == null) {
+        const next = this.at();
+        if (next != null) {
+          throw new Error.UnexpectedParseError(next);
+        } else {
+          throw new Error.UnexpectedEOF();
+        }
+      }
+      return new Quoted(inner);
     }
     case '→': {
       this.index += 1;
