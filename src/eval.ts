@@ -139,6 +139,14 @@ export abstract class Evaluator {
     this.stack = savedStack;
   }
 
+  iterateStack(): Iterable<AST.AST> {
+    return this.stack;
+  }
+
+  iterateStackFromTop(): Iterable<AST.AST> {
+    return this.stack.slice().reverse();
+  }
+
 }
 
 

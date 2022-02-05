@@ -115,6 +115,12 @@ export class Evaluator {
     loadStack(savedStack) {
         this.stack = savedStack;
     }
+    iterateStack() {
+        return this.stack;
+    }
+    iterateStackFromTop() {
+        return this.stack.slice().reverse();
+    }
 }
 function wrapPrimitive(v) {
     if (typeof v === 'number') {

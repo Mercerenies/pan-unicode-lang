@@ -117,6 +117,15 @@ export class SymbolLit extends AST {
                 }
                 break;
             }
+            case "🙋": { // Print out the entire stack followed by a newline, without changing the stack
+                // (Mainly for debugging)
+                let str = " ";
+                for (const elem of state.iterateStack()) {
+                    str += " " + elem.toString();
+                }
+                state.print(str.slice(1));
+                break;
+            }
             /* STACK SHUFFLING */
             case ':': { // Duplicate ( x -- x x )
                 // (Numerical modifier determines number of things to duplicate)
