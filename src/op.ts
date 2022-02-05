@@ -194,7 +194,7 @@ export async function handleWhiteFlag(state: Evaluator, term: SimpleCmd, default
   const mod = term.getNumMod(2);
   if (mod > 0) {
     const top = state.peek();
-    if (top instanceof SentinelValue && top.type.toString() === '⚐') {
+    if (top instanceof SimpleCmd && top.token.text.toString() === '⚐') {
       state.pop(); // Pop the sentinel
       if (typeof default_ === 'function') {
         state.push(default_());

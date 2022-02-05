@@ -1,5 +1,5 @@
 import * as Error from './error.js';
-import { NumberLit, ArrayLit, SentinelValue } from './ast.js';
+import { SimpleCmd, NumberLit, ArrayLit } from './ast.js';
 import { zip, reduceM } from './util.js';
 import { isNumber } from './type_check.js';
 // TODO Make the functions here generic, where possible, and see if it
@@ -172,7 +172,7 @@ export async function handleWhiteFlag(state, term, default_, f) {
     const mod = term.getNumMod(2);
     if (mod > 0) {
         const top = state.peek();
-        if (top instanceof SentinelValue && top.type.toString() === '⚐') {
+        if (top instanceof SimpleCmd && top.token.text.toString() === '⚐') {
             state.pop(); // Pop the sentinel
             if (typeof default_ === 'function') {
                 state.push(default_());

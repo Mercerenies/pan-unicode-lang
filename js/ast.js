@@ -18,9 +18,13 @@ export class AST {
         return new Error.UserError(this);
     }
 }
+// TODO Rename to SymbolLit
 export class SimpleCmd extends AST {
     constructor(token, modifiers = []) {
         super();
+        if (typeof token === 'string') {
+            token = new Token(token, false);
+        }
         this.token = token;
         this.modifiers = modifiers;
     }
@@ -65,14 +69,14 @@ export class SimpleCmd extends AST {
         return n;
     }
     async eval(state) {
-        var _a, _b;
+        var _a, _b, _c;
         switch (this.token.text.toString()) {
             /* IO */
             case '.': // Pretty print ( x -- )
                 state.print(stringify(state.pop()));
                 break;
             case ',': // Read integer from input
-                state.push(await readAndParseInt(state));
+                state.push((_a = await readAndParseInt(state)) !== null && _a !== void 0 ? _a : SentinelValue.null);
                 break;
             case '📜': { // Read character from input
                 const char = await state.readInput();
@@ -753,7 +757,7 @@ export class SimpleCmd extends AST {
             case '{':
             case '⚐':
             case 'ε': // Sentinel value
-                state.push(new SentinelValue(this.token.text)); // TODO Grab the singletons with a static method on SentinelValue.
+                state.push(new SimpleCmd(this.token, [])); // Remove modifiers
                 break;
             case '⚑': { // Construct ⚐ sentinel ( fn deffn -- fn )
                 // Constructs a handler for the ⚐ sentinel. The resulting
@@ -931,7 +935,7 @@ export class SimpleCmd extends AST {
                 if (value === undefined) {
                     throw `Internal error in superscript with ${this.token.text}`;
                 }
-                state.push((_a = ListOp.nth(state.pop(), value)) !== null && _a !== void 0 ? _a : SentinelValue.null);
+                state.push((_b = ListOp.nth(state.pop(), value)) !== null && _b !== void 0 ? _b : SentinelValue.null);
                 break;
             }
             case '₁':
@@ -947,7 +951,7 @@ export class SimpleCmd extends AST {
                 if (value === undefined) {
                     throw `Internal error in subscript with ${this.token.text}`;
                 }
-                state.push((_b = ListOp.nth(state.pop(), -value)) !== null && _b !== void 0 ? _b : SentinelValue.null);
+                state.push((_c = ListOp.nth(state.pop(), -value)) !== null && _c !== void 0 ? _c : SentinelValue.null);
                 break;
             }
             case '∈': // Member ( list x -- idx )
@@ -1432,24 +1436,11 @@ export class ComposedFunction extends AST {
 // "{" - Array start
 // "⚐" - Empty fold argument
 // "ε" - Null value
-export class SentinelValue extends AST {
-    constructor(type) {
-        super();
-        if (typeof type === 'string') {
-            type = Str.fromString(type);
-        }
-        this.type = type;
-    }
-    toString() {
-        return this.type.toString();
-    }
-    async eval(state) {
-        state.push(this);
-    }
-}
-SentinelValue.null = new SentinelValue("ε");
-SentinelValue.whiteFlag = new SentinelValue("⚐");
-SentinelValue.arrayStart = new SentinelValue("{");
+export const SentinelValue = {
+    null: new SimpleCmd("ε"),
+    whiteFlag: new SimpleCmd("⚐"),
+    arrayStart: new SimpleCmd("{"),
+};
 export class Box extends AST {
     constructor(value) {
         super();
@@ -1522,7 +1513,7 @@ async function readAndParseInt(state) {
         next = await state.peekInput();
     }
     if (await state.peekInput() === undefined && valid === false) {
-        return SentinelValue.null;
+        return null;
     }
     if (!valid) {
         // We consumed input but are still invalid; that's a bad parse

@@ -120,7 +120,7 @@ export abstract class Evaluator {
   }
 
   getGlobal(k: string): AST.AST {
-    return this.globalVars[k] ?? new AST.SentinelValue("ε");
+    return this.globalVars[k] ?? AST.SentinelValue.null;
   }
 
   setGlobal(k: string, v: AST.AST): void {

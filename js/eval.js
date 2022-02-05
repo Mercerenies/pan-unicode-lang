@@ -101,7 +101,7 @@ export class Evaluator {
     }
     getGlobal(k) {
         var _a;
-        return (_a = this.globalVars[k]) !== null && _a !== void 0 ? _a : new AST.SentinelValue("ε");
+        return (_a = this.globalVars[k]) !== null && _a !== void 0 ? _a : AST.SentinelValue.null;
     }
     setGlobal(k, v) {
         this.globalVars[k] = v;

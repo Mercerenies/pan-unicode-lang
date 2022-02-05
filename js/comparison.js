@@ -1,4 +1,4 @@
-import { SimpleCmd, SentinelValue, ArrayLit, StringLit, NumberLit, Box, isTruthy, tryCall } from './ast.js';
+import { SimpleCmd, ArrayLit, StringLit, NumberLit, Box, isTruthy, tryCall } from './ast.js';
 import { IncomparableValues } from './error.js';
 import { arrayEq } from './util.js';
 export var Ordering;
@@ -15,12 +15,6 @@ export function toOrdering(n) {
 export function equals(a, b) {
     if (a === b) {
         return true;
-    }
-    ////
-    if (a instanceof SentinelValue && b instanceof SentinelValue) {
-        if (a.type.toString() === b.type.toString()) {
-            return true;
-        }
     }
     if (a instanceof SimpleCmd && b instanceof SimpleCmd) {
         if (symbolCmp(a, b) == Ordering.EQ) {
@@ -57,6 +51,9 @@ export function compare(a, b) {
     }
     else if (a instanceof ArrayLit && b instanceof ArrayLit) {
         return arrayCmp(a.data, b.data, compare);
+    }
+    else if (a instanceof SimpleCmd && b instanceof SimpleCmd) {
+        return symbolCmp(a, b);
     }
     else if (a instanceof StringLit && b instanceof StringLit) {
         const a1 = a.text.toString();

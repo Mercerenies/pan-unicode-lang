@@ -33,8 +33,11 @@ export class SimpleCmd extends AST {
   readonly token: Token;
   readonly modifiers: Modifier.Modifier[];
 
-  constructor(token: Token, modifiers: Modifier.Modifier[] = []) {
+  constructor(token: Token | string, modifiers: Modifier.Modifier[] = []) {
     super();
+    if (typeof token === 'string') {
+      token = new Token(token, false);
+    }
     this.token = token;
     this.modifiers = modifiers;
   }
@@ -91,7 +94,7 @@ export class SimpleCmd extends AST {
         state.print(stringify(state.pop()));
         break;
       case ',': // Read integer from input
-        state.push(await readAndParseInt(state));
+        state.push(await readAndParseInt(state) ?? SentinelValue.null);
         break;
       case '📜': { // Read character from input
         const char = await state.readInput();
@@ -762,7 +765,7 @@ export class SimpleCmd extends AST {
       case '{':
       case '⚐':
       case 'ε': // Sentinel value
-        state.push(new SentinelValue(this.token.text as Str)); // TODO Grab the singletons with a static method on SentinelValue.
+        state.push(new SimpleCmd(this.token, [])); // Remove modifiers
         break;
       case '⚑': { // Construct ⚐ sentinel ( fn deffn -- fn )
         // Constructs a handler for the ⚐ sentinel. The resulting
@@ -1490,34 +1493,16 @@ export class ComposedFunction extends AST {
 
 }
 
+
 // Types
 // "{" - Array start
 // "⚐" - Empty fold argument
 // "ε" - Null value
-export class SentinelValue extends AST {
-  readonly type: Str;
-
-  constructor(type: string | Str) {
-    super();
-    if (typeof type === 'string') {
-      type = Str.fromString(type);
-    }
-    this.type = type;
-  }
-
-  toString(): string {
-    return this.type.toString();
-  }
-
-  async eval(state: Evaluator): Promise<void> {
-    state.push(this);
-  }
-
-  static null = new SentinelValue("ε");
-  static whiteFlag = new SentinelValue("⚐");
-  static arrayStart = new SentinelValue("{");
-
-}
+export const SentinelValue = {
+  null: new SimpleCmd("ε"),
+  whiteFlag: new SimpleCmd("⚐"),
+  arrayStart: new SimpleCmd("{"),
+};
 
 
 export class Box extends AST {
@@ -1581,7 +1566,7 @@ export async function tryCall(fn: AST, state: Evaluator): Promise<void> {
 
 
 // TODO Why is this being done both here and in the parser? Consolidate?
-async function readAndParseInt(state: Evaluator): Promise<NumberLit | SentinelValue> {
+async function readAndParseInt(state: Evaluator): Promise<NumberLit | null> {
   // Skip to the next number
   let input = await state.peekInput();
   while ((input != null) && /[^-+0-9]/.test(input)) {
@@ -1608,7 +1593,7 @@ async function readAndParseInt(state: Evaluator): Promise<NumberLit | SentinelVa
     next = await state.peekInput();
   }
   if (await state.peekInput() === undefined && valid === false) {
-    return SentinelValue.null;
+    return null;
   }
   if (!valid) {
     // We consumed input but are still invalid; that's a bad parse

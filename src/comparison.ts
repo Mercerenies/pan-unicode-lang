@@ -20,12 +20,6 @@ export function equals(a: AST, b: AST): boolean {
   if (a === b) {
     return true;
   }
-  ////
-  if (a instanceof SentinelValue && b instanceof SentinelValue) {
-    if (a.type.toString() === b.type.toString()) {
-      return true;
-    }
-  }
   if (a instanceof SimpleCmd && b instanceof SimpleCmd) {
     if (symbolCmp(a, b) == Ordering.EQ) {
       return true;
