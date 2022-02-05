@@ -1,6 +1,6 @@
 
 import * as Error from './error.js';
-import { AST, SymbolLit, NumberLit, ArrayLit, SentinelValue } from './ast.js';
+import { AST, SymbolLit, NumberLit, ArrayLit } from './ast.js';
 import { zip, reduceM } from './util.js';
 import { Evaluator } from './eval.js';
 import { isNumber } from './type_check.js';

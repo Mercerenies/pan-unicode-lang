@@ -1,5 +1,5 @@
 
-import { AST, SymbolLit, SentinelValue, ArrayLit, StringLit, NumberLit, Box, isTruthy, tryCall } from './ast.js';
+import { AST, SymbolLit, ArrayLit, StringLit, NumberLit, Box, isTruthy, tryCall } from './ast.js';
 import { IncomparableValues } from './error.js';
 import { Evaluator } from './eval.js';
 import { arrayEq } from './util.js';
