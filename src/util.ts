@@ -90,8 +90,7 @@ export async function sortM<T>(arr: T[], compareFn?: (a: T, B: T) => Promise<num
   const merge = async function(a: T[], b: T[], begin: number, middle: number, end: number): Promise<void> {
     let [i, j] = [begin, middle];
     for (let k = begin; k < end; k++) {
-      const cmp = await comparison(a[i], a[j]);
-      if (i < middle && (j >= end || cmp <= 0)) {
+      if (i < middle && (j >= end || (await comparison(a[i], a[j])) <= 0)) {
         b[k] = a[i];
         i += 1;
       } else {

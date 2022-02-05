@@ -74,8 +74,7 @@ export async function sortM(arr, compareFn) {
     const merge = async function (a, b, begin, middle, end) {
         let [i, j] = [begin, middle];
         for (let k = begin; k < end; k++) {
-            const cmp = await comparison(a[i], a[j]);
-            if (i < middle && (j >= end || cmp <= 0)) {
+            if (i < middle && (j >= end || (await comparison(a[i], a[j])) <= 0)) {
                 b[k] = a[i];
                 i += 1;
             }

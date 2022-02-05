@@ -5,7 +5,7 @@ import { FunctionLit } from './ast.js';
 import { InputManager } from './unicode_input.js';
 import Str from './str.js';
 // Main entrypoint for the online interactive interpreter.
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 export class InteractiveEvaluator extends Evaluator {
     constructor() {
         super();

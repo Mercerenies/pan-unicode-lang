@@ -102,6 +102,11 @@ describe('util.ts', function () {
             await Util.sortM(list);
             expect(list).to.deep.equal([1, 10, 2, 20]);
         });
+        it('should sort a 2-element list which is not in order', async function () {
+            const list = [2, 1];
+            await Util.sortM(list);
+            expect(list).to.deep.equal([1, 2]);
+        });
         it('should sort the list using the given ordering function', async function () {
             const list = [1, 10, 20, 2];
             await Util.sortM(list, (a, b) => Promise.resolve(a - b));
