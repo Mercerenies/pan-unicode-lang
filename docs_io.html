@@ -48,6 +48,21 @@
       error. The error will include, in some form, the value which was
       popped.
     </p>
+    <h2>Handle Error (<code>🙏</code>)</h2>
+    <p>
+      Takes two functions. Invokes the first function. If it returns
+      normally, then control proceeds as normal. If it throws an
+      error, then the second function will be called with the original
+      call stack and the error itself.
+    </p>
+    <p>
+      Note that, in the case of error, the call stack is rolled back
+      to its state at the time the 🙏 command was invoked.
+    </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">1 [ 2 "error" 😱 ] [ % . ] 🙏 « Prints 1, not 2 »</code></pre>
     <div>
       <a href="docs.html">Documentation Index</a>
     </div>
