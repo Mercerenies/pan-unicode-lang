@@ -28,6 +28,7 @@ export abstract class AST {
 }
 
 
+// TODO Rename to SymbolLit
 export class SimpleCmd extends AST {
   readonly token: Token;
   readonly modifiers: Modifier.Modifier[];

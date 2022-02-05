@@ -62,6 +62,8 @@ export function compare(a: AST, b: AST): Ordering {
     return toOrdering(a.value - b.value);
   } else if (a instanceof ArrayLit && b instanceof ArrayLit) {
     return arrayCmp(a.data, b.data, compare);
+  } else if (a instanceof SimpleCmd && b instanceof SimpleCmd) {
+    return symbolCmp(a, b);
   } else if (a instanceof StringLit && b instanceof StringLit) {
     const a1 = a.text.toString();
     const b1 = b.text.toString();
