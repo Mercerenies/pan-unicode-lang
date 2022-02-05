@@ -3,8 +3,6 @@ import { tokenize, parse } from './parser.js';
 import { Evaluator } from './eval.js';
 import { Error } from './error.js';
 import { FunctionLit, AST } from './ast.js';
-import { InputManager } from './unicode_input.js';
-import Str from './str.js';
 import { StreamReader } from './stream_reader.js';
 
 
@@ -64,4 +62,4 @@ export async function main() {
   }
 }
 
-main();
+void main();

@@ -6,7 +6,7 @@ export class StreamReader {
     }
     readChar() {
         if (this.bufferPos >= this.buffer.length) {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve, _reject) => {
                 const dataHandler = (chunk) => {
                     this.buffer = chunk.toString();
                     this.bufferPos = 0;

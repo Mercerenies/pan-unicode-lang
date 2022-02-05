@@ -1,3 +1,5 @@
+// -*- Javascript -*-
+
 module.exports = {
   "env": {
     "browser": true,

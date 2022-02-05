@@ -14,7 +14,7 @@ export class StreamReader {
 
   readChar(): Promise<string | null> {
     if (this.bufferPos >= this.buffer.length) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve, _reject) => {
         const dataHandler = (chunk: Buffer) => {
           this.buffer = chunk.toString();
           this.bufferPos = 0;
@@ -28,7 +28,7 @@ export class StreamReader {
         const endHandler = () => {
           this.stream.removeListener('data', dataHandler);
           this.stream.removeListener('end', endHandler);
-          resolve(null)
+          resolve(null);
         };
         this.stream.on('data', dataHandler);
         this.stream.on('end', endHandler);
