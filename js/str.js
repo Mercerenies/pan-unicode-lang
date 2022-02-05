@@ -51,6 +51,9 @@ export default class Str {
     reversed() {
         return new Str(this.data.slice().reverse());
     }
+    isEmpty() {
+        return this.data.length == 0;
+    }
 }
 function isHighSurrogate(n) {
     return (n & 0xFC00) === 0xD800;

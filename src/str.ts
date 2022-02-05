@@ -63,6 +63,10 @@ export default class Str {
     return new Str(this.data.slice().reverse());
   }
 
+  isEmpty(): boolean {
+    return this.data.length == 0;
+  }
+
 }
 
 

@@ -100,6 +100,25 @@ export abstract class Evaluator {
   // Read one character from input but don't consume.
   abstract peekInput(): Promise<string | undefined>;
 
+  async readLine(): Promise<Str | undefined> {
+    const result: string[] = [];
+    while (true) {
+      const curr = await this.readInput();
+      if (curr === undefined) {
+        break;
+      }
+      result.push(curr);
+      if (curr === '\n') {
+        break;
+      }
+    }
+    if (result) {
+      return new Str(result);
+    } else {
+      return undefined;
+    }
+  }
+
   getGlobal(k: string): AST.AST {
     return this.globalVars[k] ?? new AST.SentinelValue("ε");
   }

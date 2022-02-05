@@ -80,6 +80,25 @@ export class Evaluator {
         // editor will override this.
         console.log(value.toString());
     }
+    async readLine() {
+        const result = [];
+        while (true) {
+            const curr = await this.readInput();
+            if (curr === undefined) {
+                break;
+            }
+            result.push(curr);
+            if (curr === '\n') {
+                break;
+            }
+        }
+        if (result) {
+            return new Str(result);
+        }
+        else {
+            return undefined;
+        }
+    }
     getGlobal(k) {
         var _a;
         return (_a = this.globalVars[k]) !== null && _a !== void 0 ? _a : new AST.SentinelValue("ε");

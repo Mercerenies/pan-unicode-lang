@@ -43,6 +43,25 @@ export class REPLEvaluator extends Evaluator {
 
 export async function main() {
   const evaluator = new REPLEvaluator();
-  
+  while (true) {
+    try {
+      const line = await evaluator.readLine();
+      if (line === undefined) {
+        break;
+      }
+      const tokens = tokenize(line);
+      const parsed = parse(tokens);
+      evaluator.pushCall(new FunctionLit(parsed));
+      await evaluator.eval(parsed);
+      evaluator.popCall();
+    } catch (e) {
+      if (e instanceof Error) {
+        console.log(`ERROR ${e.id()}! ${e.toString()}`);
+      } else {
+        throw e;
+      }
+    }
+  }
 }
 
+main();

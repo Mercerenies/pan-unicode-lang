@@ -111,18 +111,8 @@ export class SimpleCmd extends AST {
         break;
       }
       case '📖': { // Read line from input
-        let result = "";
-        while (true) {
-          const curr = await state.readInput();
-          if (curr === undefined) {
-            break;
-          }
-          result += curr;
-          if (curr === '\n') {
-            break;
-          }
-        }
-        if (result !== "") {
+        const result = await state.readLine();
+        if ((result) && (!result.isEmpty())) {
           state.push(new StringLit(result));
         } else {
           state.push(SentinelValue.null);
