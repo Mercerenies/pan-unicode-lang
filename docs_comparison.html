@@ -65,6 +65,13 @@
       transitive extension. This behaves identically to <code>≠</code> but
       does not perform scalar extension.
     </p>
+    <h2>Tri-State Comparison (<code>🧭</code>)</h2>
+    <p>
+      Compares the two arguments and returns -1 if the former is less,
+      1 if the latter is less, and 0 if the two are equal. If the
+      values are non-comparable, raises an error. Subject to scalar
+      extension but not transitive extension.
+    </p>
     <h2>Max (<code>⌈</code>)</h2>
     <p>
       Takes two arguments and returns whichever is larger. Subject to

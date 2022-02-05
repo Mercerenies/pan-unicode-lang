@@ -717,6 +717,18 @@ export class SymbolLit extends AST {
         whiteFlag: Op.WhiteFlag.ignore
       });
       break;
+    case '🧭': // Tri-state comparison ( x y -- v )
+      // Returns -1, 0, or 1 based on comparison result
+      await Op.op(state, this, {
+        function: function(a, b) {
+          return new NumberLit(compare(a, b));
+        },
+        preProcess: id,
+        postProcess: id,
+        scalarExtend: true,
+        whiteFlag: Op.WhiteFlag.ignore
+      });
+      break;
     case '⌈': { // Max
       // With prime, pops a function and uses it instead of
       // default less-than.

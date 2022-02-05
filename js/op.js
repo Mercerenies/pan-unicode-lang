@@ -172,7 +172,7 @@ export async function handleWhiteFlag(state, term, default_, f) {
     const mod = term.getNumMod(2);
     if (mod > 0) {
         const top = state.peek();
-        if (top instanceof SymbolLit && top.token.text.toString() === '⚐') {
+        if (top instanceof SymbolLit && top.token.text.toString() === '⚐' && top.modifiers.length == 0) {
             state.pop(); // Pop the sentinel
             if (typeof default_ === 'function') {
                 state.push(default_());
