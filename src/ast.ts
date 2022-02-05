@@ -38,10 +38,20 @@ export class SimpleCmd extends AST {
     this.modifiers = modifiers;
   }
 
+  getAllNumMods(): number[] {
+    const result = [];
+    for (const mod of this.modifiers) {
+      if (mod instanceof Modifier.NumModifier) {
+        result.push(mod.value);
+      }
+    }
+    return result;
+  }
+
   getNumMod(arg: number): number;
   getNumMod(arg1: number, arg2: number, ...args: number[]): number[];
   getNumMod(...args: number[]): number | number[] {
-    const result = [];
+    const result: number[] = [];
     // Take modifiers that we have.
     for (const mod of this.modifiers) {
       if (mod instanceof Modifier.NumModifier) {

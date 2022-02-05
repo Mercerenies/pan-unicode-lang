@@ -1,4 +1,4 @@
-import { SentinelValue, ArrayLit, StringLit, NumberLit, Box, isTruthy, tryCall } from './ast.js';
+import { SimpleCmd, SentinelValue, ArrayLit, StringLit, NumberLit, Box, isTruthy, tryCall } from './ast.js';
 import { IncomparableValues } from './error.js';
 import { arrayEq } from './util.js';
 export var Ordering;
@@ -16,8 +16,14 @@ export function equals(a, b) {
     if (a === b) {
         return true;
     }
+    ////
     if (a instanceof SentinelValue && b instanceof SentinelValue) {
         if (a.type.toString() === b.type.toString()) {
+            return true;
+        }
+    }
+    if (a instanceof SimpleCmd && b instanceof SimpleCmd) {
+        if (symbolCmp(a, b) == Ordering.EQ) {
             return true;
         }
     }
@@ -50,13 +56,7 @@ export function compare(a, b) {
         return toOrdering(a.value - b.value);
     }
     else if (a instanceof ArrayLit && b instanceof ArrayLit) {
-        for (let i = 0; i < Math.min(a.length, b.length); i++) {
-            const result = compare(a.data[i], b.data[i]);
-            if (result !== Ordering.EQ) {
-                return result;
-            }
-        }
-        return toOrdering(a.length - b.length);
+        return arrayCmp(a.data, b.data, compare);
     }
     else if (a instanceof StringLit && b instanceof StringLit) {
         const a1 = a.text.toString();
@@ -76,6 +76,32 @@ export function compare(a, b) {
     }
     else {
         throw new IncomparableValues(a, b);
+    }
+}
+function arrayCmp(a, b, comparator) {
+    for (let i = 0; i < Math.min(a.length, b.length); i++) {
+        const result = comparator(a[i], b[i]);
+        if (result !== Ordering.EQ) {
+            return result;
+        }
+    }
+    return toOrdering(a.length - b.length);
+}
+function symbolCmp(a, b) {
+    if (a.token.text < b.token.text) {
+        return Ordering.LT;
+    }
+    else if (a.token.text > b.token.text) {
+        return Ordering.GT;
+    }
+    else {
+        const numModCmp = arrayCmp(a.getAllNumMods(), b.getAllNumMods(), (a, b) => toOrdering(a - b));
+        if (numModCmp != Ordering.EQ) {
+            return numModCmp;
+        }
+        else {
+            return toOrdering(a.getPrimeMod() - b.getPrimeMod());
+        }
     }
 }
 export async function defaultLT(x, y) {

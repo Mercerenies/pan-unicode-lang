@@ -24,6 +24,15 @@ export class SimpleCmd extends AST {
         this.token = token;
         this.modifiers = modifiers;
     }
+    getAllNumMods() {
+        const result = [];
+        for (const mod of this.modifiers) {
+            if (mod instanceof Modifier.NumModifier) {
+                result.push(mod.value);
+            }
+        }
+        return result;
+    }
     getNumMod(...args) {
         const result = [];
         // Take modifiers that we have.
