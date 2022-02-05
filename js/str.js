@@ -33,8 +33,8 @@ export default class Str {
         return this.data[n];
     }
     codePointAt(n) {
-        var _a;
-        return (_a = this.data[n].codePointAt(0)) !== null && _a !== void 0 ? _a : 0;
+        var _a, _b;
+        return (_b = (_a = this.data[n]) === null || _a === void 0 ? void 0 : _a.codePointAt(0)) !== null && _b !== void 0 ? _b : 0;
     }
     codePoints() {
         return this.data.map((x) => { var _a; return (_a = x.codePointAt(0)) !== null && _a !== void 0 ? _a : 0; });

@@ -28,7 +28,7 @@ describe('util.ts', function () {
             expect(Util.arrayEq([1, 2, 3], [1, 2, 4], (a, b) => a == b)).to.be.false;
         });
         it('should compare false for arrays of differing lengths', function () {
-            expect(Util.arrayEq([1, 2, 3], [1, 2], (a, b) => true)).to.be.false;
+            expect(Util.arrayEq([1, 2, 3], [1, 2], (_a, _b) => true)).to.be.false;
         });
         it('should respect the equality predicate', function () {
             expect(Util.arrayEq([1, 2, 3], [1, 2, 33], (a, b) => (a % 10) == (b % 10))).to.be.true;
@@ -110,7 +110,7 @@ describe('util.ts', function () {
         it('should be a stable sort', async function () {
             const list = [10, 11, 13, 12, 14, 16, 15, 19, 18, 17, 20];
             const originalList = list.slice();
-            await Util.sortM(list, (a, b) => Promise.resolve(0)); // Consider all values equal
+            await Util.sortM(list, (_a, _b) => Promise.resolve(0)); // Consider all values equal
             expect(list).to.deep.equal(originalList);
         });
         it('should be a stable sort on specifically duplicate values', async function () {
@@ -135,7 +135,6 @@ describe('util.ts', function () {
         it('should raise an exception if given an empty list and no reduction argument', function () {
             const list = [];
             const promise = Util.reduceM(list, async (a, b) => a + b);
-            let failed = false;
             promise.then(() => { expect.fail(); }, (e) => { expect(e).to.be.a('TypeError'); });
         });
         it('should respect the optional argument', async function () {

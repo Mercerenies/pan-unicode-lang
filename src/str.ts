@@ -40,7 +40,7 @@ export default class Str {
   }
 
   codePointAt(n: number): number {
-    return this.data[n].codePointAt(0) ?? 0;
+    return this.data[n]?.codePointAt(0) ?? 0;
   }
 
   codePoints(): number[] {
