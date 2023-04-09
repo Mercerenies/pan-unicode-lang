@@ -1116,7 +1116,7 @@ export class SymbolLit extends AST {
       // See ListOp.reshape
       ListOp.reshape(this, state);
       break;
-      /* CONTROL FLOW */
+    /* CONTROL FLOW */
     case 'i': { // If ( ..a ? ( ..a -- ..b ) ( ..a -- ..b ) -- ..b )
       const [c, t, f] = state.pop(3);
       if (isTruthy(c)) {
