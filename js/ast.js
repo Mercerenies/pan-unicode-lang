@@ -1193,6 +1193,42 @@ export class SymbolLit extends AST {
                 }
                 break;
             }
+            case '🜀': { // Normalize Boolean ( x -- ? )
+                const x = state.pop();
+                if (isTruthy(x)) {
+                    state.push(-1);
+                }
+                else {
+                    state.push(0);
+                }
+                break;
+            }
+            case '⩚': { // Logical Conjunction ( x y -- ? )
+                await Op.op(state, this, {
+                    function: function (a, b) {
+                        return new NumberLit((isTruthy(a) && isTruthy(b)) ? -1 : 0);
+                    },
+                    preProcess: id,
+                    postProcess: id,
+                    zero: -1,
+                    extension: Op.binary,
+                    scalarExtend: false,
+                });
+                break;
+            }
+            case '⩛': { // Logical Disjunction ( x y -- ? )
+                await Op.op(state, this, {
+                    function: function (a, b) {
+                        return new NumberLit((isTruthy(a) || isTruthy(b)) ? -1 : 0);
+                    },
+                    preProcess: id,
+                    postProcess: id,
+                    zero: 0,
+                    extension: Op.binary,
+                    scalarExtend: false,
+                });
+                break;
+            }
             /* HIGHER ORDER FUNCTIONS */
             case 'ī': // Push identity function
                 state.push(new FunctionLit([]));
