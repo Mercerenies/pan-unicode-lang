@@ -1231,6 +1231,30 @@ export class SymbolLit extends AST {
       });
       break;
     }
+    case '△': { // Logical Exclusive Or ( x y -- ? )
+      await Op.op(state, this, {
+        function: function(a, b) {
+          const a1 = isTruthy(a);
+          const b1 = isTruthy(b);
+          return new NumberLit((a1 != b1) ? -1 : 0);
+        },
+        preProcess: id,
+        postProcess: id,
+        zero: 0,
+        extension: Op.binary,
+        scalarExtend: false
+      });
+      break;
+    }
+    case '⌙': { // Logical Negate ( x -- y )
+      const x = state.pop();
+      if (isTruthy(x)) {
+        state.push(0);
+      } else {
+        state.push(-1);
+      }
+      break;
+    }
     /* HIGHER ORDER FUNCTIONS */
     case 'ī': // Push identity function
       state.push(new FunctionLit([]));
