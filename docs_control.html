@@ -97,5 +97,36 @@
     <div>
       <a href="docs.html">Documentation Index</a>
     </div>
+    <h2>Normalize Boolean (<code>🜀</code>)</h2>
+    <p>
+      Pops one argument. Pushes zero if the argument is zero, or one
+      otherwise.
+    </p>
+    <h2>Logical Conjunction (<code>⩚</code>)</h2>
+    <p>
+      Takes two arguments and returns true if both are truthy, or
+      false otherwise. Subject to <a href="docs_concepts.html#binary-extension">binary
+      extension</a>. Returns -1 if given ⚐ or a numerical modifier of
+      zero.
+    </p>
+    <h2>Logical Disjunction (<code>⩛</code>)</h2>
+    <p>
+      Takes two arguments and returns true if either is truthy, or
+      false otherwise. Subject to <a href="docs_concepts.html#binary-extension">binary
+      extension</a>. Returns 0 if given ⚐ or a numerical modifier of
+      zero.
+    </p>
+    <h2>Logical Exclusive Or (<code>△</code>)</h2>
+    <p>
+      Takes two arguments, normalizes both to Boolean, and returns the
+      exclusive-or of the two. Subject to <a href="docs_concepts.html#binary-extension">binary
+      extension</a>. Returns 0 if given ⚐ or a numerical modifier of
+      zero.
+    </p>
+    <h2>Logical Negate (<code>⌙</code>)</h2>
+    <p>
+      Takes one argument. Returns -1 if the argument is falsy, or 0
+      otherwise.
+    </p>
   </body>
 </html>
