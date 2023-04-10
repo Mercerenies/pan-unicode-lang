@@ -51,3 +51,8 @@ export const isLazyList: CheckedCast<AST, LazyListLit> = checkOrThrow("lazy list
 export const isStringOrList: CheckedCast<AST, StringLit | ArrayLit> = checkOrThrow("string or list", function(v) {
   return v instanceof StringLit || v instanceof ArrayLit;
 });
+
+
+export const isStringOrEitherList: CheckedCast<AST, StringLit | ArrayLikeLit> = checkOrThrow("string or list", function(v) {
+  return v instanceof StringLit || v instanceof ArrayLit || v instanceof LazyListLit;
+});

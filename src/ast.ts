@@ -1137,9 +1137,10 @@ export class SymbolLit extends AST {
       break;
     }
     case 'ɹ': { // Reverse ( list -- list )
-      const list = TypeCheck.isStringOrList(state.pop());
-      if (list instanceof ArrayLit) {
-        state.push(new ArrayLit(list.data.slice().reverse()));
+      const list = TypeCheck.isStringOrEitherList(state.pop());
+      if (isArrayLike(list)) {
+        const data = await forceList(state, list);
+        state.push(new ArrayLit(data.slice().reverse()));
       } else {
         state.push(new StringLit(list.text.reversed()));
       }

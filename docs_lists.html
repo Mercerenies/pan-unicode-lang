@@ -301,7 +301,12 @@
     <h2>Reverse (<code>ɹ</code>)</h2>
     <p>
       Takes a single argument, which must be either a string or a
-      list, and returns the argument with its characters or elements, respectively, reversed.
+      list, and returns the argument with its characters or elements,
+      respectively, reversed.
+    </p>
+    <p>
+      If given a lazy list, forces all elements and returns a
+      (reversed) eager list.
     </p>
     <h2>Reshape (<code>⍴</code>)</h2>
     <p>
