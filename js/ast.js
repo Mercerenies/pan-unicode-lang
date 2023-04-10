@@ -1517,7 +1517,12 @@ export class NumberLit extends AST {
         }
     }
 }
-export class FunctionLit extends AST {
+export class FunctionLike extends AST {
+    toString() {
+        return `[ ${this.toStringFunctionBody()} ]`;
+    }
+}
+export class FunctionLit extends FunctionLike {
     constructor(body) {
         super();
         this.body = body;
@@ -1528,11 +1533,11 @@ export class FunctionLit extends AST {
     async call(state) {
         await state.eval(this.body);
     }
-    toString() {
-        return `[ ${this.body.map((x) => x.toStringUnquoted()).join(" ")} ]`;
+    toStringFunctionBody() {
+        return this.body.map((x) => x.toStringUnquoted()).join(" ");
     }
 }
-export class CurriedFunction extends AST {
+export class CurriedFunction extends FunctionLike {
     constructor(arg, _function) {
         super();
         this.arg = arg;
@@ -1545,15 +1550,16 @@ export class CurriedFunction extends AST {
         state.push(this.arg);
         await tryCall(this.function, state);
     }
-    toString() {
-        // toString "lies" a bit, in that it prints as a FunctionLit
-        // quotation. If you try to read this representation back in, you
-        // will get a FunctionLit, not a CurriedFunction. But it's
-        // accurate enough for most purposes.
-        return `[ ${this.arg} ${this.function} $ ]`;
+    toStringFunctionBody() {
+        if (this.function instanceof FunctionLike) {
+            return `${this.arg} ${this.function.toStringFunctionBody()}`;
+        }
+        else {
+            return `${this.arg} ${this.function} $`;
+        }
     }
 }
-export class ComposedFunction extends AST {
+export class ComposedFunction extends FunctionLike {
     constructor(first, second) {
         super();
         this.first = first;
@@ -1566,12 +1572,10 @@ export class ComposedFunction extends AST {
         await tryCall(this.first, state);
         await tryCall(this.second, state);
     }
-    toString() {
-        // toString "lies" a bit, in that it prints as a FunctionLit
-        // quotation. If you try to read this representation back in, you
-        // will get a FunctionLit, not a CurriedFunction. But it's
-        // accurate enough for most purposes.
-        return `[ ${this.first} $ ${this.second} $ ]`;
+    toStringFunctionBody() {
+        const firstFn = (this.first instanceof FunctionLike) ? this.first.toStringFunctionBody() : `${this.first} $`;
+        const secondFn = (this.second instanceof FunctionLike) ? this.second.toStringFunctionBody() : `${this.second} $`;
+        return `${firstFn} ${secondFn}`;
     }
 }
 // Types
@@ -1590,6 +1594,9 @@ export class Box extends AST {
     }
     toString() {
         return `${this.value} ⊂`;
+    }
+    toStringUnquoted() {
+        return this.value.toString();
     }
     async eval(state) {
         state.push(this.value);

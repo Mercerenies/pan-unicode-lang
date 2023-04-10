@@ -1562,7 +1562,20 @@ export class NumberLit extends AST {
 }
 
 
-export class FunctionLit extends AST {
+export abstract class FunctionLike extends AST {
+
+  abstract call(state: Evaluator): Promise<void>;
+
+  toString(): string {
+    return `[ ${this.toStringFunctionBody()} ]`;
+  }
+
+  abstract toStringFunctionBody(): string;
+
+}
+
+
+export class FunctionLit extends FunctionLike {
   readonly body: AST[];
 
   constructor(body: AST[]) {
@@ -1578,14 +1591,14 @@ export class FunctionLit extends AST {
     await state.eval(this.body);
   }
 
-  toString(): string {
-    return `[ ${this.body.map((x) => x.toStringUnquoted()).join(" ")} ]`;
+  toStringFunctionBody(): string {
+    return this.body.map((x) => x.toStringUnquoted()).join(" ");
   }
 
 }
 
 
-export class CurriedFunction extends AST {
+export class CurriedFunction extends FunctionLike {
   readonly arg: AST;
   readonly function: AST;
 
@@ -1604,17 +1617,17 @@ export class CurriedFunction extends AST {
     await tryCall(this.function, state);
   }
 
-  toString(): string {
-    // toString "lies" a bit, in that it prints as a FunctionLit
-    // quotation. If you try to read this representation back in, you
-    // will get a FunctionLit, not a CurriedFunction. But it's
-    // accurate enough for most purposes.
-    return `[ ${this.arg} ${this.function} $ ]`;
+  toStringFunctionBody(): string {
+    if (this.function instanceof FunctionLike) {
+      return `${this.arg} ${this.function.toStringFunctionBody()}`;
+    } else {
+      return `${this.arg} ${this.function} $`;
+    }
   }
 
 }
 
-export class ComposedFunction extends AST {
+export class ComposedFunction extends FunctionLike {
   readonly first: AST;
   readonly second: AST;
 
@@ -1633,12 +1646,10 @@ export class ComposedFunction extends AST {
     await tryCall(this.second, state);
   }
 
-  toString(): string {
-    // toString "lies" a bit, in that it prints as a FunctionLit
-    // quotation. If you try to read this representation back in, you
-    // will get a FunctionLit, not a CurriedFunction. But it's
-    // accurate enough for most purposes.
-    return `[ ${this.first} $ ${this.second} $ ]`;
+  toStringFunctionBody(): string {
+    const firstFn = (this.first instanceof FunctionLike) ? this.first.toStringFunctionBody() : `${this.first} $`;
+    const secondFn = (this.second instanceof FunctionLike) ? this.second.toStringFunctionBody() : `${this.second} $`;
+    return `${firstFn} ${secondFn}`;
   }
 
 }
@@ -1665,6 +1676,10 @@ export class Box extends AST {
 
   toString(): string {
     return `${this.value} ⊂`;
+  }
+
+  toStringUnquoted(): string {
+    return this.value.toString();
   }
 
   async eval(state: Evaluator): Promise<void> {
