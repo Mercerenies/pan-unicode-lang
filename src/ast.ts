@@ -818,13 +818,26 @@ export class SymbolLit extends AST {
     }
     /* ARRAY LITERALS */
     case '}': { // End array (pops until sentinel value is hit)
-      const arr: AST[] = [];
-      let value = state.pop();
-      while (!equals(value, SentinelValue.arrayStart)) {
-        arr.push(value);
-        value = state.pop();
+      if (this.getPrimeMod() === 0) {
+        // Strict variant
+        const arr: AST[] = [];
+        let value = state.pop();
+        while (!equals(value, SentinelValue.arrayStart)) {
+          arr.push(value);
+          value = state.pop();
+        }
+        state.push(new ArrayLit(arr.reverse()));
+      } else {
+        // Lazy variant
+        const arr: AST[] = [];
+        const rest = state.pop();
+        let value = state.pop();
+        while (!equals(value, SentinelValue.arrayStart)) {
+          arr.push(value);
+          value = state.pop();
+        }
+        state.push(new LazyListLit(arr.reverse(), rest));
       }
-      state.push(new ArrayLit(arr.reverse()));
       break;
     }
     /* LIST OPERATIONS */
@@ -1655,14 +1668,12 @@ export class ArrayLit extends AST {
 
 }
 
-export type LazyListThunk = ((state: Evaluator) => [AST, LazyListThunk]) | undefined;
-
-// TODO Controlled-scope stacks when we expand things in weird places.
+// TODO Controlled-scope stacks when we expand things in weird places. (////)
 export class LazyListLit extends AST {
   private _forcedData: AST[];
-  private _remainder: LazyListThunk;
+  private _remainder: AST;
 
-  constructor(forcedData: AST[], remainder: LazyListThunk) {
+  constructor(forcedData: AST[], remainder: AST) {
     super();
     this._forcedData = forcedData;
     this._remainder = remainder;
@@ -1672,8 +1683,12 @@ export class LazyListLit extends AST {
     return this._forcedData;
   }
 
-  get remainder(): LazyListThunk {
+  get remainder(): AST {
     return this._remainder;
+  }
+
+  toString(): string {
+    return `{ ${this._forcedData.join(" ")} ${this._remainder} }′`;
   }
 
   async eval(state: Evaluator): Promise<void> {
@@ -1683,7 +1698,8 @@ export class LazyListLit extends AST {
   private async expandOnce(state: Evaluator): Promise<void> {
     // No-op if fully expanded.
     if (this._remainder) {
-      const [nextValue, nextRemainder] = await this._remainder(state);
+      await tryCall(this._remainder, state);
+      const [nextValue, nextRemainder] = state.pop(2);
       this._remainder = nextRemainder;
       this._forcedData.push(nextValue);
     }

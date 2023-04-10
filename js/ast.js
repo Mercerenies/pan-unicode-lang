@@ -808,13 +808,27 @@ export class SymbolLit extends AST {
             }
             /* ARRAY LITERALS */
             case '}': { // End array (pops until sentinel value is hit)
-                const arr = [];
-                let value = state.pop();
-                while (!equals(value, SentinelValue.arrayStart)) {
-                    arr.push(value);
-                    value = state.pop();
+                if (this.getPrimeMod() === 0) {
+                    // Strict variant
+                    const arr = [];
+                    let value = state.pop();
+                    while (!equals(value, SentinelValue.arrayStart)) {
+                        arr.push(value);
+                        value = state.pop();
+                    }
+                    state.push(new ArrayLit(arr.reverse()));
                 }
-                state.push(new ArrayLit(arr.reverse()));
+                else {
+                    // Lazy variant
+                    const arr = [];
+                    const rest = state.pop();
+                    let value = state.pop();
+                    while (!equals(value, SentinelValue.arrayStart)) {
+                        arr.push(value);
+                        value = state.pop();
+                    }
+                    state.push(new LazyListLit(arr.reverse(), rest));
+                }
                 break;
             }
             /* LIST OPERATIONS */
@@ -1569,7 +1583,7 @@ export class ArrayLit extends AST {
         return this.data.slice(0, length);
     }
 }
-// TODO Controlled-scope stacks when we expand things in weird places.
+// TODO Controlled-scope stacks when we expand things in weird places. (////)
 export class LazyListLit extends AST {
     constructor(forcedData, remainder) {
         super();
@@ -1582,13 +1596,17 @@ export class LazyListLit extends AST {
     get remainder() {
         return this._remainder;
     }
+    toString() {
+        return `{ ${this._forcedData.join(" ")} ${this._remainder} }′`;
+    }
     async eval(state) {
         state.push(this);
     }
     async expandOnce(state) {
         // No-op if fully expanded.
         if (this._remainder) {
-            const [nextValue, nextRemainder] = await this._remainder(state);
+            await tryCall(this._remainder, state);
+            const [nextValue, nextRemainder] = state.pop(2);
             this._remainder = nextRemainder;
             this._forcedData.push(nextValue);
         }
