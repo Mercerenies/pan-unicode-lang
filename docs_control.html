@@ -82,14 +82,20 @@
       index. The index acts the same as in Repeat (i.e. it will be the
       numbers from 0 to N-1, inclusive). The accumulator starts off as
       the initial value and will be set at each iteration to the
-      return value of the last iteration. A list of all of the
+      return value of the last iteration. An eager list of all of the
       accumulators (including the initial value) is returned.
+    </p>
+    <p>
+      If the argument N is equal to ∞, then the returned list shall be
+      lazy and infinite in length.
     </p>
     <p>
       Example:
     </p>
     <pre><code class="pancode-snippet">« The first 7 factorials »
-1 6 [1+×] ⍸</code></pre>
+1 6 [1+×] ⍸
+« Lazy list of all factorials »
+1 ∞ [1+×] ⍸</code></pre>
     <h2>Call (<code>$</code>)</h2>
     <p>
       Pops a single value, which must be a function, and calls it once.

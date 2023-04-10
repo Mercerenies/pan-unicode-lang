@@ -1193,7 +1193,18 @@ export class SymbolLit extends AST {
                 const n1 = TypeCheck.isNumber(n);
                 if (n1.value == Infinity) {
                     // Lazy list
-                    throw "TODO";
+                    // The function being used: [ [...]K [:]D 1+ s ●② ]
+                    const stateParam = state.pop();
+                    const restParam = new CurriedFunction(stateParam, new CurriedFunction(new NumberLit(0), new CurriedFunction(body, new FunctionLit([
+                        new SymbolLit("K"),
+                        new FunctionLit([new SymbolLit(":")]),
+                        new SymbolLit("D"),
+                        new NumberLit(1),
+                        new SymbolLit("+"),
+                        new SymbolLit("s", [new Modifier.NumModifier(1)]),
+                        new SymbolLit("●", [new Modifier.NumModifier(2)]),
+                    ]))));
+                    state.push(new LazyListLit([stateParam], restParam));
                 }
                 else {
                     const result = [state.peek()];
@@ -1669,7 +1680,7 @@ export class LazyListLit extends AST {
         return this._forcedData.length <= 0;
     }
     async prefix(state, length) {
-        await this.expandToAtLeast(state, length + 1);
+        await this.expandToAtLeast(state, length);
         return this._forcedData.slice(0, length);
     }
 }
