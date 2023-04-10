@@ -964,6 +964,25 @@ export class SymbolLit extends AST {
         });
       }
       break;
+    case '🦥': { // Lazy List Check
+      const arg = state.pop();
+      state.push(Op.boolToInt(arg instanceof LazyListLit));
+      break;
+    }
+    case '🐇': { // Eager-ify
+      const arg = TypeCheck.isEitherList(state.pop());
+      const data = await forceList(state, arg);
+      state.push(new ArrayLit(data.slice()));
+      break;
+    }
+    case '🐢': { // Lazy-ify
+      let arg: ArrayLikeLit = TypeCheck.isEitherList(state.pop());
+      if (arg instanceof ArrayLit) {
+        arg = new LazyListLit(arg.data.slice(), SentinelValue.null);
+      }
+      state.push(arg);
+      break;
+    }
     case '⁰':
     case '¹':
     case '²':
@@ -1697,7 +1716,7 @@ export class LazyListLit extends AST {
 
   private async expandOnce(state: Evaluator): Promise<void> {
     // No-op if fully expanded.
-    if (this._remainder) {
+    if (!this.isFullyExpanded()) {
       await tryCall(this._remainder, state);
       const [nextValue, nextRemainder] = state.pop(2);
       this._remainder = nextRemainder;
@@ -1706,7 +1725,7 @@ export class LazyListLit extends AST {
   }
 
   private isFullyExpanded(): boolean {
-    return this.remainder != undefined;
+    return equals(this.remainder, SentinelValue.null);
   }
 
   async expandFully(state: Evaluator): Promise<void> {

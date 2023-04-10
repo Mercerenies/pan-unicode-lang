@@ -334,6 +334,26 @@
     </p>
     <pre><code class="pancode-snippet">{1 2 3 4} {2 2} ⍴ « Result: {{1 2} {3 4}} »
 {1 2 3} {2 2} ⍴ « Result: {{1 2} {3 1}} »</code></pre>
+    <h2>Lazy List Check (🦥)</h2>
+    <p>
+      Takes one argument. Returns true if the argument is a lazy list.
+      Returns false on non-lazy lists and on arguments which are not
+      lists.
+    </p>
+    <p>
+      Note that a fully-forced lazy list is still lazy. To convert a
+      lazy list to an eager one, use the Eager-ify (🐇) command.
+    </p>
+    <h2>Eager-ify (🐇)</h2>
+    <p>
+      Converts a list into an eager list, forcing all elements.
+    </p>
+    <h2>Lazy-ify (🐢)</h2>
+    <p>
+      Converts a list into a lazy list. If the list was an eager list,
+      then it will be converted into a fully-forced lazy list. If the
+      list was a lazy list, it is returned unmodified.
+    </p>
     <h2>First (<code>⁰</code>)</h2>
     <p>
       Takes a list and returns its first element.

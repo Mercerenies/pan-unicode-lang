@@ -1,6 +1,6 @@
 
 import { TypeError } from './error.js';
-import { AST, NumberLit, StringLit, ArrayLit } from './ast.js';
+import { AST, NumberLit, StringLit, ArrayLit, ArrayLikeLit, LazyListLit } from './ast.js';
 
 // Various typechecking functions. Unless otherwise stated, these each
 // return their argument if successful and throw an Error.TypeError
@@ -30,9 +30,21 @@ export const isString: CheckedCast<AST, StringLit> = checkOrThrow("string", func
   return v instanceof StringLit;
 });
 
+//// names and error messages here
 
 export const isList: CheckedCast<AST, ArrayLit> = checkOrThrow("list", function(v) {
   return v instanceof ArrayLit;
+});
+
+
+
+export const isEitherList: CheckedCast<AST, ArrayLit> = checkOrThrow("list", function(v) {
+  return (v instanceof ArrayLit) || (v instanceof LazyListLit);
+});
+
+
+export const isLazyList: CheckedCast<AST, LazyListLit> = checkOrThrow("lazy list", function(v) {
+  return v instanceof LazyListLit;
 });
 
 
