@@ -242,6 +242,11 @@
       provided number. If the list is shorter than N, then the
       original list is returned.
     </p>
+    <p>
+      Always returns an eager list. Forces the entire input list
+      before returning. This function will always hang on infinite
+      lists.
+    </p>
     <h2>Drop (Left) (<code>⧏</code>)</h2>
     <p>
       Takes two arguments: a list and a number. Returns the list, with
