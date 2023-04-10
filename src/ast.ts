@@ -6,6 +6,7 @@ import * as Modifier from './modifier.js';
 import * as TypeCheck from './type_check.js';
 import * as Op from './op.js';
 import * as ListOp from './list_op.js';
+import * as Split from './list_op/split.js';
 import * as StackOp from './stack_op.js';
 import { gcd, lcm } from './util.js';
 import { Token, escapeString } from './token.js';
@@ -1060,14 +1061,14 @@ export class SymbolLit extends AST {
       const [list0, n0] = state.pop(2);
       const list = TypeCheck.isEitherList(list0);
       const n = Math.abs(TypeCheck.isNumber(n0).value);
-      state.push(new ArrayLit(await list.prefix(state, n)));
+      state.push(await Split.takeLeft(state, list, n));
       break;
     }
     case '▷': { // Take (right) ( list n -- list )
       const [list0, n0] = state.pop(2);
-      const list = TypeCheck.isList(list0);
+      const list = TypeCheck.isEitherList(list0);
       const n = Math.abs(TypeCheck.isNumber(n0).value);
-      state.push(new ArrayLit(list.data.slice(-n)));
+      state.push(await Split.takeRight(state, list, n));
       break;
     }
     case '⧏': { // Drop (left) ( list n -- list )

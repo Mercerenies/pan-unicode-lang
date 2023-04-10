@@ -4,6 +4,7 @@ import * as Modifier from './modifier.js';
 import * as TypeCheck from './type_check.js';
 import * as Op from './op.js';
 import * as ListOp from './list_op.js';
+import * as Split from './list_op/split.js';
 import * as StackOp from './stack_op.js';
 import { gcd, lcm } from './util.js';
 import { Token, escapeString } from './token.js';
@@ -527,7 +528,7 @@ export class SymbolLit extends AST {
                 // No scalar extension. Works on lists and on strings.
                 await Op.op(state, this, {
                     function: catenate,
-                    preProcess: TypeCheck.isStringOrEitherList,
+                    preProcess: TypeCheck.isStringOrList,
                     postProcess: id,
                     zero: new StringLit(""),
                     extension: Op.binary,
@@ -959,6 +960,19 @@ export class SymbolLit extends AST {
                     });
                 }
                 break;
+            /* /////
+            case '⛶': // Uncons / Unsnoc
+              if (this.getPrimeMod() === 0) {
+                // With no prime modifier, remove N elements from the front of
+                // the list and push them, followed by the tail.
+                const amountToRemove = this.getNumMod(1);
+                //const arr = TypeCheck.isEitherList(this.
+                for (let i = 0; i < amount
+              } else {
+                
+              }
+              break;
+            */
             case '🦥': { // Lazy List Check
                 const arg = state.pop();
                 state.push(Op.boolToInt(arg instanceof LazyListLit));
@@ -1041,14 +1055,14 @@ export class SymbolLit extends AST {
                 const [list0, n0] = state.pop(2);
                 const list = TypeCheck.isEitherList(list0);
                 const n = Math.abs(TypeCheck.isNumber(n0).value);
-                state.push(new ArrayLit(await list.prefix(state, n)));
+                state.push(await Split.takeLeft(state, list, n));
                 break;
             }
             case '▷': { // Take (right) ( list n -- list )
                 const [list0, n0] = state.pop(2);
-                const list = TypeCheck.isList(list0);
+                const list = TypeCheck.isEitherList(list0);
                 const n = Math.abs(TypeCheck.isNumber(n0).value);
-                state.push(new ArrayLit(list.data.slice(-n)));
+                state.push(await Split.takeRight(state, list, n));
                 break;
             }
             case '⧏': { // Drop (left) ( list n -- list )
@@ -1628,6 +1642,9 @@ export class ArrayLit extends AST {
     async prefix(state, length) {
         return this.data.slice(0, length);
     }
+    async tail(state, toDrop) {
+        return this.data.slice(toDrop);
+    }
 }
 // TODO Controlled-scope stacks when we expand things in weird places. (////)
 export class LazyListLit extends AST {
@@ -1748,8 +1765,6 @@ export function isTruthy(c) {
 export function catenate(a, b) {
     if (a instanceof ArrayLit && b instanceof ArrayLit) {
         return new ArrayLit(a.data.concat(b.data));
-        //} else if (isArrayLike(a) && isArrayLike(b)) {
-        /////
     }
     else if (a instanceof StringLit && b instanceof StringLit) {
         return new StringLit(a.text.concat(b.text));
