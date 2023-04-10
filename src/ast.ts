@@ -1045,9 +1045,9 @@ export class SymbolLit extends AST {
     }
     case '◁': { // Take (left) ( list n -- list )
       const [list0, n0] = state.pop(2);
-      const list = TypeCheck.isList(list0);
+      const list = TypeCheck.isEitherList(list0);
       const n = Math.abs(TypeCheck.isNumber(n0).value);
-      state.push(new ArrayLit(list.data.slice(0, n)));
+      state.push(new ArrayLit(await list.prefix(state, n)));
       break;
     }
     case '▷': { // Take (right) ( list n -- list )
@@ -1194,14 +1194,20 @@ export class SymbolLit extends AST {
     }
     case '⍸': { // Repeat N times and accumulate ( ..a x n ( ..a x i -- ..a x ) -- ..a list )
       const [n, body] = state.pop(2);
-      const result = [state.peek()];
-      for (let i = 0; i < TypeCheck.isNumber(n).value; i++) {
-        state.push(i);
-        await tryCall(body, state);
-        result.push(state.peek());
+      const n1 = TypeCheck.isNumber(n);
+      if (n1.value == Infinity) {
+        // Lazy list
+        throw "TODO";
+      } else {
+        const result = [state.peek()];
+        for (let i = 0; i < n1.value; i++) {
+          state.push(i);
+          await tryCall(body, state);
+          result.push(state.peek());
+        }
+        state.pop();
+        state.push(new ArrayLit(result));
       }
-      state.pop();
-      state.push(new ArrayLit(result));
       break;
     }
     case '$': { // Call ( ..a ( ..a -- ..b ) -- ..b )

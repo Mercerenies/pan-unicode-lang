@@ -32,7 +32,7 @@ export const isString: CheckedCast<AST, StringLit> = checkOrThrow("string", func
 
 //// names and error messages here
 
-export const isList: CheckedCast<AST, ArrayLit> = checkOrThrow("list", function(v) {
+export const isList: CheckedCast<AST, ArrayLit> = checkOrThrow("eager list", function(v) {
   return v instanceof ArrayLit;
 });
 
@@ -48,7 +48,7 @@ export const isLazyList: CheckedCast<AST, LazyListLit> = checkOrThrow("lazy list
 });
 
 
-export const isStringOrList: CheckedCast<AST, StringLit | ArrayLit> = checkOrThrow("string or list", function(v) {
+export const isStringOrList: CheckedCast<AST, StringLit | ArrayLit> = checkOrThrow("string or eager list", function(v) {
   return v instanceof StringLit || v instanceof ArrayLit;
 });
 

@@ -1039,9 +1039,9 @@ export class SymbolLit extends AST {
             }
             case '◁': { // Take (left) ( list n -- list )
                 const [list0, n0] = state.pop(2);
-                const list = TypeCheck.isList(list0);
+                const list = TypeCheck.isEitherList(list0);
                 const n = Math.abs(TypeCheck.isNumber(n0).value);
-                state.push(new ArrayLit(list.data.slice(0, n)));
+                state.push(new ArrayLit(await list.prefix(state, n)));
                 break;
             }
             case '▷': { // Take (right) ( list n -- list )
@@ -1131,9 +1131,10 @@ export class SymbolLit extends AST {
                 break;
             }
             case 'ɹ': { // Reverse ( list -- list )
-                const list = TypeCheck.isStringOrList(state.pop());
-                if (list instanceof ArrayLit) {
-                    state.push(new ArrayLit(list.data.slice().reverse()));
+                const list = TypeCheck.isStringOrEitherList(state.pop());
+                if (isArrayLike(list)) {
+                    const data = await forceList(state, list);
+                    state.push(new ArrayLit(data.slice().reverse()));
                 }
                 else {
                     state.push(new StringLit(list.text.reversed()));
@@ -1189,14 +1190,21 @@ export class SymbolLit extends AST {
             }
             case '⍸': { // Repeat N times and accumulate ( ..a x n ( ..a x i -- ..a x ) -- ..a list )
                 const [n, body] = state.pop(2);
-                const result = [state.peek()];
-                for (let i = 0; i < TypeCheck.isNumber(n).value; i++) {
-                    state.push(i);
-                    await tryCall(body, state);
-                    result.push(state.peek());
+                const n1 = TypeCheck.isNumber(n);
+                if (n1.value == Infinity) {
+                    // Lazy list
+                    throw "TODO";
                 }
-                state.pop();
-                state.push(new ArrayLit(result));
+                else {
+                    const result = [state.peek()];
+                    for (let i = 0; i < n1.value; i++) {
+                        state.push(i);
+                        await tryCall(body, state);
+                        result.push(state.peek());
+                    }
+                    state.pop();
+                    state.push(new ArrayLit(result));
+                }
                 break;
             }
             case '$': { // Call ( ..a ( ..a -- ..b ) -- ..b )

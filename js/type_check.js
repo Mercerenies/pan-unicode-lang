@@ -19,7 +19,7 @@ export const isString = checkOrThrow("string", function (v) {
     return v instanceof StringLit;
 });
 //// names and error messages here
-export const isList = checkOrThrow("list", function (v) {
+export const isList = checkOrThrow("eager list", function (v) {
     return v instanceof ArrayLit;
 });
 export const isEitherList = checkOrThrow("list", function (v) {
@@ -28,6 +28,9 @@ export const isEitherList = checkOrThrow("list", function (v) {
 export const isLazyList = checkOrThrow("lazy list", function (v) {
     return v instanceof LazyListLit;
 });
-export const isStringOrList = checkOrThrow("string or list", function (v) {
+export const isStringOrList = checkOrThrow("string or eager list", function (v) {
     return v instanceof StringLit || v instanceof ArrayLit;
+});
+export const isStringOrEitherList = checkOrThrow("string or list", function (v) {
+    return v instanceof StringLit || v instanceof ArrayLit || v instanceof LazyListLit;
 });
