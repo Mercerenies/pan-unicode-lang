@@ -527,7 +527,7 @@ export class SymbolLit extends AST {
                 // No scalar extension. Works on lists and on strings.
                 await Op.op(state, this, {
                     function: catenate,
-                    preProcess: TypeCheck.isStringOrList,
+                    preProcess: TypeCheck.isStringOrEitherList,
                     postProcess: id,
                     zero: new StringLit(""),
                     extension: Op.binary,
@@ -1748,6 +1748,8 @@ export function isTruthy(c) {
 export function catenate(a, b) {
     if (a instanceof ArrayLit && b instanceof ArrayLit) {
         return new ArrayLit(a.data.concat(b.data));
+        //} else if (isArrayLike(a) && isArrayLike(b)) {
+        /////
     }
     else if (a instanceof StringLit && b instanceof StringLit) {
         return new StringLit(a.text.concat(b.text));

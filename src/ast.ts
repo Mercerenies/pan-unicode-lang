@@ -540,7 +540,7 @@ export class SymbolLit extends AST {
       // No scalar extension. Works on lists and on strings.
       await Op.op(state, this, {
         function: catenate,
-        preProcess: TypeCheck.isStringOrList,
+        preProcess: TypeCheck.isStringOrList, // TODO (////) either list
         postProcess: id,
         zero: new StringLit(""),
         extension: Op.binary,
@@ -965,6 +965,19 @@ export class SymbolLit extends AST {
         });
       }
       break;
+    /* /////
+    case '⛶': // Uncons / Unsnoc
+      if (this.getPrimeMod() === 0) {
+        // With no prime modifier, remove N elements from the front of
+        // the list and push them, followed by the tail.
+        const amountToRemove = this.getNumMod(1);
+        //const arr = TypeCheck.isEitherList(this.
+        for (let i = 0; i < amount
+      } else {
+        
+      }
+      break;
+    */
     case '🦥': { // Lazy List Check
       const arg = state.pop();
       state.push(Op.boolToInt(arg instanceof LazyListLit));
@@ -1726,6 +1739,10 @@ export class ArrayLit extends AST {
 
   async prefix(state: Evaluator, length: number): Promise<AST[]> {
     return this.data.slice(0, length);
+  }
+
+  async tail(state: Evaluator, toDrop: number): Promise<AST[]> {
+    return this.data.slice(toDrop);
   }
 
 }
