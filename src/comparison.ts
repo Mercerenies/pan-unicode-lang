@@ -38,7 +38,7 @@ export async function equals(state: Evaluator, a: AST, b: AST): Promise<boolean>
   if ((a instanceof ArrayLit || a instanceof LazyListLit) && (b instanceof ArrayLit || b instanceof LazyListLit)) {
     // One of the lists is lazy; slow case
     let i = 0;
-    while (1) {
+    while (true) {
       const aValue = await a.getNth(state, i);
       const bValue = await b.getNth(state, i);
       if ((aValue === undefined) || (bValue === undefined)) {
@@ -73,11 +73,33 @@ export async function equals(state: Evaluator, a: AST, b: AST): Promise<boolean>
 
 // Unlike equality, comparison WILL throw an error if given
 // incompatible types.
-export function compare(a: AST, b: AST): Ordering {
+export async function compare(state: Evaluator, a: AST, b: AST): Promise<Ordering> {
   if (a instanceof NumberLit && b instanceof NumberLit) {
     return toOrdering(a.value - b.value);
   } else if (a instanceof ArrayLit && b instanceof ArrayLit) {
-    return arrayCmp(a.data, b.data, compare);
+    // "Fast" eager list comparison
+    return arrayCmpPromise(a.data, b.data, (a, b) => compare(state, a, b));
+  } else if ((a instanceof ArrayLit || a instanceof LazyListLit) && (b instanceof ArrayLit || b instanceof LazyListLit)) {
+    // One of the lists is lazy; slow case
+    let i = 0;
+    while (true) {
+      const aValue = await a.getNth(state, i);
+      const bValue = await b.getNth(state, i);
+      if ((aValue === undefined) && (bValue === undefined)) {
+        return Ordering.EQ;
+      } else if (aValue === undefined) {
+        return Ordering.LT;
+      } else if (bValue === undefined) {
+        return Ordering.GT;
+      } else {
+        // Both lists are still going.
+        const currentCmp = await compare(state, aValue, bValue);
+        if (currentCmp != Ordering.EQ) {
+          return currentCmp;
+        }
+      }
+      i++;
+    }
   } else if (a instanceof SymbolLit && b instanceof SymbolLit) {
     return symbolCmp(a, b);
   } else if (a instanceof StringLit && b instanceof StringLit) {
@@ -91,7 +113,7 @@ export function compare(a: AST, b: AST): Ordering {
       return toOrdering((+a.isRegexp()) - (+b.isRegexp()));
     }
   } else if (a instanceof Box && b instanceof Box) {
-    return compare(a.value, b.value);
+    return await compare(state, a.value, b.value);
   } else {
     throw new IncomparableValues(a, b);
   }
@@ -101,6 +123,17 @@ export function compare(a: AST, b: AST): Ordering {
 function arrayCmp<A, B>(a: A[], b: B[], comparator: (a: A, b: B) => Ordering): Ordering {
   for (let i = 0; i < Math.min(a.length, b.length); i++) {
     const result = comparator(a[i], b[i]);
+    if (result !== Ordering.EQ) {
+      return result;
+    }
+  }
+  return toOrdering(a.length - b.length);
+}
+
+
+async function arrayCmpPromise<A, B>(a: A[], b: B[], comparator: (a: A, b: B) => Promise<Ordering>): Promise<Ordering> {
+  for (let i = 0; i < Math.min(a.length, b.length); i++) {
+    const result = await comparator(a[i], b[i]);
     if (result !== Ordering.EQ) {
       return result;
     }
@@ -125,8 +158,10 @@ function symbolCmp(a: SymbolLit, b: SymbolLit): Ordering {
 }
 
 
-export async function defaultLT(x: AST, y: AST): Promise<boolean> {
-  return compare(x, y) === Ordering.LT;
+export function defaultLT(state: Evaluator): (x: AST, y: AST) => Promise<boolean> {
+  return async function(x, y) {
+    return (await compare(state, x, y)) === Ordering.LT;
+  };
 }
 
 

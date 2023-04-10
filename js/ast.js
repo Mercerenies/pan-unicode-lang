@@ -624,11 +624,11 @@ export class SymbolLit extends AST {
                 break;
             case '<': // LT ( x y -- ? )
                 await Op.op(state, this, {
-                    function: function (a, b) {
-                        return compare(a, b) === Ordering.LT;
+                    function: async function (a, b) {
+                        return await compare(state, a, b) === Ordering.LT;
                     },
                     preProcess: id,
-                    postProcess: Op.boolToInt,
+                    postProcess: (x) => x.then(Op.boolToInt),
                     zero: -1,
                     extension: Op.mergeAnd,
                     scalarExtend: true,
@@ -637,11 +637,11 @@ export class SymbolLit extends AST {
                 break;
             case '>': // GT ( x y -- ? )
                 await Op.op(state, this, {
-                    function: function (a, b) {
-                        return compare(a, b) === Ordering.GT;
+                    function: async function (a, b) {
+                        return await compare(state, a, b) === Ordering.GT;
                     },
                     preProcess: id,
-                    postProcess: Op.boolToInt,
+                    postProcess: (x) => x.then(Op.boolToInt),
                     zero: -1,
                     extension: Op.mergeAnd,
                     scalarExtend: true,
@@ -650,11 +650,11 @@ export class SymbolLit extends AST {
                 break;
             case '≤': // LE ( x y -- ? )
                 await Op.op(state, this, {
-                    function: function (a, b) {
-                        return compare(a, b) !== Ordering.GT;
+                    function: async function (a, b) {
+                        return await compare(state, a, b) !== Ordering.GT;
                     },
                     preProcess: id,
-                    postProcess: Op.boolToInt,
+                    postProcess: (x) => x.then(Op.boolToInt),
                     zero: -1,
                     extension: Op.mergeAnd,
                     scalarExtend: true,
@@ -663,11 +663,11 @@ export class SymbolLit extends AST {
                 break;
             case '≥': // GE ( x y -- ? )
                 await Op.op(state, this, {
-                    function: function (a, b) {
-                        return compare(a, b) !== Ordering.LT;
+                    function: async function (a, b) {
+                        return await compare(state, a, b) !== Ordering.LT;
                     },
                     preProcess: id,
-                    postProcess: Op.boolToInt,
+                    postProcess: (x) => x.then(Op.boolToInt),
                     zero: -1,
                     extension: Op.mergeAnd,
                     scalarExtend: true,
@@ -718,11 +718,11 @@ export class SymbolLit extends AST {
             case '🧭': // Tri-state comparison ( x y -- v )
                 // Returns -1, 0, or 1 based on comparison result
                 await Op.op(state, this, {
-                    function: function (a, b) {
-                        return new NumberLit(compare(a, b));
+                    function: async function (a, b) {
+                        return new NumberLit(await compare(state, a, b));
                     },
                     preProcess: id,
-                    postProcess: id,
+                    postProcess: idPromise,
                     scalarExtend: true,
                     whiteFlag: Op.WhiteFlag.ignore
                 });
@@ -730,7 +730,7 @@ export class SymbolLit extends AST {
             case '⌈': { // Max
                 // With prime, pops a function and uses it instead of
                 // default less-than.
-                const func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT;
+                const func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT(state);
                 await Op.op(state, this, {
                     function: async function (a, b) {
                         if (await func(b, a)) {
@@ -751,7 +751,7 @@ export class SymbolLit extends AST {
             case '⌊': { // Min
                 // With prime, pops a function and uses it instead of
                 // default less-than.
-                const func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT;
+                const func = this.getPrimeMod() > 0 ? customLT(state, state.pop()) : defaultLT(state);
                 await Op.op(state, this, {
                     function: async function (a, b) {
                         if (await func(a, b)) {

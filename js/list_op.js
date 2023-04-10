@@ -309,7 +309,7 @@ export async function gradeUp(term, state) {
     }
     else {
         list0 = state.pop();
-        func = defaultLT;
+        func = defaultLT(state);
     }
     const list = isList(list0);
     const indices = range(0, list.data.length);
