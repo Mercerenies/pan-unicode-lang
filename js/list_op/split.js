@@ -9,3 +9,14 @@ export async function takeRight(state, list, quantity) {
     const data = await forceList(state, list);
     return new ArrayLit(data.slice(-quantity));
 }
+export async function dropLeft(state, list, quantity) {
+    // Preserves laziness.
+    if (list instanceof ArrayLit) {
+        // Strict version.
+        return new ArrayLit(list.data.slice(quantity));
+    }
+    else {
+        // Lazy version.
+        throw "Working on it"; /////
+    }
+}

@@ -19,7 +19,7 @@ export async function dropLeft(state: Evaluator, list: ArrayLikeLit, quantity: n
   // Preserves laziness.
   if (list instanceof ArrayLit) {
     // Strict version.
-    return new ArrayLit(list.data.slice(n));
+    return new ArrayLit(list.data.slice(quantity));
   } else {
     // Lazy version.
     throw "Working on it"; /////

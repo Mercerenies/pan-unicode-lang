@@ -304,6 +304,8 @@ export const DEFAULT_TRANSLATION_TABLE = {
     "\\snoc": "∷",
     "\\uncons": "⛶",
     "\\unsnoc": "⛶",
+    "~#": "⧤",
+    "\\#": "⧤",
     ".s": "⌈",
     "\\lceil": "⌈",
     "\\cul": "⌉",

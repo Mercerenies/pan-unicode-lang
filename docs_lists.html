@@ -208,6 +208,21 @@
       given depth) as well. A numerical modifier of 20 is treated as
       infinity.
     </p>
+    <p>
+      Hangs on infinite lists.
+    </p>
+    <h2>Bounds Check (<code>⧤</code>)</h2>
+    <p>
+      Takes a list and a number. Returns whether or not that number is
+      a valid index into the list. A negative number is considered to
+      index from the back of the list.
+    </p>
+    <p>
+      This command should be used instead of an explicit length check
+      if there's a possibility that the list is infinite. Bounds Check
+      will not hang on infinite lists; it will merely force the list
+      to enough elements to prove that the input is in bounds.
+    </p>
     <h2>Empty (<code>🗋</code>)</h2>
     <p>
       Returns whether or not its list argument is an empty list. If

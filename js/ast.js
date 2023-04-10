@@ -1033,6 +1033,11 @@ export class SymbolLit extends AST {
                 // List length. See ListOp.length for details
                 ListOp.length(this, state);
                 break;
+            case '⧤': { // Bounds Check ( list n -- ? )
+                const [list, n] = state.pop(2);
+                state.push(Op.boolToInt(await TypeCheck.isEitherList(list).inBounds(state, TypeCheck.isNumber(n).value)));
+                break;
+            }
             case '🗋': { // Empty ( list -- ? )
                 // With prime modifier, flattens before checking
                 if (this.getPrimeMod() > 0) {
@@ -1645,6 +1650,9 @@ export class ArrayLit extends AST {
     async tail(state, toDrop) {
         return this.data.slice(toDrop);
     }
+    async inBounds(state, n) {
+        return (n >= -this.data.length) && (n < this.data.length);
+    }
 }
 // TODO Controlled-scope stacks when we expand things in weird places. (////)
 export class LazyListLit extends AST {
@@ -1706,6 +1714,20 @@ export class LazyListLit extends AST {
     async prefix(state, length) {
         await this.expandToAtLeast(state, length);
         return this._forcedData.slice(0, length);
+    }
+    async inBounds(state, n) {
+        // Do a bounds check while only forcing as much of the list as
+        // necessary.
+        if (n >= 0) {
+            // Positive bounds check, from the beginning.
+            await this.expandToAtLeast(state, n + 1);
+            return (this._forcedData.length > n);
+        }
+        else {
+            // Negative bounds check, from the end.
+            await this.expandToAtLeast(state, -n);
+            return (this._forcedData.length > -n - 1);
+        }
     }
 }
 export async function tryCall(fn, state) {
