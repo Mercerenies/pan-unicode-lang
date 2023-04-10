@@ -552,9 +552,10 @@ export class SymbolLit extends AST {
       if (arg instanceof NumberLit) {
         arg = new ArrayLit([arg]);
       }
-      if (arg instanceof ArrayLit) {
+      if (isArrayLike(arg)) {
+        const data = await forceList(state, arg);
         const res: string[] = [];
-        for (const c of arg.data) {
+        for (const c of data) {
           if (!(c instanceof NumberLit)) {
             throw new Error.TypeError("number", c);
           }
@@ -1843,6 +1844,11 @@ export async function forceList(state: Evaluator, a: ArrayLikeLit): Promise<read
     await a.expandFully(state);
     return a.forcedData;
   }
+}
+
+
+export function isArrayLike(ast: AST): ast is ArrayLikeLit {
+  return ast instanceof ArrayLit || ast instanceof LazyListLit;
 }
 
 

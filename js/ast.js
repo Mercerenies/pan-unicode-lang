@@ -539,9 +539,10 @@ export class SymbolLit extends AST {
                 if (arg instanceof NumberLit) {
                     arg = new ArrayLit([arg]);
                 }
-                if (arg instanceof ArrayLit) {
+                if (isArrayLike(arg)) {
+                    const data = await forceList(state, arg);
                     const res = [];
-                    for (const c of arg.data) {
+                    for (const c of data) {
                         if (!(c instanceof NumberLit)) {
                             throw new Error.TypeError("number", c);
                         }
@@ -1737,6 +1738,9 @@ export async function forceList(state, a) {
         await a.expandFully(state);
         return a.forcedData;
     }
+}
+export function isArrayLike(ast) {
+    return ast instanceof ArrayLit || ast instanceof LazyListLit;
 }
 // Two specializations of the identity function, used to aid in type inference when calling Op.op.
 function id(a) {
