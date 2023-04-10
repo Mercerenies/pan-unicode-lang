@@ -80,13 +80,13 @@ async function runFilter(depth, list, func, state) {
     else {
         let mask;
         if (func instanceof ArrayLit) {
-            if (func.length !== list.length) {
+            if (func.data.length !== list.data.length) {
                 throw new Error.IncompatibleArrayLengths();
             }
             mask = func.data;
         }
         else {
-            mask = Array(list.length).fill(func);
+            mask = Array(list.data.length).fill(func);
         }
         let result = [];
         for (let i = 0; i < mask.length; i++) {
@@ -143,9 +143,9 @@ function getNodeLength(args) {
         }
         if (length == null) {
             // First array encountered, so set the length
-            length = arg.length;
+            length = arg.data.length;
         }
-        else if (length !== arg.length) {
+        else if (length !== arg.data.length) {
             // Incompatible array lengths encountered
             throw new Error.IncompatibleArrayLengths();
         }
@@ -164,7 +164,7 @@ async function runMap(depth, args, func, baseCase) {
         // TODO mask does the same thing here as in filter; consolidate?
         let mask;
         if (func instanceof ArrayLit) {
-            if (func.length !== len) {
+            if (func.data.length !== len) {
                 throw new Error.IncompatibleArrayLengths();
             }
             mask = func.data;
@@ -285,7 +285,7 @@ export function nth(value, index) {
     }
     else if (value instanceof ArrayLit) {
         if (index < 0) {
-            index += value.length;
+            index += value.data.length;
         }
         return value.data[index];
     }
@@ -312,7 +312,7 @@ export async function gradeUp(term, state) {
         func = defaultLT;
     }
     const list = isList(list0);
-    const indices = range(0, list.length);
+    const indices = range(0, list.data.length);
     await sortM(indices, async function (a, b) {
         if (await func(list.data[a], list.data[b])) {
             return -1;
@@ -455,7 +455,7 @@ export function length(term, state) {
     newTerm.modifiers.push(new NumModifier(num === MAX_NUM_MODIFIER || num === 0 ? num : num - 1));
     ravel(newTerm, state);
     const list = isList(state.pop());
-    state.push(list.length);
+    state.push(list.data.length);
 }
 // Reshape (⍴) takes two arguments: a list and a shape. Its numerical
 // argument defaults to 20 (which equates to infinity). The first thing
@@ -479,7 +479,7 @@ export function reshape(term, state) {
     newTerm.modifiers.push(new NumModifier(depth));
     ravel(newTerm, state);
     const list = isList(state.pop());
-    if (list.length === 0) {
+    if (list.data.length === 0) {
         throw new Error.TypeError("nonempty list", list);
     }
     const result = doReshape(shape.data, 0, list.data, [0]);

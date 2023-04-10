@@ -830,7 +830,7 @@ export class SymbolLit extends AST {
                 // can deal with the empty case by checking for ⚐.
                 const [list0, func] = state.pop(2);
                 const list = TypeCheck.isList(list0);
-                if (list.length <= 0) {
+                if (await list.isEmpty(state)) {
                     state.push(SentinelValue.whiteFlag);
                     await tryCall(func, state);
                 }
@@ -851,7 +851,7 @@ export class SymbolLit extends AST {
                 // the empty list is produced as output.
                 const [list0, func] = state.pop(2);
                 const list = TypeCheck.isList(list0);
-                if (list.length <= 0) {
+                if (await list.isEmpty(state)) {
                     state.push(new ArrayLit([]));
                 }
                 else {
@@ -993,7 +993,7 @@ export class SymbolLit extends AST {
                     ListOp.ravel(newTerm, state);
                 }
                 const list = TypeCheck.isList(state.pop());
-                state.push(Op.boolToInt(list.length === 0));
+                state.push(Op.boolToInt(await list.isEmpty(state)));
                 break;
             }
             case 'ℓ': { // List constructor
@@ -1093,7 +1093,7 @@ export class SymbolLit extends AST {
                     }
                     i += 1;
                 }
-                state.push(new ArrayLit(list.data.slice(0, list.length - i)));
+                state.push(new ArrayLit(list.data.slice(0, list.data.length - i)));
                 break;
             }
             case 'ɹ': { // Reverse ( list -- list )
@@ -1556,8 +1556,75 @@ export class ArrayLit extends AST {
     async eval(state) {
         state.push(this);
     }
-    get length() {
+    async getLength(state) {
         return this.data.length;
+    }
+    async getNth(state, n) {
+        return this.data[n];
+    }
+    async isEmpty(state) {
+        return this.data.length <= 0;
+    }
+    async prefix(state, length) {
+        return this.data.slice(0, length);
+    }
+}
+// TODO Controlled-scope stacks when we expand things in weird places.
+export class LazyListLit extends AST {
+    constructor(forcedData, remainder) {
+        super();
+        this._forcedData = forcedData;
+        this._remainder = remainder;
+    }
+    get forcedData() {
+        return this._forcedData;
+    }
+    get remainder() {
+        return this._remainder;
+    }
+    async eval(state) {
+        state.push(this);
+    }
+    async expandOnce(state) {
+        // No-op if fully expanded.
+        if (this._remainder) {
+            const [nextValue, nextRemainder] = await this._remainder(state);
+            this._remainder = nextRemainder;
+            this._forcedData.push(nextValue);
+        }
+    }
+    isFullyExpanded() {
+        return this.remainder != undefined;
+    }
+    async expandFully(state) {
+        // Will hang on infinite lists.
+        while (!this.isFullyExpanded()) {
+            await this.expandOnce(state);
+        }
+    }
+    async expandToAtLeast(state, n) {
+        for (let i = this._forcedData.length; i < n; i++) {
+            await this.expandOnce(state);
+        }
+    }
+    async getNth(state, n) {
+        await this.expandToAtLeast(state, n + 1);
+        return this._forcedData[n];
+    }
+    async getLength(state) {
+        // Hangs on infinite lists
+        await this.expandFully(state);
+        return this._forcedData.length;
+    }
+    async isEmpty(state) {
+        // Never hangs; can always determine its result, even on infinite
+        // lists.
+        await this.expandToAtLeast(state, 1);
+        return this._forcedData.length <= 0;
+    }
+    async prefix(state, length) {
+        await this.expandToAtLeast(state, length + 1);
+        return this._forcedData.slice(0, length);
     }
 }
 export async function tryCall(fn, state) {
@@ -1622,7 +1689,16 @@ export function catenate(a, b) {
         return new StringLit(a.text.concat(b.text));
     }
     else {
-        throw new Error.TypeError("arrays or strings", new ArrayLit([a, b]));
+        throw new Error.TypeError("lists or strings", new ArrayLit([a, b]));
+    }
+}
+export async function forceList(state, a) {
+    if (a instanceof ArrayLit) {
+        return a.data;
+    }
+    else {
+        await a.expandFully(state);
+        return a.forcedData;
     }
 }
 // Two specializations of the identity function, used to aid in type inference when calling Op.op.

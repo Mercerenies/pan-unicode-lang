@@ -85,12 +85,12 @@ async function runFilter(depth: number, list: AST, func: AST, state: Evaluator):
   } else {
     let mask: AST[];
     if (func instanceof ArrayLit) {
-      if (func.length !== list.length) {
+      if (func.data.length !== list.data.length) {
         throw new Error.IncompatibleArrayLengths();
       }
       mask = func.data;
     } else {
-      mask = Array(list.length).fill(func);
+      mask = Array(list.data.length).fill(func);
     }
     let result: AST[] = [];
     for (let i = 0; i < mask.length; i++) {
@@ -151,8 +151,8 @@ function getNodeLength(args: AST[]): number | undefined {
     }
     if (length == null) {
       // First array encountered, so set the length
-      length = arg.length;
-    } else if (length !== arg.length) {
+      length = arg.data.length;
+    } else if (length !== arg.data.length) {
       // Incompatible array lengths encountered
       throw new Error.IncompatibleArrayLengths();
     } else {
@@ -171,7 +171,7 @@ async function runMap(depth: number, args: AST[], func: AST, baseCase: (args: AS
     // TODO mask does the same thing here as in filter; consolidate?
     let mask: AST[];
     if (func instanceof ArrayLit) {
-      if (func.length !== len) {
+      if (func.data.length !== len) {
         throw new Error.IncompatibleArrayLengths();
       }
       mask = func.data;
@@ -293,7 +293,7 @@ export function nth(value: AST, index: number | AST): AST {
     return new StringLit(result);
   } else if (value instanceof ArrayLit) {
     if (index < 0) {
-      index += value.length;
+      index += value.data.length;
     }
     return value.data[index];
   } else {
@@ -320,7 +320,7 @@ export async function gradeUp(term: SymbolLit, state: Evaluator): Promise<void> 
     func = defaultLT;
   }
   const list = isList(list0);
-  const indices = range(0, list.length);
+  const indices = range(0, list.data.length);
   await sortM(indices, async function(a, b) {
     if (await func(list.data[a], list.data[b])) {
       return -1;
@@ -472,7 +472,7 @@ export function length(term: SymbolLit, state: Evaluator): void {
   newTerm.modifiers.push(new NumModifier(num === MAX_NUM_MODIFIER || num === 0 ? num : num - 1));
   ravel(newTerm, state);
   const list = isList(state.pop());
-  state.push(list.length);
+  state.push(list.data.length);
 }
 
 
@@ -497,7 +497,7 @@ export function reshape(term: SymbolLit, state: Evaluator): void {
   newTerm.modifiers.push(new NumModifier(depth));
   ravel(newTerm, state);
   const list = isList(state.pop());
-  if (list.length === 0) {
+  if (list.data.length === 0) {
     throw new Error.TypeError("nonempty list", list);
   }
   const result = doReshape(shape.data, 0, list.data, [0]);

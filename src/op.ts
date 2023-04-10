@@ -142,14 +142,14 @@ export function scalarExtend(f: (x: AST, y: AST) => Promise<AST>) {
   const f1 = async function(x: AST, y: AST): Promise<AST> {
     if (x instanceof ArrayLit || y instanceof ArrayLit) {
       if (!(x instanceof ArrayLit)) {
-        x = ArrayLit.filled((y as ArrayLit).length, x);
+        x = ArrayLit.filled((y as ArrayLit).data.length, x);
       }
       if (!(y instanceof ArrayLit)) {
-        y = ArrayLit.filled((x as ArrayLit).length, y);
+        y = ArrayLit.filled((x as ArrayLit).data.length, y);
       }
       const x1 = x as ArrayLit;
       const y1 = y as ArrayLit;
-      if (x1.length !== y1.length) {
+      if (x1.data.length !== y1.data.length) {
         throw new Error.IncompatibleArrayLengths();
       }
 

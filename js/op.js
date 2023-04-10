@@ -122,14 +122,14 @@ export function scalarExtend(f) {
     const f1 = async function (x, y) {
         if (x instanceof ArrayLit || y instanceof ArrayLit) {
             if (!(x instanceof ArrayLit)) {
-                x = ArrayLit.filled(y.length, x);
+                x = ArrayLit.filled(y.data.length, x);
             }
             if (!(y instanceof ArrayLit)) {
-                y = ArrayLit.filled(x.length, y);
+                y = ArrayLit.filled(x.data.length, y);
             }
             const x1 = x;
             const y1 = y;
-            if (x1.length !== y1.length) {
+            if (x1.data.length !== y1.data.length) {
                 throw new Error.IncompatibleArrayLengths();
             }
             const arr = [];

@@ -840,7 +840,7 @@ export class SymbolLit extends AST {
       // can deal with the empty case by checking for ⚐.
       const [list0, func] = state.pop(2);
       const list = TypeCheck.isList(list0);
-      if (list.length <= 0) {
+      if (await list.isEmpty(state)) {
         state.push(SentinelValue.whiteFlag);
         await tryCall(func, state);
       } else {
@@ -860,7 +860,7 @@ export class SymbolLit extends AST {
       // the empty list is produced as output.
       const [list0, func] = state.pop(2);
       const list = TypeCheck.isList(list0);
-      if (list.length <= 0) {
+      if (await list.isEmpty(state)) {
         state.push(new ArrayLit([]));
       } else {
         const acc = list.data[0];
@@ -1000,7 +1000,7 @@ export class SymbolLit extends AST {
         ListOp.ravel(newTerm, state);
       }
       const list = TypeCheck.isList(state.pop());
-      state.push(Op.boolToInt(list.length === 0));
+      state.push(Op.boolToInt(await list.isEmpty(state)));
       break;
     }
     case 'ℓ': { // List constructor
@@ -1100,7 +1100,7 @@ export class SymbolLit extends AST {
         }
         i += 1;
       }
-      state.push(new ArrayLit(list.data.slice(0, list.length - i)));
+      state.push(new ArrayLit(list.data.slice(0, list.data.length - i)));
       break;
     }
     case 'ɹ': { // Reverse ( list -- list )
@@ -1614,6 +1614,9 @@ export class Box extends AST {
 }
 
 
+export type ArrayLikeLit = ArrayLit | LazyListLit;
+
+
 export class ArrayLit extends AST {
   readonly data: AST[];
 
@@ -1634,8 +1637,96 @@ export class ArrayLit extends AST {
     state.push(this);
   }
 
-  get length(): number {
+  async getLength(state: Evaluator): Promise<number> {
     return this.data.length;
+  }
+
+  async getNth(state: Evaluator, n: number): Promise<AST | undefined> {
+    return this.data[n];
+  }
+
+  async isEmpty(state: Evaluator): Promise<boolean> {
+    return this.data.length <= 0;
+  }
+
+  async prefix(state: Evaluator, length: number): Promise<AST[]> {
+    return this.data.slice(0, length);
+  }
+
+}
+
+export type LazyListThunk = ((state: Evaluator) => [AST, LazyListThunk]) | undefined;
+
+// TODO Controlled-scope stacks when we expand things in weird places.
+export class LazyListLit extends AST {
+  private _forcedData: AST[];
+  private _remainder: LazyListThunk;
+
+  constructor(forcedData: AST[], remainder: LazyListThunk) {
+    super();
+    this._forcedData = forcedData;
+    this._remainder = remainder;
+  }
+
+  get forcedData(): readonly AST[] {
+    return this._forcedData;
+  }
+
+  get remainder(): LazyListThunk {
+    return this._remainder;
+  }
+
+  async eval(state: Evaluator): Promise<void> {
+    state.push(this);
+  }
+
+  private async expandOnce(state: Evaluator): Promise<void> {
+    // No-op if fully expanded.
+    if (this._remainder) {
+      const [nextValue, nextRemainder] = await this._remainder(state);
+      this._remainder = nextRemainder;
+      this._forcedData.push(nextValue);
+    }
+  }
+
+  private isFullyExpanded(): boolean {
+    return this.remainder != undefined;
+  }
+
+  async expandFully(state: Evaluator): Promise<void> {
+    // Will hang on infinite lists.
+    while (!this.isFullyExpanded()) {
+      await this.expandOnce(state);
+    }
+  }
+
+  private async expandToAtLeast(state: Evaluator, n: number): Promise<void> {
+    for (let i = this._forcedData.length; i < n; i++) {
+      await this.expandOnce(state);
+    }
+  }
+
+  async getNth(state: Evaluator, n: number): Promise<AST | undefined> {
+    await this.expandToAtLeast(state, n + 1);
+    return this._forcedData[n];
+  }
+
+  async getLength(state: Evaluator): Promise<number> {
+    // Hangs on infinite lists
+    await this.expandFully(state);
+    return this._forcedData.length;
+  }
+
+  async isEmpty(state: Evaluator): Promise<boolean> {
+    // Never hangs; can always determine its result, even on infinite
+    // lists.
+    await this.expandToAtLeast(state, 1);
+    return this._forcedData.length <= 0;
+  }
+
+  async prefix(state: Evaluator, length: number): Promise<AST[]> {
+    await this.expandToAtLeast(state, length + 1);
+    return this._forcedData.slice(0, length);
   }
 
 }
@@ -1705,7 +1796,17 @@ export function catenate(a: AST, b: AST): AST {
   } else if (a instanceof StringLit && b instanceof StringLit) {
     return new StringLit(a.text.concat(b.text));
   } else {
-    throw new Error.TypeError("arrays or strings", new ArrayLit([a, b]));
+    throw new Error.TypeError("lists or strings", new ArrayLit([a, b]));
+  }
+}
+
+
+export async function forceList(state: Evaluator, a: ArrayLikeLit): Promise<readonly AST[]> {
+  if (a instanceof ArrayLit) {
+    return a.data;
+  } else {
+    await a.expandFully(state);
+    return a.forcedData;
   }
 }
 
