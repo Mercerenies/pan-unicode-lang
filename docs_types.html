@@ -79,17 +79,32 @@
     </p>
     <h2>Lists</h2>
     <p>
-      Lists are finite sequences of Pancode values. Lists can contain
-      any Pancode data, including other lists. Lists are generally
+      Lists are sequences of Pancode values. Lists can contain any
+      Pancode data, including other lists. Lists are generally
       constructed using curly braces <code>{1 2 3}</code> (Note that this is <em>not</em>
       special syntax; this is a call to the <code>{</code> command,
       then three numbers, then a call to the <code>}</code> command),
       and they print to the screen the same way.
     </p>
     <p>
+      Lists in Pancode can be either eager or lazy. Eager lists are
+      inherently finite and are fully stored in memory at all times.
+      Lazy lists may store only a finite prefix and a "thunk"
+      indicating how to compute the rest of the list. Lazy lists can
+      be finite or infinite. Evaluating additional elements of a lazy list isc alled <em>forcing</em> the
+      list.
+    </p>
+    <p>
       Two lists are equal if they have the same length and all of
       their values compare equal. Lists are ordered using dictionary
       order, and their values are compared recursively.
+    </p>
+    <p>
+      Laziness does not affect the ordering or equality comparisons of
+      lists. A lazy list can be equal to an eager list, provided they
+      contain the same elements. If two lists are compared for
+      equality or ordering and at least one is lazy, the lazy list(s)
+      are forced to the point necessary to determine the ordering.
     </p>
     <h2>Functions</h2>
     <p>
