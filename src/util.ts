@@ -18,13 +18,28 @@ export function zip<A, B>(a: A[], b: B[]): [A, B][] {
 // Validates that the elements of the two arrays are equal according
 // to the given equality predicate. If the arrays have differing
 // lengths, returns false unconditionally.
-export function arrayEq<A, B>(a: A[], b: B[], fn: (a: A, b: B) => boolean) {
+export function arrayEq<A, B>(a: A[], b: B[], fn: (a: A, b: B) => boolean): boolean {
   if (a.length !== b.length) {
     return false;
   }
   const ref = zip(a, b);
   for (const [x, y] of ref) {
     if (!fn(x, y)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+
+// Red (async) version of arrayEq
+export async function arrayEqPromise<A, B>(a: A[], b: B[], fn: (a: A, b: B) => Promise<boolean>): Promise<boolean> {
+  if (a.length !== b.length) {
+    return false;
+  }
+  const ref = zip(a, b);
+  for (const [x, y] of ref) {
+    if (!await fn(x, y)) {
       return false;
     }
   }

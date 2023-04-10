@@ -25,6 +25,19 @@ export function arrayEq(a, b, fn) {
     }
     return true;
 }
+// Red (async) version of arrayEq
+export async function arrayEqPromise(a, b, fn) {
+    if (a.length !== b.length) {
+        return false;
+    }
+    const ref = zip(a, b);
+    for (const [x, y] of ref) {
+        if (!await fn(x, y)) {
+            return false;
+        }
+    }
+    return true;
+}
 // Inserts sub into str, replacing the characters from index a to
 // index b.
 export function spliceStr(str, sub, a, b) {

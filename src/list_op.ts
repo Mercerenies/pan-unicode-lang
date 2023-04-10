@@ -443,7 +443,7 @@ export async function member(term: SymbolLit, state: Evaluator): Promise<void> {
       return isTruthy(state.pop());
     };
   } else {
-    func = async (x: AST) => equals(x, needle);
+    func = (x: AST) => equals(state, x, needle);
   }
   const result: AST[] = [];
   for (let i = 0; i < list.data.length; i++) {

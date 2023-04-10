@@ -8,7 +8,7 @@ import * as StackOp from './stack_op.js';
 import { gcd, lcm } from './util.js';
 import { Token, escapeString } from './token.js';
 import Str from './str.js';
-import { equals, compare, Ordering, defaultLT, customLT } from './comparison.js';
+import { equals, compare, isNull, Ordering, defaultLT, customLT } from './comparison.js';
 import * as SuperSub from './super_sub.js';
 export class AST {
     call(_state) {
@@ -378,8 +378,8 @@ export class SymbolLit extends AST {
                 // Returns the first argument unless it's ε, in which
                 // case it returns the second.
                 await Op.op(state, this, {
-                    function: function (a, b) {
-                        if (equals(a, SentinelValue.null)) {
+                    function: async function (a, b) {
+                        if (isNull(a)) {
                             return b;
                         }
                         else {
@@ -387,7 +387,7 @@ export class SymbolLit extends AST {
                         }
                     },
                     preProcess: id,
-                    postProcess: id,
+                    postProcess: idPromise,
                     zero: SentinelValue.null,
                     extension: Op.binary,
                     scalarExtend: false
@@ -612,10 +612,10 @@ export class SymbolLit extends AST {
             case '=': // Equal ( x y -- ? )
                 await Op.op(state, this, {
                     function: function (a, b) {
-                        return equals(a, b);
+                        return equals(state, a, b);
                     },
                     preProcess: id,
-                    postProcess: Op.boolToInt,
+                    postProcess: (x) => x.then(Op.boolToInt),
                     zero: -1,
                     extension: Op.mergeAnd,
                     scalarExtend: true,
@@ -676,11 +676,11 @@ export class SymbolLit extends AST {
                 break;
             case '≠': // Not Equal ( x y -- ? )
                 await Op.op(state, this, {
-                    function: function (a, b) {
-                        return !equals(a, b);
+                    function: async function (a, b) {
+                        return !await equals(state, a, b);
                     },
                     preProcess: id,
-                    postProcess: Op.boolToInt,
+                    postProcess: (x) => x.then(Op.boolToInt),
                     zero: -1,
                     extension: Op.mergeAnd,
                     scalarExtend: true,
@@ -691,10 +691,10 @@ export class SymbolLit extends AST {
                 // Note: No scalar extension
                 await Op.op(state, this, {
                     function: function (a, b) {
-                        return equals(a, b);
+                        return equals(state, a, b);
                     },
                     preProcess: id,
-                    postProcess: Op.boolToInt,
+                    postProcess: (x) => x.then(Op.boolToInt),
                     zero: -1,
                     extension: Op.mergeAnd,
                     scalarExtend: false,
@@ -704,11 +704,11 @@ export class SymbolLit extends AST {
             case '≢': // Not Same ( x y -- ? )
                 // Note: No scalar extension
                 await Op.op(state, this, {
-                    function: function (a, b) {
-                        return !equals(a, b);
+                    function: async function (a, b) {
+                        return !await equals(state, a, b);
                     },
                     preProcess: id,
-                    postProcess: Op.boolToInt,
+                    postProcess: (x) => x.then(Op.boolToInt),
                     zero: -1,
                     extension: Op.mergeAnd,
                     scalarExtend: false,
@@ -812,7 +812,7 @@ export class SymbolLit extends AST {
                     // Strict variant
                     const arr = [];
                     let value = state.pop();
-                    while (!equals(value, SentinelValue.arrayStart)) {
+                    while (!await equals(state, value, SentinelValue.arrayStart)) {
                         arr.push(value);
                         value = state.pop();
                     }
@@ -823,7 +823,7 @@ export class SymbolLit extends AST {
                     const arr = [];
                     const rest = state.pop();
                     let value = state.pop();
-                    while (!equals(value, SentinelValue.arrayStart)) {
+                    while (!await equals(state, value, SentinelValue.arrayStart)) {
                         arr.push(value);
                         value = state.pop();
                     }
@@ -1631,7 +1631,7 @@ export class LazyListLit extends AST {
         }
     }
     isFullyExpanded() {
-        return equals(this.remainder, SentinelValue.null);
+        return isNull(this.remainder);
     }
     async expandFully(state) {
         // Will hang on infinite lists.

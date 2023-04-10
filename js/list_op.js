@@ -428,7 +428,7 @@ export async function member(term, state) {
         };
     }
     else {
-        func = async (x) => equals(x, needle);
+        func = (x) => equals(state, x, needle);
     }
     const result = [];
     for (let i = 0; i < list.data.length; i++) {

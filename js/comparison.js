@@ -1,6 +1,6 @@
-import { SymbolLit, ArrayLit, StringLit, NumberLit, Box, isTruthy, tryCall } from './ast.js';
+import { SymbolLit, ArrayLit, LazyListLit, StringLit, NumberLit, Box, isTruthy, tryCall, SentinelValue } from './ast.js';
 import { IncomparableValues } from './error.js';
-import { arrayEq } from './util.js';
+import { arrayEqPromise } from './util.js';
 export var Ordering;
 (function (Ordering) {
     Ordering[Ordering["LT"] = -1] = "LT";
@@ -10,9 +10,12 @@ export var Ordering;
 export function toOrdering(n) {
     return Math.sign(n);
 }
+export function isNull(a) {
+    return a instanceof SymbolLit && symbolCmp(a, SentinelValue.null) == Ordering.EQ;
+}
 // Note: Equality will never produce an error. Comparing values of
 // different types simply returns false.
-export function equals(a, b) {
+export async function equals(state, a, b) {
     if (a === b) {
         return true;
     }
@@ -22,8 +25,27 @@ export function equals(a, b) {
         }
     }
     if (a instanceof ArrayLit && b instanceof ArrayLit) {
-        if (arrayEq(a.data, b.data, equals)) {
+        // Fast case for eager lists
+        if (await arrayEqPromise(a.data, b.data, (a, b) => equals(state, a, b))) {
             return true;
+        }
+    }
+    if ((a instanceof ArrayLit || a instanceof LazyListLit) && (b instanceof ArrayLit || b instanceof LazyListLit)) {
+        // One of the lists is lazy; slow case
+        let i = 0;
+        while (1) {
+            const aValue = await a.getNth(state, i);
+            const bValue = await b.getNth(state, i);
+            if ((aValue === undefined) || (bValue === undefined)) {
+                return (aValue === bValue); // True iff they both terminated at the same moment.
+            }
+            else {
+                // Both lists are still going.
+                if (!await equals(state, aValue, bValue)) {
+                    return false;
+                }
+            }
+            i++;
         }
     }
     if (a instanceof StringLit && b instanceof StringLit) {
@@ -37,7 +59,7 @@ export function equals(a, b) {
         }
     }
     if (a instanceof Box && b instanceof Box) {
-        if (equals(a.value, b.value)) {
+        if (await equals(state, a.value, b.value)) {
             return true;
         }
     }
