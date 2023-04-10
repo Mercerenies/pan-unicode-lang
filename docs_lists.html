@@ -22,8 +22,27 @@
     <p>
       Pops values from the stack until the <code>{</code> array start
       sentinel is reached, then places all of the popped values into a
-      single list, returning the list.
+      single (eager) list, returning the list.
     </p>
+    <h2>Lazy List End (<code>}′</code>)</h2>
+    <p>
+      Pops one value from the stack, which will serve as the "rest"
+      parameter and must be either a function or the sentinel value ε.
+      Then proceeds to pop values from the stack until the <code>{</code> array
+      start sentinel is reached. Returns a lazy list, with the first N
+      values already forced and equal to the values popped before the
+      sentinel was reached. The "rest" of the lazy list shall be the
+      "rest" parameter.
+    </p>
+    <p>
+      When the lazy list tries to force a value beyond the available
+      ones, the "rest" parameter will be called. It shall take no
+      arguments and return two values. The second-from-top of the
+      stack is the next value in the list, and the top of the stack is
+      the new "rest" parameter. If the "rest" parameter is ever ε, the
+      list is considered terminated.
+    </p>
+    <!-- //// Examples -->
     <h2>Fold (<code>/</code>)</h2>
     <p>
       Takes a list and a function. If the list is empty, then this
