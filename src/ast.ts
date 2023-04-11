@@ -1080,9 +1080,9 @@ export class SymbolLit extends AST {
     }
     case '⧏': { // Drop (left) ( list n -- list )
       const [list0, n0] = state.pop(2);
-      const list = TypeCheck.isList(list0);
+      const list = TypeCheck.isEitherList(list0);
       const n = Math.abs(TypeCheck.isNumber(n0).value);
-      state.push(new ArrayLit(list.data.slice(n)));
+      state.push(await Split.dropLeft(state, list, n));
       break;
     }
     case '⧐': { // Drop (right) ( list n -- list )
@@ -1771,6 +1771,10 @@ export class LazyListLit extends AST {
     super();
     this._forcedData = forcedData;
     this._remainder = remainder;
+  }
+
+  static empty(): LazyListLit {
+    return new LazyListLit([], SentinelValue.null);
   }
 
   get forcedData(): readonly AST[] {
