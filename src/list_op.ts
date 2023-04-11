@@ -1,6 +1,6 @@
 
 import * as Error from './error.js';
-import { AST, ArrayLit, NumberLit, StringLit, SentinelValue, tryCall, isTruthy, SymbolLit } from './ast.js';
+import { AST, ArrayLit, LazyListLit, NumberLit, StringLit, SentinelValue, tryCall, isTruthy, SymbolLit } from './ast.js';
 import { NumModifier, MAX_NUM_MODIFIER } from './modifier.js';
 import Str from './str.js';
 import { customLT, defaultLT, equals } from './comparison.js';
@@ -214,7 +214,7 @@ export async function each(term: SymbolLit, state: Evaluator): Promise<void> {
 // Nested query (n) Takes two arguments: a list/string and an index,
 // which can be either a number or a list. The index is traversed in
 // order, taking the nth element of the list/string at each step.
-export function nestedQuery(term: SymbolLit, state: Evaluator): void {
+export async function nestedQuery(term: SymbolLit, state: Evaluator): Promise<void> {
   const [list, index0] = state.pop(2);
   let index: AST[];
   if (index0 instanceof NumberLit) {
@@ -224,9 +224,9 @@ export function nestedQuery(term: SymbolLit, state: Evaluator): void {
   } else {
     throw new Error.TypeError("number or array", index0);
   }
-  let result = list;
+  let result: AST | undefined = list;
   for (const idx of index) {
-    result = nth(result, idx);
+    result = await nth(state, result, idx);
   }
   if (result != null) {
     state.push(result);
@@ -241,7 +241,7 @@ export function nestedQuery(term: SymbolLit, state: Evaluator): void {
 // treated a a singleton list. A new list/string is formed by taking
 // the elements at the given positions. Any invalid indices are
 // ignored.
-export function select(term: SymbolLit, state: Evaluator): void {
+export async function select(term: SymbolLit, state: Evaluator): Promise<void> {
   const [list, index0] = state.pop(2);
   let index: AST[];
   if (index0 instanceof NumberLit) {
@@ -256,7 +256,7 @@ export function select(term: SymbolLit, state: Evaluator): void {
   }
   const results: AST[] = [];
   for (const idx of index) {
-    const curr = nth(list, idx);
+    const curr = await nth(state, list, idx);
     if (curr != null) {
       results.push(curr);
     }
@@ -280,7 +280,7 @@ function rebuild(model: StringLit | ArrayLit, values: AST[]): AST {
 }
 
 
-export function nth(value: AST, index: number | AST): AST {
+export async function nth(state: Evaluator, value: AST | undefined, index: number | AST): Promise<AST | undefined> {
   if (index instanceof AST) {
     index = isNumber(index).value;
   }
@@ -296,6 +296,8 @@ export function nth(value: AST, index: number | AST): AST {
       index += value.data.length;
     }
     return value.data[index];
+  } else if (value instanceof LazyListLit) {
+    return await value.getNth(state, index);
   } else {
     return value;
   }

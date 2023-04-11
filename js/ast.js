@@ -72,7 +72,7 @@ export class SymbolLit extends AST {
         return n;
     }
     async eval(state) {
-        var _a, _b, _c;
+        var _a;
         switch (this.token.text.toString()) {
             /* IO */
             case '.': // Pretty print ( x -- )
@@ -1006,7 +1006,8 @@ export class SymbolLit extends AST {
                 if (value === undefined) {
                     throw `Internal error in superscript with ${this.token.text}`;
                 }
-                state.push((_b = ListOp.nth(state.pop(), value)) !== null && _b !== void 0 ? _b : SentinelValue.null);
+                const valueAt = await ListOp.nth(state, state.pop(), value);
+                state.push(valueAt !== null && valueAt !== void 0 ? valueAt : SentinelValue.null);
                 break;
             }
             case '₁':
@@ -1022,7 +1023,8 @@ export class SymbolLit extends AST {
                 if (value === undefined) {
                     throw `Internal error in subscript with ${this.token.text}`;
                 }
-                state.push((_c = ListOp.nth(state.pop(), -value)) !== null && _c !== void 0 ? _c : SentinelValue.null);
+                const valueAt = await ListOp.nth(state, state.pop(), -value);
+                state.push(valueAt !== null && valueAt !== void 0 ? valueAt : SentinelValue.null);
                 break;
             }
             case '∈': // Member ( list x -- idx )
@@ -1639,6 +1641,9 @@ export class ArrayLit extends AST {
         return this.data.length;
     }
     async getNth(state, n) {
+        if (n < 0) {
+            n += this.data.length;
+        }
         return this.data[n];
     }
     async isEmpty(state) {
@@ -1697,8 +1702,16 @@ export class LazyListLit extends AST {
         }
     }
     async getNth(state, n) {
-        await this.expandToAtLeast(state, n + 1);
-        return this._forcedData[n];
+        if (n >= 0) {
+            await this.expandToAtLeast(state, n + 1);
+            return this._forcedData[n];
+        }
+        else {
+            // Getting "from the back" requires forcing the whole list,
+            // since we need to know where the end is.
+            await this.expandFully(state);
+            return this._forcedData[n + this._forcedData.length];
+        }
     }
     async getLength(state) {
         // Hangs on infinite lists

@@ -1012,7 +1012,8 @@ export class SymbolLit extends AST {
       if (value === undefined) {
         throw `Internal error in superscript with ${this.token.text}`;
       }
-      state.push(ListOp.nth(state.pop(), value) ?? SentinelValue.null);
+      const valueAt = await ListOp.nth(state, state.pop(), value);
+      state.push(valueAt ?? SentinelValue.null);
       break;
     }
     case '₁':
@@ -1028,7 +1029,8 @@ export class SymbolLit extends AST {
       if (value === undefined) {
         throw `Internal error in subscript with ${this.token.text}`;
       }
-      state.push(ListOp.nth(state.pop(), -value) ?? SentinelValue.null);
+      const valueAt = await ListOp.nth(state, state.pop(), -value);
+      state.push(valueAt ?? SentinelValue.null);
       break;
     }
     case '∈': // Member ( list x -- idx )
@@ -1736,6 +1738,9 @@ export class ArrayLit extends AST {
   }
 
   async getNth(state: Evaluator, n: number): Promise<AST | undefined> {
+    if (n < 0) {
+      n += this.data.length;
+    }
     return this.data[n];
   }
 
@@ -1812,8 +1817,15 @@ export class LazyListLit extends AST {
   }
 
   async getNth(state: Evaluator, n: number): Promise<AST | undefined> {
-    await this.expandToAtLeast(state, n + 1);
-    return this._forcedData[n];
+    if (n >= 0) {
+      await this.expandToAtLeast(state, n + 1);
+      return this._forcedData[n];
+    } else {
+      // Getting "from the back" requires forcing the whole list,
+      // since we need to know where the end is.
+      await this.expandFully(state);
+      return this._forcedData[n + this._forcedData.length];
+    }
   }
 
   async getLength(state: Evaluator): Promise<number> {
