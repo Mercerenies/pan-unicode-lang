@@ -72,7 +72,7 @@ export class SymbolLit extends AST {
         return n;
     }
     async eval(state) {
-        var _a;
+        var _a, _b, _c;
         switch (this.token.text.toString()) {
             /* IO */
             case '.': // Pretty print ( x -- )
@@ -960,19 +960,34 @@ export class SymbolLit extends AST {
                     });
                 }
                 break;
-            /* /////
-            case '⛶': // Uncons / Unsnoc
-              if (this.getPrimeMod() === 0) {
-                // With no prime modifier, remove N elements from the front of
-                // the list and push them, followed by the tail.
+            case '⛶': { // Uncons / Unsnoc
+                const inputList = state.pop();
                 const amountToRemove = this.getNumMod(1);
-                //const arr = TypeCheck.isEitherList(this.
-                for (let i = 0; i < amount
-              } else {
-                
-              }
-              break;
-            */
+                if (this.getPrimeMod() === 0) {
+                    // With no prime modifier, remove N elements from the front of
+                    // the list and push them, followed by the tail.
+                    const arr = TypeCheck.isEitherList(inputList);
+                    const prefix = await Split.takeLeft(state, arr, amountToRemove);
+                    const rest = await Split.dropLeft(state, arr, amountToRemove);
+                    for (let i = 0; i < amountToRemove; i++) {
+                        state.push((_b = prefix.data[i]) !== null && _b !== void 0 ? _b : SentinelValue.null);
+                    }
+                    state.push(rest);
+                }
+                else {
+                    // With a prime modifier, remove N elements from the back of
+                    // the list and push them in reverse order, followed by the
+                    // start of the list.
+                    const arr = TypeCheck.isEitherList(inputList);
+                    const suffix = await Split.takeRight(state, arr, amountToRemove);
+                    const rest = await Split.dropRight(state, arr, amountToRemove);
+                    for (let i = amountToRemove - 1; i >= 0; i--) {
+                        state.push((_c = suffix.data[suffix.data.length - amountToRemove + i]) !== null && _c !== void 0 ? _c : SentinelValue.null);
+                    }
+                    state.push(rest);
+                }
+                break;
+            }
             case '🦥': { // Lazy List Check
                 const arg = state.pop();
                 state.push(Op.boolToInt(arg instanceof LazyListLit));

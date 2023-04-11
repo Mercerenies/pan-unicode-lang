@@ -966,19 +966,33 @@ export class SymbolLit extends AST {
         });
       }
       break;
-    /* /////
-    case '⛶': // Uncons / Unsnoc
+    case '⛶': { // Uncons / Unsnoc
+      const inputList = state.pop();
+      const amountToRemove = this.getNumMod(1);
       if (this.getPrimeMod() === 0) {
         // With no prime modifier, remove N elements from the front of
         // the list and push them, followed by the tail.
-        const amountToRemove = this.getNumMod(1);
-        //const arr = TypeCheck.isEitherList(this.
-        for (let i = 0; i < amount
+        const arr = TypeCheck.isEitherList(inputList);
+        const prefix = await Split.takeLeft(state, arr, amountToRemove);
+        const rest = await Split.dropLeft(state, arr, amountToRemove);
+        for (let i = 0; i < amountToRemove; i++) {
+          state.push(prefix.data[i] ?? SentinelValue.null);
+        }
+        state.push(rest);
       } else {
-        
+        // With a prime modifier, remove N elements from the back of
+        // the list and push them in reverse order, followed by the
+        // start of the list.
+        const arr = TypeCheck.isEitherList(inputList);
+        const suffix = await Split.takeRight(state, arr, amountToRemove);
+        const rest = await Split.dropRight(state, arr, amountToRemove);
+        for (let i = amountToRemove - 1; i >= 0; i--) {
+          state.push(suffix.data[suffix.data.length - amountToRemove + i] ?? SentinelValue.null);
+        }
+        state.push(rest);
       }
       break;
-    */
+    }
     case '🦥': { // Lazy List Check
       const arg = state.pop();
       state.push(Op.boolToInt(arg instanceof LazyListLit));

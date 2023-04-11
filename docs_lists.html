@@ -193,6 +193,30 @@
       all to the list. If given a prime modifier, the values are
       appended to the list instead.
     </p>
+    <h2>Uncons / Unsnoc (<code>⛶</code>)</h2>
+    <p>
+      The inverse operation to Prepend / Append. With no modifiers,
+      takes a list and pushes the first element of the list and then
+      the rest of the list, with the first element removed.
+    </p>
+    <p>
+      With a numerical modifier, pops that many elements from the
+      front of the list instead. With a prime modifier, pops from the
+      back instead of the front. If the list is not large enough to
+      support all of the pop operations, then the missing slots will
+      be filled with the sentinel value ϵ.
+    </p>
+    <p>
+      Example:
+    </p>
+    <pre><code class="pancode-snippet">{1 2 3} ⛶ « Result: 1 {2 3} »
+{1 2 3} ⛶② « Result: 1 2 {3} »
+{1 2 3} ⛶③ « Result: 1 2 3 {} »
+{1 2 3} ⛶④ « Result: 1 2 3 'ϵ {} »
+{1 2 3} ⛶′ « Result: 3 {1 2} »
+{1 2 3} ⛶②′ « Result: 3 2 {1} »
+{1 2 3} ⛶③′ « Result: 3 2 1 {} »
+{1 2 3} ⛶④′ « Result: 3 2 1 'ϵ {} »</code></pre>
     <h2>Member (<code>∈</code>)</h2>
     <p>
       Takes a list and an element. Returns a list of all of the
