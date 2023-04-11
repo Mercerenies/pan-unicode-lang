@@ -1087,9 +1087,9 @@ export class SymbolLit extends AST {
     }
     case '⧐': { // Drop (right) ( list n -- list )
       const [list0, n0] = state.pop(2);
-      const list = TypeCheck.isList(list0);
+      const list = TypeCheck.isEitherList(list0);
       const n = Math.abs(TypeCheck.isNumber(n0).value);
-      state.push(new ArrayLit(list.data.slice(0, -n)));
+      state.push(await Split.dropRight(state, list, n));
       break;
     }
     case '◂': { // Take while (left) ( list f -- list )

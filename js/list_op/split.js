@@ -45,3 +45,40 @@ export async function dropLeft(state, list, quantity) {
         }
     }
 }
+export async function dropRight(state, list, quantity) {
+    // Preserves laziness.
+    if (list instanceof ArrayLit) {
+        // Strict version.
+        return new ArrayLit(list.data.slice(0, -quantity));
+    }
+    else {
+        // Lazy version.
+        if (await list.inBounds(state, quantity)) {
+            // This is the function: [ [n]K② 1+ :② (quantity)+ ⧤ [s① ●②] [%② ε] i ]
+            const fn = new CurriedFunction(list, new CurriedFunction(new NumberLit(0), new FunctionLit([
+                new FunctionLit([new SymbolLit("n")]),
+                new SymbolLit("K", [new Modifier.NumModifier(2)]),
+                new NumberLit(1),
+                new SymbolLit("+"),
+                new SymbolLit(":", [new Modifier.NumModifier(2)]),
+                new NumberLit(quantity),
+                new SymbolLit("+"),
+                new SymbolLit("⧤"),
+                new FunctionLit([
+                    new SymbolLit("s", [new Modifier.NumModifier(1)]),
+                    new SymbolLit("●", [new Modifier.NumModifier(2)]),
+                ]),
+                new FunctionLit([
+                    new SymbolLit("%", [new Modifier.NumModifier(2)]),
+                    new SymbolLit("ε"),
+                ]),
+                new SymbolLit("i"),
+            ])));
+            return new LazyListLit([], fn);
+        }
+        else {
+            // The list is too short, so return the empty list.
+            return LazyListLit.empty();
+        }
+    }
+}
