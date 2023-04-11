@@ -527,9 +527,9 @@ export class SymbolLit extends AST {
                 // (Numerical modifier determines arity)
                 // No scalar extension. Works on lists and on strings.
                 await Op.op(state, this, {
-                    function: catenate,
-                    preProcess: TypeCheck.isStringOrList,
-                    postProcess: id,
+                    function: (x, y) => catenate(state, x, y),
+                    preProcess: TypeCheck.isStringOrEitherList,
+                    postProcess: idPromise,
                     zero: new StringLit(""),
                     extension: Op.binary,
                     scalarExtend: false
@@ -1000,11 +1000,8 @@ export class SymbolLit extends AST {
                 break;
             }
             case '🐢': { // Lazy-ify
-                let arg = TypeCheck.isEitherList(state.pop());
-                if (arg instanceof ArrayLit) {
-                    arg = new LazyListLit(arg.data.slice(), SentinelValue.null);
-                }
-                state.push(arg);
+                const arg = TypeCheck.isEitherList(state.pop());
+                state.push(lazyify(arg));
                 break;
             }
             case '⁰':
@@ -1810,15 +1807,95 @@ async function readAndParseInt(state) {
 export function isTruthy(c) {
     return !(c instanceof NumberLit) || (c.value !== 0);
 }
-export function catenate(a, b) {
+export async function catenate(state, a, b) {
     if (a instanceof ArrayLit && b instanceof ArrayLit) {
         return new ArrayLit(a.data.concat(b.data));
+    }
+    else if (isArrayLike(a) && isArrayLike(b)) {
+        // Lazy list concatenation.
+        return await lazyCatenate(state, a, b);
     }
     else if (a instanceof StringLit && b instanceof StringLit) {
         return new StringLit(a.text.concat(b.text));
     }
     else {
         throw new Error.TypeError("lists or strings", new ArrayLit([a, b]));
+    }
+}
+async function lazyCatenate(state, a, b) {
+    const aEmpty = await a.isEmpty(state);
+    const bEmpty = await b.isEmpty(state);
+    if (aEmpty && bEmpty) {
+        // Case I: Both lists are empty; return empty list
+        return LazyListLit.empty();
+    }
+    else if (aEmpty) {
+        // Case II: a is empty; return lazy-ified b
+        return lazyify(b);
+    }
+    else if (bEmpty) {
+        // Case III: b is empty; return lazy-ified a
+        return lazyify(a);
+    }
+    else {
+        // Case IV: Both are nonempty
+        // Indirect function: [ [n]K② 1+ :② ⧤ [s① ●②] [%② ε] i ]
+        // (will be called when 'a' is exhausted)
+        const indirectFn = new FunctionLit([
+            new FunctionLit([new SymbolLit("n")]),
+            new SymbolLit("K", [new Modifier.NumModifier(2)]),
+            new NumberLit(1),
+            new SymbolLit("+"),
+            new SymbolLit(":", [new Modifier.NumModifier(2)]),
+            new SymbolLit("⧤"),
+            new FunctionLit([
+                new SymbolLit("s", [new Modifier.NumModifier(1)]),
+                new SymbolLit("●", [new Modifier.NumModifier(2)]),
+            ]),
+            new FunctionLit([
+                new SymbolLit("%", [new Modifier.NumModifier(2)]),
+                new SymbolLit("ε"),
+            ]),
+            new SymbolLit("i"),
+        ]);
+        // Direct function: [ [[%]Dn]K③ 1+ :③ [%]D ⧤ [ s① ●③ ] [ %[%]D0 (indirect) ●② ] i ] ●③
+        const directFn = new FunctionLit([
+            new FunctionLit([
+                new FunctionLit([new SymbolLit("%")]),
+                new SymbolLit("D"),
+                new SymbolLit("n"),
+            ]),
+            new SymbolLit("K", [new Modifier.NumModifier(3)]),
+            new NumberLit(1),
+            new SymbolLit("+"),
+            new SymbolLit(":", [new Modifier.NumModifier(3)]),
+            new FunctionLit([new SymbolLit("%")]),
+            new SymbolLit("D"),
+            new SymbolLit("⧤"),
+            new FunctionLit([
+                new SymbolLit("s", [new Modifier.NumModifier(1)]),
+                new SymbolLit("●", [new Modifier.NumModifier(3)]),
+            ]),
+            new FunctionLit([
+                new SymbolLit("%"),
+                new FunctionLit([new SymbolLit("%")]),
+                new SymbolLit("D"),
+                new NumberLit(0),
+                indirectFn,
+                new SymbolLit("●", [new Modifier.NumModifier(2)]),
+            ]),
+            new SymbolLit("i"),
+        ]);
+        const finalFn = new CurriedFunction(a, new CurriedFunction(b, new CurriedFunction(new NumberLit(0), directFn)));
+        return new LazyListLit([], finalFn);
+    }
+}
+function lazyify(list) {
+    if (list instanceof LazyListLit) {
+        return list;
+    }
+    else {
+        return new LazyListLit(list.data.slice(), SentinelValue.null);
     }
 }
 export async function forceList(state, a) {
