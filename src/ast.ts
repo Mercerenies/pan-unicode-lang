@@ -1639,11 +1639,7 @@ export class CurriedFunction extends FunctionLike {
   }
 
   toStringFunctionBody(): string {
-    if (this.function instanceof FunctionLike) {
-      return `${this.arg} ${this.function.toStringFunctionBody()}`;
-    } else {
-      return `${this.arg} ${this.function} $`;
-    }
+    return `${this.arg} ${this.function} $`;
   }
 
 }
@@ -1668,8 +1664,8 @@ export class ComposedFunction extends FunctionLike {
   }
 
   toStringFunctionBody(): string {
-    const firstFn = (this.first instanceof FunctionLike) ? this.first.toStringFunctionBody() : `${this.first} $`;
-    const secondFn = (this.second instanceof FunctionLike) ? this.second.toStringFunctionBody() : `${this.second} $`;
+    const firstFn = `${this.first} $`;
+    const secondFn = `${this.second} $`;
     return `${firstFn} ${secondFn}`;
   }
 
