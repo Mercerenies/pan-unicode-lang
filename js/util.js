@@ -10,6 +10,12 @@ export function assertNever(_x) {
 export function zip(a, b) {
     return a.map((v, i) => [v, b[i]]);
 }
+export function leftPad(value, length, pad) {
+    while (value.length < length) {
+        value = pad + value;
+    }
+    return value;
+}
 // Validates that the elements of the two arrays are equal according
 // to the given equality predicate. If the arrays have differing
 // lengths, returns false unconditionally.

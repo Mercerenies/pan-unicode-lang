@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Syntax</h1>
@@ -24,10 +28,10 @@
     </p>
     <h2>Comments</h2>
     <p>
-      Comments in Pancode begin with <code>«</code>
-      (<code>\flqq</code>) and end with <code>»</code>
-      (<code>\frqq</code>). The delimiting characters can be nested
-      within the comment. Any text inside a comment will be ignored.
+      Comments in Pancode begin with <code class="inputtable">«</code>
+      and end with <code class="inputtable">»</code>. The delimiting
+      characters can be nested within the comment. Any text inside a
+      comment will be ignored.
     </p>
     <h2>Numbers</h2>
     <p>
@@ -39,14 +43,16 @@
       be seen as multiple tokens by the parser.
     </p>
     <p>
-      There are also three special numerical constants: ∞ (for
-      infinity), -∞ (for negative infinity), and 👿 (for NaN).
+      There are also three special numerical constants: <code class="inputtable">∞</code> (for
+      infinity), <code>-<span class="inputtable">∞</span></code> (for
+      negative infinity), and <code class="inputtable">👿</code>
+      (for NaN).
     </p>
     <p>
       There is currently no way to input literal non-integers into
       Pancode source. This functionality may be added in the future.
       In the meantime, there are several commands to push common
-      fractions (namely, the vulgar fraction characters such as ½).
+      fractions (namely, the vulgar fraction characters such as <code class="inputtable">½</code>).
     </p>
     <h2>Strings</h2>
     <p>
@@ -72,7 +78,7 @@
       Pancode source, will behave identically when called to the
       function used to produce it. However, the two functions may or
       may not compare equal, especially in the case of functions
-      produced by <code>●</code> (curry) or <code>○</code> (compose),
+      produced by <code class="inputtable">●</code> (curry) or <code class="inputtable">○</code> (compose),
       which internally use more efficient representations.
     </p>
     <p>
@@ -83,7 +89,7 @@
     </p>
     <h2>Slips</h2>
     <p>
-      Enclosing a block of code in corner brackets (<code>｢</code> and <code>｣</code>)
+      Enclosing a block of code in corner brackets (<code class="inputtable">｢</code> and <code class="inputtable">｣</code>)
       creates a Slip. Slips are sort of like functions, in that they
       store blocks of code to be executed. However, a slip immediately
       executes when evaluated, so a sequence of commands inside of a
@@ -95,7 +101,7 @@
     </p>
     <h2>Global Variable Commands</h2>
     <p>
-      The two characters <code>→</code> and <code>←</code> are treated
+      The two characters <code class="inputtable">→</code> and <code class="inputtable">←</code> are treated
       specially. When one of these characters is encountered, the next
       non-whitespace character is consumed as well and treated as a
       variable name. Then a single command is created, which assigns
@@ -145,9 +151,9 @@
       is
       <a href="docs_concepts.html#numerical-modifier">numerical
       modifiers</a>, supplied as numbers from 0 to 20 using the
-      characters ⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳. The second
+      characters <!-- 10/10 prettiest chunk of html I've ever written :) --> <code><span class="inputtable">⓪</span><span class="inputtable">①</span><span class="inputtable">②</span><span class="inputtable">③</span><span class="inputtable">④</span><span class="inputtable">⑤</span><span class="inputtable">⑥</span><span class="inputtable">⑦</span><span class="inputtable">⑧</span><span class="inputtable">⑨</span><span class="inputtable">⑩</span><span class="inputtable">⑪</span><span class="inputtable">⑫</span><span class="inputtable">⑬</span><span class="inputtable">⑭</span><span class="inputtable">⑮</span><span class="inputtable">⑯</span><span class="inputtable">⑰</span><span class="inputtable">⑱</span><span class="inputtable">⑲</span><span class="inputtable">⑳</span></code>. The second
       is <a href="docs_concepts.html#prime-modifier">prime
-      modifiers</a>, supplied using the <code>′</code> character.
+      modifiers</a>, supplied using the <code class="inputtable">′</code> character.
     </p>
     <p>
       Note that only symbol commands can have modifiers. It is a

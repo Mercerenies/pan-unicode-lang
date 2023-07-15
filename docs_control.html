@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Commands - Control Flow</h1>
@@ -56,7 +60,7 @@
     </p>
     <pre><code class="pancode-snippet">« The following prints the numbers from 0 to 9 »
 0 [ : . 1 + : 10 < ] W</code></pre>
-    <h2>Repeat (<code>⍳</code>)</h2>
+    <h2>Repeat (<code class="inputtable">⍳</code>)</h2>
     <p>
       Takes two arguments: a number and a function. The function is
       called N times, where N is the provided number. The function
@@ -73,7 +77,7 @@
       it in curly braces. For example
     </p>
     <pre><code class="pancode-snippet">{10ī⍳} « Result: {0 1 2 3 4 5 6 7 8 9} »</code></pre>
-    <h2>Accumulate (<code>⍸</code>)</h2>
+    <h2>Accumulate (<code class="inputtable">⍸</code>)</h2>
     <p>
       Takes three arguments: an initial value, a number, and a
       function. Similar to Repeat, the function will be called N
@@ -100,7 +104,7 @@
     <p>
       Pops a single value, which must be a function, and calls it once.
     </p>
-    <h2>Eval (<code>📝</code>)</h2>
+    <h2>Eval (<code class="inputtable">📝</code>)</h2>
     <p>
       Pops a single value off the stack and evaluates it, as though it
       had appeared literally in the source code. Note that this is
@@ -110,7 +114,7 @@
       themselves. If given a symbol or slip, the command or sequence
       of commands present will be evaluated.
     </p>
-    <h2>Reflect (<code>🪞</code>)</h2>
+    <h2>Reflect (<code class="inputtable">🪞</code>)</h2>
     <p>
       Performs reflection to convert a function or slip into an array,
       or vice versa. Pops one value off the stack. If it's a function
@@ -139,33 +143,33 @@
 [1 2 3] 🪞 « Result: {1 2 3} »
 {1 2 3} 🪞 « Result: '｢1 2 3｣ »
 {1 2 3} 🪞′ « Result: [1 2 3] »</code></pre>
-    <h2>Normalize Boolean (<code>🜀</code>)</h2>
+    <h2>Normalize Boolean (<code class="inputtable">🜀</code>)</h2>
     <p>
       Pops one argument. Pushes zero if the argument is zero, or one
       otherwise.
     </p>
-    <h2>Logical Conjunction (<code>⩚</code>)</h2>
+    <h2>Logical Conjunction (<code class="inputtable">⩚</code>)</h2>
     <p>
       Takes two arguments and returns true if both are truthy, or
       false otherwise. Subject to <a href="docs_concepts.html#binary-extension">binary
       extension</a>. Returns -1 if given ⚐ or a numerical modifier of
       zero.
     </p>
-    <h2>Logical Disjunction (<code>⩛</code>)</h2>
+    <h2>Logical Disjunction (<code class="inputtable">⩛</code>)</h2>
     <p>
       Takes two arguments and returns true if either is truthy, or
       false otherwise. Subject to <a href="docs_concepts.html#binary-extension">binary
       extension</a>. Returns 0 if given ⚐ or a numerical modifier of
       zero.
     </p>
-    <h2>Logical Exclusive Or (<code>△</code>)</h2>
+    <h2>Logical Exclusive Or (<code class="inputtable">△</code>)</h2>
     <p>
       Takes two arguments, normalizes both to Boolean, and returns the
       exclusive-or of the two. Subject to <a href="docs_concepts.html#binary-extension">binary
       extension</a>. Returns 0 if given ⚐ or a numerical modifier of
       zero.
     </p>
-    <h2>Logical Negate (<code>⌙</code>)</h2>
+    <h2>Logical Negate (<code class="inputtable">⌙</code>)</h2>
     <p>
       Takes one argument. Returns -1 if the argument is falsy, or 0
       otherwise.

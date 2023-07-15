@@ -15,6 +15,14 @@ export function zip<A, B>(a: A[], b: B[]): [A, B][] {
 }
 
 
+export function leftPad(value: string, length: number, pad: string): string {
+  while (value.length < length) {
+    value = pad + value;
+  }
+  return value;
+}
+
+
 // Validates that the elements of the two arrays are equal according
 // to the given equality predicate. If the arrays have differing
 // lengths, returns false unconditionally.
