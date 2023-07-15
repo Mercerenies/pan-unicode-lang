@@ -125,6 +125,21 @@
       compare equal, regardless of their definitions, and this result
       may change at any point.
     </p>
+    <h2>Slips</h2>
+    <p>
+      Slips are blocks of code enclosed in corner brackets (<code>｢</code> and <code>｣</code>).
+      When a slip is evaluated as literal code, it evaluates its
+      inside elements.
+    </p>
+    <p>
+      You generally don't need to deal with slips directly. Slips are
+      created as a result of some forms of syntax sugar or macro
+      expansions and generally behave behind the scenes.
+    </p>
+    <p>
+      It is an error to try to order two slips. Slip equality, like
+      function equality, is undefined.
+    </p>
     <h2 id="boxes">Boxes</h2>
     <p>
       A box is a simple cell which contains a single Pancode value.
@@ -132,6 +147,12 @@
       using <code>⊃</code>. Boxes are generally used to suppress
       scalar extension on various commands, when we want a command to
       run on a whole list rather than on each element.
+    </p>
+    <p>
+      Boxes can also be used to delay evaluation. An expression quoted
+      by a single apostrophe <code>'</code> is represented in the
+      source code with the box type, and when a box is evaluated, it
+      pushes its contents onto the stack.
     </p>
     <p>
       Two boxes compare equal if and only if their contents do. The

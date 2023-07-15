@@ -1618,6 +1618,28 @@ export class NumberLit extends AST {
 }
 
 
+export class SlipLit extends AST {
+  readonly body: AST[];
+
+  constructor(body: AST[]) {
+    super();
+    this.body = body;
+  }
+
+  async eval(state: Evaluator): Promise<void> {
+    for (const term of this.body) {
+      await term.eval(state);
+    }
+  }
+
+  toString(): string {
+    const inside = this.body.map((x) => x.toStringUnquoted()).join(" ");
+    return `｢ ${inside} ｣`
+  }
+
+}
+
+
 export abstract class FunctionLike extends AST {
 
   abstract call(state: Evaluator): Promise<void>;

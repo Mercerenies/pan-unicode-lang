@@ -1,5 +1,5 @@
 import { Token, TokenType, translateEscape } from './token.js';
-import { Box, SymbolLit, FunctionLit, StringLit, NumberLit, AssignToVar, ReadFromVar } from './ast.js';
+import { Box, SymbolLit, FunctionLit, StringLit, NumberLit, SlipLit, AssignToVar, ReadFromVar } from './ast.js';
 import * as Error from './error.js';
 import * as Modifier from './modifier.js';
 import Str from './str.js';
@@ -127,6 +127,23 @@ class Parser {
                 return new FunctionLit(inner);
             }
             case ']':
+                return undefined;
+            case '｢': {
+                this.index += 1;
+                const inner = this.parse();
+                const next = this.at();
+                if ((next == null) || next.text.toString() !== '｣') {
+                    if (next != null) {
+                        throw new Error.UnexpectedParseError(next);
+                    }
+                    else {
+                        throw new Error.UnexpectedEOF();
+                    }
+                }
+                this.index += 1;
+                return new SlipLit(inner);
+            }
+            case '｣':
                 return undefined;
             case '`': {
                 this.index += 1;

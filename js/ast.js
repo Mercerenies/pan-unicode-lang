@@ -1574,6 +1574,21 @@ export class NumberLit extends AST {
         }
     }
 }
+export class SlipLit extends AST {
+    constructor(body) {
+        super();
+        this.body = body;
+    }
+    async eval(state) {
+        for (const term of this.body) {
+            await term.eval(state);
+        }
+    }
+    toString() {
+        const inside = this.body.map((x) => x.toStringUnquoted()).join(" ");
+        return `｢ ${inside} ｣`;
+    }
+}
 export class FunctionLike extends AST {
     toString() {
         return `[ ${this.toStringFunctionBody()} ]`;
