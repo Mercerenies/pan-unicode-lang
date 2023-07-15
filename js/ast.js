@@ -1558,9 +1558,12 @@ export class SlipLit extends AST {
             await term.eval(state);
         }
     }
-    toString() {
+    toStringUnquoted() {
         const inside = this.body.map((x) => x.toStringUnquoted()).join(" ");
         return `｢ ${inside} ｣`;
+    }
+    toString() {
+        return "'" + this.toStringUnquoted();
     }
 }
 export class FunctionLike extends AST {

@@ -1592,9 +1592,13 @@ export class SlipLit extends AST {
     }
   }
 
-  toString(): string {
+  toStringUnquoted(): string {
     const inside = this.body.map((x) => x.toStringUnquoted()).join(" ");
     return `｢ ${inside} ｣`
+  }
+
+  toString(): string {
+    return "'" + this.toStringUnquoted();
   }
 
 }
