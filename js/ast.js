@@ -1445,13 +1445,13 @@ export class SymbolLit extends AST {
                 await StackOp.cleave(this, state);
                 break;
             /* VARIABLE MANIPULATION */
-            case '↳': { // Store in variable ( value variable -- )
+            case '↲': { // Store in variable ( value variable -- )
                 const [value, variable0] = state.pop(2);
                 const variable = TypeCheck.isSymbol(variable0);
                 state.setGlobal(variable.token.toString(), value);
                 break;
             }
-            case '↲': { // Read from variable ( variable -- )
+            case '↳': { // Read from variable ( variable -- )
                 const variable = TypeCheck.isSymbol(state.pop());
                 state.push(state.getGlobal(variable.token.toString()));
                 break;
