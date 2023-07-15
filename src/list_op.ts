@@ -1,10 +1,10 @@
 
 import * as Error from './error.js';
-import { AST, ArrayLit, LazyListLit, NumberLit, StringLit, SentinelValue, tryCall, isTruthy, SymbolLit } from './ast.js';
+import { AST, ArrayLit, LazyListLit, NumberLit, StringLit, SentinelValue, tryCall, isTruthy, SymbolLit, forceList } from './ast.js';
 import { NumModifier, MAX_NUM_MODIFIER } from './modifier.js';
 import Str from './str.js';
 import { customLT, defaultLT, equals } from './comparison.js';
-import { isList, isNumber, isString } from './type_check.js';
+import { isList, isEitherList, isNumber, isString } from './type_check.js';
 import { Token } from './token.js';
 import { Evaluator } from './eval.js';
 import { assertNever, range, sortM } from './util.js';
@@ -321,12 +321,13 @@ export async function gradeUp(term: SymbolLit, state: Evaluator): Promise<void> 
     list0 = state.pop();
     func = defaultLT(state);
   }
-  const list = isList(list0);
-  const indices = range(0, list.data.length);
+  const list = isEitherList(list0);
+  const data = await forceList(state, list);
+  const indices = range(0, data.length);
   await sortM(indices, async function(a, b) {
-    if (await func(list.data[a], list.data[b])) {
+    if (await func(data[a], data[b])) {
       return -1;
-    } else if (await func(list.data[b], list.data[a])) {
+    } else if (await func(data[b], data[a])) {
       return 1;
     } else {
       return 0;

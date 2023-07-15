@@ -598,9 +598,10 @@ export class SymbolLit extends AST {
             case '⁋': { // Join string ( arr delim -- s )
                 // Delimiter should be a string. Other argument should be list of strings.
                 const [arr0, delim0] = state.pop(2);
-                const arr = TypeCheck.isList(arr0);
+                const arr = TypeCheck.isEitherList(arr0);
+                const data = await forceList(state, arr);
                 const delim = stringify(delim0);
-                const result = new StringLit(arr.data.map(stringify).join(delim));
+                const result = new StringLit(data.map(stringify).join(delim));
                 state.push(result);
                 break;
             }
