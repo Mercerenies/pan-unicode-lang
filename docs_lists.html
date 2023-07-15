@@ -62,6 +62,10 @@
       Flag Constructor (<code>⚑</code>)</a> command.
     </p>
     <p>
+      If given a lazy list, the list will be fully forced. This
+      function will never terminate on an infinite list.
+    </p>
+    <p>
       Example:
     </p>
     <pre><code class="pancode-snippet">{1 2 3 4} `+/ « Result: 10 »</code></pre>

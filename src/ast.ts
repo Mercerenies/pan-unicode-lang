@@ -855,14 +855,15 @@ export class SymbolLit extends AST {
       // resp.) in that case. If you provide your own function, you
       // can deal with the empty case by checking for ⚐.
       const [list0, func] = state.pop(2);
-      const list = TypeCheck.isList(list0);
+      const list = TypeCheck.isEitherList(list0);
       if (await list.isEmpty(state)) {
         state.push(SentinelValue.whiteFlag);
         await tryCall(func, state);
       } else {
-        const acc = list.data[0];
+        const data = await forceList(state, list);
+        const acc = data[0];
         state.push(acc);
-        for (const datum of list.data.slice(1)) {
+        for (const datum of data.slice(1)) {
           state.push(datum);
           await tryCall(func, state);
         }
@@ -1065,7 +1066,7 @@ export class SymbolLit extends AST {
         newTerm.modifiers.push(new Modifier.NumModifier(Modifier.MAX_NUM_MODIFIER));
         ListOp.ravel(newTerm, state);
       }
-      const list = TypeCheck.isList(state.pop());
+      const list = TypeCheck.isEitherList(state.pop());
       state.push(Op.boolToInt(await list.isEmpty(state)));
       break;
     }
