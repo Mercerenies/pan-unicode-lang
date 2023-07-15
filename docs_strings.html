@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Commands - String Operations</h1>
@@ -15,7 +19,7 @@
       These cases are explicitly mentioned when they occur. Note that some of the <a href="docs_lists.html">list
       commands</a> also apply to strings.
     </p>
-    <h2>Concatenate (<code>⋄</code>)</h2>
+    <h2>Concatenate (<code class="inputtable">⋄</code>)</h2>
     <p>
       Takes two strings or lists and returns a new string or list
       which is the concatenation of the two. The two must have the
@@ -27,7 +31,7 @@
       If given lists and any of the input lists is lazy, then the
       resulting list will be lazy.
     </p>
-    <h2>Chr / Ord (<code>💬</code>)</h2>
+    <h2>Chr / Ord (<code class="inputtable">💬</code>)</h2>
     <p>
       Expects either a number, string, or list as an argument, and
       performs an appropriate operation based on the type of its
@@ -37,7 +41,7 @@
       value in the list. If given a string, returns the (eager) list
       of code points.
     </p>
-    <h2>Chomp (<code>🍴</code>)</h2>
+    <h2>Chomp (<code class="inputtable">🍴</code>)</h2>
     <p>
       Takes a string argument and removes the final character if that
       character is a newline. If not, the string is returned
@@ -51,14 +55,14 @@
       command which involves searching or replacing, it will be
       treated as a regular expression rather than a literal string.
     </p>
-    <h2>Split String (<code>¶</code>)</h2>
+    <h2>Split String (<code class="inputtable">¶</code>)</h2>
     <p>
       Takes two arguments: a string and a delimiter. The delimiter can
       be either a string or a regular expression. The string is split
       based on the delimiter, and an eager list of strings is
       returned.
     </p>
-    <h2>Join String (<code>⁋</code>)</h2>
+    <h2>Join String (<code class="inputtable">⁋</code>)</h2>
     <p>
       Takes a list and a delimiter. Each element of the list is
       prettified, then they are joined together, using the delimiter

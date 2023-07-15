@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Commands - Higher Order Functions</h1>
@@ -41,7 +45,7 @@
     </p>
     <pre><code class="pancode-snippet">10 c « Pushes a function equivalent to [10] »
 10 c① « Pushes a function equivalent to [% 10] »</code></pre>
-    <h2>Curry (<code>●</code>)</h2>
+    <h2>Curry (<code class="inputtable">●</code>)</h2>
     <p>
       Pops two arguments. The first can be any value and the second
       must be a function. This command returns a function which, when
@@ -59,7 +63,7 @@
       Example:
     </p>
     <pre><code class="pancode-snippet">10 [+] ● « Pushes a function equivalent to [10 +] »</code></pre>
-    <h2>Compose (<code>○</code>)</h2>
+    <h2>Compose (<code class="inputtable">○</code>)</h2>
     <p>
       Takes two functions and returns a new function which calls the
       first function and then calls the second. Subject

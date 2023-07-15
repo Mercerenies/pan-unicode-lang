@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Concepts</h1>
@@ -58,7 +62,7 @@
       distinct from standard stack-based arguments in that they are
       provided as constants to the command itself. Numerical modifiers
       can be any value from 0 to 20 and are given by placing the
-      "Circled Digit" characters (⓪ to ⑳) after the command itself.
+      "Circled Digit" characters (<span class="inputtable">⓪</span> to <span class="inputtable">⑳</span>) after the command itself.
       For instance, to supply a numerical argument of 4 to <code>+</code>,
       you would write <code>+④</code>.
       These circled characters can be typed using <code>\(0)</code>, <code>\(1)</code>,
@@ -70,11 +74,11 @@
     <h2 id="prime-modifier">Prime Modifier</h2>
     <p>
       In addition to a numerical modifier, some commands may take a
-      prime modifier. A prime modifier is supplied by placing <code>′</code>
-      (<code>\prime</code>) after the command. Prime modifiers and
-      numerical modifiers may be specified in either order. If
-      supplied, the prime modifier will generally perform some
-      modified but similar version of the command. For instance, <code>⍋</code> sorts
+      prime modifier. A prime modifier is supplied by placing <code class="inputtable">′</code>
+      after the command. Prime modifiers and numerical modifiers may
+      be specified in either order. If supplied, the prime modifier
+      will generally perform some modified but similar version of the
+      command. For instance, <code>⍋</code> sorts
       a list using the default ordering, but <code>⍋′</code> takes a
       custom sorting function and sorts the list according to that
       function.

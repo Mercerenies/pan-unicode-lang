@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Commands - Constants</h1>
@@ -16,11 +20,11 @@
       treated specially by the parser, including numerical literals,
       string literals, and infinity, are described on <a href="docs_syntax.html">Syntax</a>.
     </p>
-    <h2>Pi (<code>π</code>)</h2>
+    <h2>Pi (<code class="inputtable">π</code>)</h2>
     <p>
       Pushes the mathematical constant pi onto the stack.
     </p>
-    <h2>Tau (<code>τ</code>)</h2>
+    <h2>Tau (<code class="inputtable">τ</code>)</h2>
     <p>
       Pushes the mathematical constant tau (two times pi) onto the stack.
     </p>
@@ -28,79 +32,79 @@
     <p>
       Pushes the mathematical constant e onto the stack.
     </p>
-    <h2>1 / 4 (<code>¼</code>)</h2>
+    <h2>1 / 4 (<code class="inputtable">¼</code>)</h2>
     <p>
       Pushes the fractional value 1 / 4 onto the stack.
     </p>
-    <h2>1 / 2 (<code>½</code>)</h2>
+    <h2>1 / 2 (<code class="inputtable">½</code>)</h2>
     <p>
       Pushes the fractional value 1 / 2 onto the stack.
     </p>
-    <h2>3 / 4 (<code>¾</code>)</h2>
+    <h2>3 / 4 (<code class="inputtable">¾</code>)</h2>
     <p>
       Pushes the fractional value 3 / 4 onto the stack.
     </p>
-    <h2>1 / 7 (<code>⅐</code>)</h2>
+    <h2>1 / 7 (<code class="inputtable">⅐</code>)</h2>
     <p>
       Pushes the fractional value 1 / 7 onto the stack.
     </p>
-    <h2>1 / 9 (<code>⅑</code>)</h2>
+    <h2>1 / 9 (<code class="inputtable">⅑</code>)</h2>
     <p>
       Pushes the fractional value 1 / 9 onto the stack.
     </p>
-    <h2>1 / 10 (<code>⅒</code>)</h2>
+    <h2>1 / 10 (<code class="inputtable">⅒</code>)</h2>
     <p>
       Pushes the fractional value 1 / 10 onto the stack.
     </p>
-    <h2>1 / 3 (<code>⅓</code>)</h2>
+    <h2>1 / 3 (<code class="inputtable">⅓</code>)</h2>
     <p>
       Pushes the fractional value 1 / 3 onto the stack.
     </p>
-    <h2>2 / 3 (<code>⅔</code>)</h2>
+    <h2>2 / 3 (<code class="inputtable">⅔</code>)</h2>
     <p>
       Pushes the fractional value 2 / 3 onto the stack.
     </p>
-    <h2>1 / 5 (<code>⅕</code>)</h2>
+    <h2>1 / 5 (<code class="inputtable">⅕</code>)</h2>
     <p>
       Pushes the fractional value 1 / 5 onto the stack.
     </p>
-    <h2>2 / 5 (<code>⅖</code>)</h2>
+    <h2>2 / 5 (<code class="inputtable">⅖</code>)</h2>
     <p>
       Pushes the fractional value 2 / 5 onto the stack.
     </p>
-    <h2>3 / 5 (<code>⅗</code>)</h2>
+    <h2>3 / 5 (<code class="inputtable">⅗</code>)</h2>
     <p>
       Pushes the fractional value 3 / 5 onto the stack.
     </p>
-    <h2>4 / 5 (<code>⅘</code>)</h2>
+    <h2>4 / 5 (<code class="inputtable">⅘</code>)</h2>
     <p>
       Pushes the fractional value 4 / 5 onto the stack.
     </p>
-    <h2>1 / 6 (<code>⅙</code>)</h2>
+    <h2>1 / 6 (<code class="inputtable">⅙</code>)</h2>
     <p>
       Pushes the fractional value 1 / 6 onto the stack.
     </p>
-    <h2>5 / 6 (<code>⅚</code>)</h2>
+    <h2>5 / 6 (<code class="inputtable">⅚</code>)</h2>
     <p>
       Pushes the fractional value 5 / 6 onto the stack.
     </p>
-    <h2>1 / 8 (<code>⅛</code>)</h2>
+    <h2>1 / 8 (<code class="inputtable">⅛</code>)</h2>
     <p>
       Pushes the fractional value 1 / 8 onto the stack.
     </p>
-    <h2>3 / 8 (<code>⅜</code>)</h2>
+    <h2>3 / 8 (<code class="inputtable">⅜</code>)</h2>
     <p>
       Pushes the fractional value 3 / 8 onto the stack.
     </p>
-    <h2>5 / 8 (<code>⅝</code>)</h2>
+    <h2>5 / 8 (<code class="inputtable">⅝</code>)</h2>
     <p>
       Pushes the fractional value 5 / 8 onto the stack.
     </p>
-    <h2>7 / 8 (<code>⅞</code>)</h2>
+    <h2>7 / 8 (<code class="inputtable">⅞</code>)</h2>
     <p>
       Pushes the fractional value 7 / 8 onto the stack.
     </p>
-    <h2>0 / 3 (<code>↉</code>)</h2>
+    <h2>0 / 3 (<code class="inputtable">↉</code>)</h2>
     <p>
       Pushes the fractional value 0 / 3 onto the stack.
     </p>

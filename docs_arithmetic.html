@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Commands - Arithmetic</h1>
@@ -32,13 +36,13 @@
       With a numerical modifier of 1, this command returns the
       negative of its sole argument.
     </p>
-    <h2>Multiply (<code>×</code>)</h2>
+    <h2>Multiply (<code class="inputtable">×</code>)</h2>
     <p>
       Multiplies two numbers. Subject to scalar and binary extension.
       With a numerical modifier of 0, pushes <code>1</code>. If given
       ⚐ as its sole argument, this command pushes <code>1</code>.
     </p>
-    <h2>Divide (<code>÷</code>)</h2>
+    <h2>Divide (<code class="inputtable">÷</code>)</h2>
     <p>
       Divides two numbers. Subject to scalar and binary extension.
       With a numerical modifier of 1, this command returns the
@@ -56,27 +60,27 @@
       right). If given a numerical modifier of 0, this command returns <code>1</code>.
       If given ⚐ as its sole argument, this command pushes <code>1</code>.
     </p>
-    <h2>Exponent (<code>ê</code>)</h2>
+    <h2>Exponent (<code class="inputtable">ê</code>)</h2>
     <p>
       Takes a single argument and returns the mathematical constant <code>e</code> raised
       to that power. Subject to scalar extension.
     </p>
-    <h2>Natural Logarithm (<code>🌳</code>)</h2>
+    <h2>Natural Logarithm (<code class="inputtable">🌳</code>)</h2>
     <p>
       Takes a single argument and returns the natural logarithm of
       that argument. Subject to scalar extension.
     </p>
-    <h2>Logarithm (<code>🌳′</code>)</h2>
+    <h2>Logarithm (<code><span class="inputtable">🌳</span><span class="inputtable">′</span></code>)</h2>
     <p>
       Takes two arguments and returns the logarithm of the first in
       the base of the second. Subject to scalar and binary extension.
     </p>
-    <h2>Square Root (<code>√</code>)</h2>
+    <h2>Square Root (<code class="inputtable">√</code>)</h2>
     <p>
       Takes a single argument and returns its square root. Subject to
       scalar extension.
     </p>
-    <h2>Nth Root (<code>√′</code>)</h2>
+    <h2>Nth Root (<code><span class="inputtable">√</span><span class="inputtable">′</span></code>)</h2>
     <p>
       Takes two arguments and returns the nth root of the first, where
       n is the second argument. Subject to scalar and binary extension.
@@ -88,13 +92,13 @@
       extension. The sign of the result shall match that of the
       divisor.
     </p>
-    <h2>LCM (<code>⩑</code>)</h2>
+    <h2>LCM (<code class="inputtable">⩑</code>)</h2>
     <p>
       Takes two arguments and returns their least common multiple.
       Subject to scalar and binary extension. With a numerical
       modifier of 0 or a ⚐ argument, returns 1.
     </p>
-    <h2>GCD (<code>⩒</code>)</h2>
+    <h2>GCD (<code class="inputtable">⩒</code>)</h2>
     <p>
       Takes two arguments and returns their greatest common divisor.
       Subject to scalar and binary extension. With a numerical
@@ -105,17 +109,17 @@
       Returns the negative of its argument. Subject to scalar
       extension.
     </p>
-    <h2>Reciprocal (<code>⅟</code>)</h2>
+    <h2>Reciprocal (<code class="inputtable">⅟</code>)</h2>
     <p>
       Returns the reciprocal of its argument. Subject to scalar
       extension.
     </p>
-    <h2>Ceiling (<code>⌉</code>)</h2>
+    <h2>Ceiling (<code class="inputtable">⌉</code>)</h2>
     <p>
       Returns the least integer greater than or equal to its argument.
       Subject to scalar extension.
     </p>
-    <h2>Floor (<code>⌋</code>)</h2>
+    <h2>Floor (<code class="inputtable">⌋</code>)</h2>
     <p>
       Returns the greatest integer less than or equal to its argument.
       Subject to scalar extension.
@@ -129,7 +133,7 @@
     <p>
       Returns the sign of its argument. Subject to scalar extension.
     </p>
-    <h2>Bitwise Conjunction (<code>∧</code>)</h2>
+    <h2>Bitwise Conjunction (<code class="inputtable">∧</code>)</h2>
     <p>
       Takes two arguments and performs the bitwise-and operation on
       them. The two numbers are treated as being in two's complement
@@ -137,7 +141,7 @@
       integer. Subject to scalar and binary extension. Returns <code>-1</code> with
       a numerical argument of 0 or a ⚐ argument.
     </p>
-    <h2>Bitwise Disjunction (<code>∨</code>)</h2>
+    <h2>Bitwise Disjunction (<code class="inputtable">∨</code>)</h2>
     <p>
       Takes two arguments and performs the bitwise-or operation on
       them. The two numbers are treated as being in two's complement
@@ -145,7 +149,7 @@
       integer. Subject to scalar and binary extension. Returns <code>0</code> with
       a numerical argument of 0 or a ⚐ argument.
     </p>
-    <h2>Bitwise Exclusive Or (<code>⊕</code>)</h2>
+    <h2>Bitwise Exclusive Or (<code class="inputtable">⊕</code>)</h2>
     <p>
       Takes two arguments and performs the bitwise-xor operation on
       them. The two numbers are treated as being in two's complement
@@ -153,7 +157,7 @@
       integer. Subject to scalar and binary extension. Returns <code>0</code> with
       a numerical argument of 0 or a ⚐ argument.
     </p>
-    <h2>Bitwise Negate (<code>¬</code>)</h2>
+    <h2>Bitwise Negate (<code class="inputtable">¬</code>)</h2>
     <p>
       Takes one argument and takes its bitwise negation. Subject to
       scalar extension.

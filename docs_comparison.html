@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Commands - Comparisons</h1>
@@ -18,7 +22,7 @@
     <p>
       In some cases, it is desirable to compare two values which may
       or may not be lists and scalar extension is undesirable. In this
-      case, wrap both arguments in a box (<code>⊂</code>) before
+      case, wrap both arguments in a box (<code class="inputtable">⊂</code>) before
       calling the comparison. To put the top two arguments in a box,
       the following snippet may be used.
     </p>
@@ -42,48 +46,48 @@
       Determines whether the first argument is greater than the second.
       Subject to scalar and transitive extension.
     </p>
-    <h2>Less Than or Equal (<code>≤</code>)</h2>
+    <h2>Less Than or Equal (<code class="inputtable">≤</code>)</h2>
     <p>
       Determines whether the first argument is less than or equal to the second.
       Subject to scalar and transitive extension.
     </p>
-    <h2>Greater Than or Equal (<code>≥</code>)</h2>
+    <h2>Greater Than or Equal (<code class="inputtable">≥</code>)</h2>
     <p>
       Determines whether the first argument is greater than or equal to the second.
       Subject to scalar and transitive extension.
     </p>
-    <h2>Not Equal (<code>≠</code>)</h2>
+    <h2>Not Equal (<code class="inputtable">≠</code>)</h2>
     <p>
       Checks whether the two arguments are not equal. Subject to
       scalar and transitive extension.
     </p>
-    <h2>Same (<code>≡</code>)</h2>
+    <h2>Same (<code class="inputtable">≡</code>)</h2>
     <p>
       Checks whether the two arguments are equal. Subject to
       transitive extension. This behaves identically to <code>=</code> but
       does not perform scalar extension.
     </p>
-    <h2>Not Same (<code>≢</code>)</h2>
+    <h2>Not Same (<code class="inputtable">≢</code>)</h2>
     <p>
       Checks whether the two arguments are not equal. Subject to
-      transitive extension. This behaves identically to <code>≠</code> but
+      transitive extension. This behaves identically to <code class="inputtable">≠</code> but
       does not perform scalar extension.
     </p>
-    <h2>Tri-State Comparison (<code>🧭</code>)</h2>
+    <h2>Tri-State Comparison (<code class="inputtable">🧭</code>)</h2>
     <p>
       Compares the two arguments and returns -1 if the former is less,
       1 if the latter is less, and 0 if the two are equal. If the
       values are non-comparable, raises an error. Subject to scalar
       extension but not transitive extension.
     </p>
-    <h2>Max (<code>⌈</code>)</h2>
+    <h2>Max (<code class="inputtable">⌈</code>)</h2>
     <p>
       Takes two arguments and returns whichever is larger. Subject to
       scalar and <a href="docs_concepts.html#binary-extension">binary extension</a>. If used with a <a href="docs_concepts.html#prime-modifier">prime
       modifier</a>, this command first pops a function, which is used instead of the standard <code><</code> for
       comparison. If given a numerical modifier of zero, this command pushes <code>-∞</code>.
     </p>
-    <h2>Min (<code>⌊</code>)</h2>
+    <h2>Min (<code class="inputtable">⌊</code>)</h2>
     <p>
       Takes two arguments and returns whichever is smaller. Subject to
       scalar and <a href="docs_concepts.html#binary-extension">binary extension</a>. If used with a <a href="docs_concepts.html#prime-modifier">prime

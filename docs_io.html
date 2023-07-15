@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Commands - IO</h1>
@@ -25,37 +29,37 @@
       Returns ε if input is empty or there is no valid integer to
       consume.
     </p>
-    <h2>Read Character (<code>📜</code>)</h2>
+    <h2>Read Character (<code class="inputtable">📜</code>)</h2>
     <p>
       Reads a single character from input and pushes it onto the stack
       as a single-character string. Returns ε if input is empty.
     </p>
-    <h2>Read Line (<code>📖</code>)</h2>
+    <h2>Read Line (<code class="inputtable">📖</code>)</h2>
     <p>
       Reads from input until it encounters a newline or the end of
       input, pushing the resulting string. Returns ε if input is
       empty. Note that the newline is included in the resulting string
       and can be removed with Chomp (🍴)
     </p>
-    <h2>Read All (<code>📚</code>)</h2>
+    <h2>Read All (<code class="inputtable">📚</code>)</h2>
     <p>
       Reads all remaining input and pushes it onto the stack as a
       string. If there's no input, returns ε.
     </p>
-    <h2>Print Whole Stack (<code>🙋</code>)</h2>
+    <h2>Print Whole Stack (<code class="inputtable">🙋</code>)</h2>
     <p>
       Print every element of the stack, from bottom to top. Does not
       modify the stack in any way. The exact format of the text
       printed by this command is subject to change at any time, as it
       is mainly intended for debugging use.
     </p>
-    <h2>Panic (<code>😱</code>)</h2>
+    <h2>Panic (<code class="inputtable">😱</code>)</h2>
     <p>
       Pops one value from the stack and halts the program with an
       error. The error will include, in some form, the value which was
       popped.
     </p>
-    <h2>Handle Error (<code>🙏</code>)</h2>
+    <h2>Handle Error (<code class="inputtable">🙏</code>)</h2>
     <p>
       Takes two functions. Invokes the first function. If it returns
       normally, then control proceeds as normal. If it throws an

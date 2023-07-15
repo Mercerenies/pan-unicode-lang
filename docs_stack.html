@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Commands - Stack Combinators</h1>
@@ -44,7 +48,7 @@
       Example:
     </p>
     <pre><code class="pancode-snippet">10 20 [+] K② « Result: 30 10 20 »</code></pre>
-    <h2>Spread (<code>⇉</code>)</h2>
+    <h2>Spread (<code class="inputtable">⇉</code>)</h2>
     <p>
       By default, Spread pops four arguments off the stack: two
       arguments and two functions. Then it calls the first function
@@ -69,7 +73,7 @@
 a b f g ⇉①② « Calls f(a) then g(b) »
 a b c f g h ⇉①③ « Calls f(a) then g(b) then h(c) »
 a b c d f g ⇉②② « Calls f(a, b) then g(c, d) »</code></pre>
-    <h2>Cross (<code>⤨</code>)</h2>
+    <h2>Cross (<code class="inputtable">⤨</code>)</h2>
     <p>
       Cross is a very general command, which can be manipulated by its
       three numerical modifiers.
@@ -108,13 +112,13 @@ a f g h ⤨①①③ « Calls f(a), g(a), h(a) »</code></pre>
       Apply and Cleave. Consider using one of these simpler commands
       in preference to Cross if it suits your needs equally well.
     </p>
-    <h2>Apply (<code>↘</code>)</h2>
+    <h2>Apply (<code class="inputtable">↘</code>)</h2>
     <p>
       Apply is Cross but with the third numerical modifier (F) set to
       1 automatically. Apply takes two numerical modifiers, A and B,
       and behaves otherwise identically to Cross.
     </p>
-    <h2>Cleave (<code>↗</code>)</h2>
+    <h2>Cleave (<code class="inputtable">↗</code>)</h2>
     <p>
       Cleave is Cross but with the second numerical modifier (B) set
       to 1 automatically. Cleave takes two numerical modifiers, A and

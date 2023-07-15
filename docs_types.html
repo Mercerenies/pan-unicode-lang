@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Types</h1>
@@ -21,7 +25,7 @@
     </p>
     <p>
       First, a note on comparisons. Many of the comparison operators,
-      such as <code>=</code> and <code>≤</code>, take two arguments
+      such as <code>=</code> and <code class="inputtable">≤</code>, take two arguments
       and compare them, for equality, inequality, or some ambient
       ordering. Equality never fails, in the sense that it always
       returns either true or false. Two values of different types
@@ -43,10 +47,9 @@
       the literal number negative one.
     </p>
     <p>
-      The IEEE value infinity is written using <code>∞</code> (which can be typed using <code>\inf</code>).
-      Negative infinity is written using <code>-∞</code> (again, there
-      must be no space between the two characters). NaN (not a number) is written using <code>👿</code>
-      (<code>\nan</code> or <code>\devil</code>), because that's
+      The IEEE value infinity is written using <code class="inputtable">∞</code>.
+      Negative infinity is written using <code>-<span class="inputtable">∞</span></code> (again, there
+      must be no space between the two characters). NaN (not a number) is written using <code class="inputtable">👿</code>, because that's
       usually how I feel when NaN shows up in my computations.
     </p>
     <h2>Strings</h2>
@@ -133,7 +136,7 @@
     </p>
     <h2>Slips</h2>
     <p>
-      Slips are blocks of code enclosed in corner brackets (<code>｢</code> and <code>｣</code>).
+      Slips are blocks of code enclosed in corner brackets (<code class="inputtable">｢</code> and <code class="inputtable">｣</code>).
       When a slip is evaluated as literal code, it evaluates its
       inside elements.
     </p>
@@ -149,8 +152,8 @@
     <h2 id="boxes">Boxes</h2>
     <p>
       A box is a simple cell which contains a single Pancode value.
-      Boxes can be constructed using <code>⊂</code> and extracted
-      using <code>⊃</code>. Boxes are generally used to suppress
+      Boxes can be constructed using <code class="inputtable">⊂</code> and extracted
+      using <code class="inputtable">⊃</code>. Boxes are generally used to suppress
       scalar extension on various commands, when we want a command to
       run on a whole list rather than on each element.
     </p>
@@ -195,7 +198,7 @@
       These symbols are sometimes called sentinel values and are used
       to indicate certain behaviors to built-in commands. When using a
       symbol as a sentinel value, one should take care to ensure that
-      the symbol has no modifiers attached. For instance, <code>ε</code> is
+      the symbol has no modifiers attached. For instance, <code class="inputtable">ε</code> is
       the null sentinel (see below), but <code>ε⓪</code> is a distinct
       symbol which happens to have the same text but different
       modifiers. Pancode operations will not treat the latter as a
@@ -209,11 +212,11 @@
     <ul>
       <li><code>{</code>, the array start sentinel, is used by the <code>}</code> command
       to allow a natural array construction syntax in Pancode.</li>
-      <li><code>⚐</code>, the white flag sentinel, is passed to a fold
+      <li><code class="inputtable">⚐</code>, the white flag sentinel, is passed to a fold
       function to indicate that an empty list was provided. Generally, if given <code>⚐</code> as
       an argument, a command will return its "neutral" or identity value, so <code>+</code> will
       return 0, <code>×</code> will return 1, etc.</li>
-      <li><code>ε</code>, the null sentinel, is returned by many
+      <li><code class="inputtable">ε</code>, the null sentinel, is returned by many
       commands in case there's no other reasonable value to return,
       such as when trying to access an out-of-bounds list position, or
       when trying to read from input when there is no input.</li>

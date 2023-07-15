@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Commands - Miscellaneous</h1>
@@ -13,7 +17,7 @@
       These are useful commands that simply didn't fit into any other
       category.
     </p>
-    <h2>Defined-or (<code>¿</code>)</h2>
+    <h2>Defined-or (<code class="inputtable">¿</code>)</h2>
     <p>
       Takes two arguments. If the first is anything other than ε, then
       the first is returned. Otherwise, the second is returned.
@@ -43,17 +47,17 @@
       Pushes the array start sentinel onto the stack. See <a href="docs_types.html#symbols">Symbols</a> for
       more information.
     </p>
-    <h2>White Flag Sentinel (<code>⚐</code>)</h2>
+    <h2>White Flag Sentinel (<code class="inputtable">⚐</code>)</h2>
     <p>
       Pushes the white flag sentinel onto the stack. See <a href="docs_types.html#symbols">Symbols</a> for
       more information.
     </p>
-    <h2>Null Sentinel (<code>ε</code>)</h2>
+    <h2>Null Sentinel (<code class="inputtable">ε</code>)</h2>
     <p>
       Pushes the null sentinel onto the stack. See <a href="docs_types.html#symbols">Symbols</a> for
       more information.
     </p>
-    <h2 id="white-flag-constructor">White Flag Constructor (<code>⚑</code>)</h2>
+    <h2 id="white-flag-constructor">White Flag Constructor (<code class="inputtable">⚑</code>)</h2>
     <p>
       Given two functions <code>f</code> and <code>d</code>, this command defines and pushes a
       new function onto the stack. The new function will pop the top
@@ -73,28 +77,28 @@
 
 « However, we can provide our own default, if we wish »
 {} `+ [ "Empty list!" ] ⚑ / « Result: "Empty list!" »</code></pre>
-    <h2>Box (<code>⊂</code>)</h2>
+    <h2>Box (<code class="inputtable">⊂</code>)</h2>
     <p>
       Takes a single value and returns
       a <a href="docs_types.html#boxes">box</a> containing that value.
     </p>
-    <h2>Unbox (<code>⊃</code>)</h2>
+    <h2>Unbox (<code class="inputtable">⊃</code>)</h2>
     <p>
       Pops a single value off the stack. If that value is
       a <a href="docs_types.html#boxes">box</a>, then its contents are
       returned. Otherwise, the value itself is returned.
     </p>
-    <h2>Store in Variable (<code>↲</code>)</h2>
+    <h2>Store in Variable (<code class="inputtable">↲</code>)</h2>
     <p>
       Pops a value and a symbol off the stack. Stores the value in the
-      global variable indicated by the symbol. This behaves like the <code>→</code> special
+      global variable indicated by the symbol. This behaves like the <code class="inputtable">→</code> special
       syntax, but this command has the advantage that the variable
       name can be determined at runtime.
     </p>
-    <h2>Read from Variable (<code>↳</code>)</h2>
+    <h2>Read from Variable (<code class="inputtable">↳</code>)</h2>
     <p>
       Pops a symbol off the stack. Pushes the value of the global
-      variable indicated by the symbol. This behaves like the <code>←</code> special
+      variable indicated by the symbol. This behaves like the <code class="inputtable">←</code> special
       syntax, but this command has the advantage that the variable
       name can be determined at runtime.
     </p>

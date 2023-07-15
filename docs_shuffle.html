@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Commands - Stack Shuffling</h1>
@@ -43,7 +47,7 @@
     <p>
       The final stack will be <code>2 3 4 1</code>.
     </p>
-    <h2>Over (<code>ø</code>)</h2>
+    <h2>Over (<code class="inputtable">ø</code>)</h2>
     <p>
       Pushes a copy of the second-from-the-top value of the stack onto
       the top. Example:

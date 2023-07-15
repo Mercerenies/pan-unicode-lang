@@ -6,6 +6,10 @@
     <title>Pancode Language - Docs</title>
     <script src="js/main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module">
+      import { addTooltipsToDocs } from './js/tooltips.js';
+      document.addEventListener("DOMContentLoaded", addTooltipsToDocs);
+    </script>
   </head>
   <body style="width: 50%; margin: auto">
     <h1>Pancode - Getting Started</h1>
@@ -25,8 +29,9 @@
       to heavily utilize many of the Unicode glyphs. If you're editing
       your code in the <a href="index.html">online interpreter</a>,
       then there are several <a href="docs_input.html">keyboard shortcuts</a> for
-      inputting the many characters used in this language, which I'll
-      mention during this tutorial.
+      inputting the many characters used in this language. When you
+      see a Unicode character mentioned in this documentation,
+      mouse-over it to see how to input it in the online interpreter.
     </p>
     <p>
       First, let's start with everybody's favorite: the obligatory
@@ -71,8 +76,8 @@
       Pancode has all of the usual arithmetic functions. <code>+</code> pops
       two numbers and pushes their sum, and <code>-</code> pops two
       numbers and pushes their difference. In the spirit of showing
-      Unicode some love, Pancode uses <code>×</code> for
-      multiplication and <code>÷</code> for division. You can input <code>×</code> by
+      Unicode some love, Pancode uses <code class="inputtable">×</code> for
+      multiplication and <code class="inputtable">÷</code> for division. You can input <code>×</code> by
       typing <code>\times</code>, and you can input <code>÷</code> by typing <code>\div</code>.
     </p>
     <p>
