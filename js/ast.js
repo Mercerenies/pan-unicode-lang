@@ -1468,32 +1468,6 @@ export class SymbolLit extends AST {
         return this.token.toString() + this.modifiers.join("");
     }
 }
-// TODO What happens if we quote this?
-export class AssignToVar extends AST {
-    constructor(target) {
-        super();
-        this.target = target.toString();
-    }
-    async eval(state) {
-        state.setGlobal(this.target, state.pop());
-    }
-    toString() {
-        return "→" + this.target;
-    }
-}
-// TODO What happens if we quote this?
-export class ReadFromVar extends AST {
-    constructor(target) {
-        super();
-        this.target = target.toString();
-    }
-    async eval(state) {
-        state.push(state.getGlobal(this.target));
-    }
-    toString() {
-        return "←" + this.target;
-    }
-}
 // StringLit actually encompasses a few things here. A string literal
 // consists of, obviously, a sequence of characters. Additionally, a
 // string literal can consist of a regex flag (Boolean) which

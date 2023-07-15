@@ -1,5 +1,5 @@
 import { Token, TokenType, translateEscape } from './token.js';
-import { Box, SymbolLit, FunctionLit, StringLit, NumberLit, SlipLit, AssignToVar, ReadFromVar } from './ast.js';
+import { Box, SymbolLit, FunctionLit, StringLit, NumberLit, SlipLit } from './ast.js';
 import * as Error from './error.js';
 import * as Modifier from './modifier.js';
 import Str from './str.js';
@@ -178,7 +178,7 @@ class Parser {
                 const inner = this.at();
                 if ((inner != null) && (inner.tokenType() === TokenType.Command)) {
                     this.index += 1;
-                    return new AssignToVar(inner);
+                    return writeToVar(inner);
                 }
                 else if (inner != null) {
                     throw new Error.UnexpectedParseError(inner);
@@ -193,7 +193,7 @@ class Parser {
                 const inner = this.at();
                 if ((inner != null) && (inner.tokenType() === TokenType.Command)) {
                     this.index += 1;
-                    return new ReadFromVar(inner);
+                    return readFromVar(inner);
                 }
                 else if (inner != null) {
                     throw new Error.UnexpectedParseError(inner);
@@ -256,4 +256,16 @@ export function parse(tokens) {
         throw new Error.UnexpectedParseError(parser.at());
     }
     return result;
+}
+function readFromVar(target) {
+    return new SlipLit([
+        new Box(new SymbolLit(target)),
+        new SymbolLit("↳"),
+    ]);
+}
+function writeToVar(target) {
+    return new SlipLit([
+        new Box(new SymbolLit(target)),
+        new SymbolLit("↲"),
+    ]);
 }

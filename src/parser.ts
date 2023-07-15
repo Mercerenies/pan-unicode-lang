@@ -1,6 +1,6 @@
 
 import { Token, TokenType, translateEscape } from './token.js';
-import { AST, Box, SymbolLit, FunctionLit, StringLit, NumberLit, SlipLit, AssignToVar, ReadFromVar } from './ast.js';
+import { AST, Box, SymbolLit, FunctionLit, StringLit, NumberLit, SlipLit } from './ast.js';
 import * as Error from './error.js';
 import * as Modifier from './modifier.js';
 import Str from './str.js';
@@ -173,7 +173,7 @@ class Parser {
       const inner = this.at();
       if ((inner != null) && (inner.tokenType() === TokenType.Command)) {
         this.index += 1;
-        return new AssignToVar(inner);
+        return writeToVar(inner);
       } else if (inner != null) {
         throw new Error.UnexpectedParseError(inner);
       } else {
@@ -186,7 +186,7 @@ class Parser {
       const inner = this.at();
       if ((inner != null) && (inner.tokenType() === TokenType.Command)) {
         this.index += 1;
-        return new ReadFromVar(inner);
+        return readFromVar(inner);
       } else if (inner != null) {
         throw new Error.UnexpectedParseError(inner);
       } else {
@@ -242,6 +242,7 @@ class Parser {
 
 }
 
+
 export function parse(tokens: Token[]): AST[] {
   const parser = new Parser(tokens, 0);
   const result = parser.parse();
@@ -252,3 +253,18 @@ export function parse(tokens: Token[]): AST[] {
   return result;
 }
 
+
+function readFromVar(target: Token): AST {
+  return new SlipLit([
+    new Box(new SymbolLit(target)),
+    new SymbolLit("↳"),
+  ]);
+}
+
+
+function writeToVar(target: Token): AST {
+  return new SlipLit([
+    new Box(new SymbolLit(target)),
+    new SymbolLit("↲"),
+  ]);
+}
