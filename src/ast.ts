@@ -468,7 +468,17 @@ export class SymbolLit extends AST {
         return Math.atanh(TypeCheck.isNumber(x).value);
       })(state.pop()));
       break;
-      /* NUMERICAL CONSTANTS */
+    case '◭': // Degrees to radians
+      state.push(await Op.scalarExtendUnary(async function(x) {
+        return TypeCheck.isNumber(x).value * Math.PI / 180;
+      })(state.pop()));
+      break;
+    case '◮': // Radians to degrees
+      state.push(await Op.scalarExtendUnary(async function(x) {
+        return TypeCheck.isNumber(x).value * 180 / Math.PI;
+      })(state.pop()));
+      break;
+    /* NUMERICAL CONSTANTS */
     case 'π':
       state.push(Math.PI);
       break;
