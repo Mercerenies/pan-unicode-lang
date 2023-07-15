@@ -463,7 +463,7 @@ export async function member(term: SymbolLit, state: Evaluator): Promise<void> {
 // numerical modifier, this will happily nest deeper and count the
 // length of sublists as well. Numerical argument of 20 is treated as
 // infinity.
-export function length(term: SymbolLit, state: Evaluator): void {
+export async function length(term: SymbolLit, state: Evaluator): Promise<void> {
   const num = term.getNumMod(1);
   if (num === 0) {
     // There's one thing, if we ignore all depth. Simple and dumb result.
@@ -474,8 +474,8 @@ export function length(term: SymbolLit, state: Evaluator): void {
   const newTerm = new SymbolLit(new Token('⍪'));
   newTerm.modifiers.push(new NumModifier(num === MAX_NUM_MODIFIER || num === 0 ? num : num - 1));
   ravel(newTerm, state);
-  const list = isList(state.pop());
-  state.push(list.data.length);
+  const list = isEitherList(state.pop());
+  state.push(await list.getLength(state));
 }
 
 

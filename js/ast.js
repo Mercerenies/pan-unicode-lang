@@ -1047,7 +1047,7 @@ export class SymbolLit extends AST {
                 break;
             case '#': // Length ( list -- n )
                 // List length. See ListOp.length for details
-                ListOp.length(this, state);
+                await ListOp.length(this, state);
                 break;
             case '⧤': { // Bounds Check ( list n -- ? )
                 const [list, n] = state.pop(2);
