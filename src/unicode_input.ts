@@ -314,6 +314,8 @@ export const DEFAULT_TRANSLATION_TABLE: TranslationTable = {
   "\\books": "📚",
   "\\readall": "📚",
   "\\slurp": "📚",
+  "\\memo": "📝",
+  "\\eval": "📝",
   ".X": "⊇",
   "\\sup=": "⊇",
   "\\supseteq": "⊇",

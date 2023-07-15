@@ -1352,6 +1352,11 @@ export class SymbolLit extends AST {
                 }
                 break;
             }
+            case '📝': { // Eval ( x -- ... )
+                const x = state.pop();
+                await x.eval(state);
+                break;
+            }
             /* HIGHER ORDER FUNCTIONS */
             case 'ī': // Push identity function
                 state.push(new FunctionLit([]));
