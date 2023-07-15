@@ -393,6 +393,8 @@ export const DEFAULT_TRANSLATION_TABLE = {
     "\\printall": "🙋",
     "\\handraise": "🙋",
     "\\hand": "🙋",
+    "\\mirror": "🪞",
+    "\\reflect": "🪞",
     "\\|(": "｢",
     "\\|)": "｣",
     "\\\\": "\\",

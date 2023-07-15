@@ -110,6 +110,35 @@
       themselves. If given a symbol or slip, the command or sequence
       of commands present will be evaluated.
     </p>
+    <h2>Reflect (<code>🪞</code>)</h2>
+    <p>
+      Performs reflection to convert a function or slip into an array,
+      or vice versa. Pops one value off the stack. If it's a function
+      or a slip, returns an array containing the sequence of values
+      inside the function or slip.
+    </p>
+    <p>
+      If Reflect is given an array, it creates a slip containing the
+      given values and returns it. With a <a href="docs_concepts.html#prime-modifier">prime
+      modifier</a>, Reflect will instead return a function containing
+      the given values. The prime modifier has no effect if Reflect is
+      given a slip or function as input.
+    </p>
+    <p>
+      Note that the Pancode interpreter is permitted to optimize the
+      code inside of a slip or a function. But it will never modify
+      the sequence of values in an array. That is, while the Reflect
+      command is, in spirit, its own inverse, it is not always the
+      case that <code>🪞🪞</code> will produce identical code to its
+      input.
+    </p>
+    <p>
+      Examples:
+    </p>
+    <pre><code class="pancode-snippet">'｢1 2 3｣ 🪞 « Result: {1 2 3} »
+[1 2 3] 🪞 « Result: {1 2 3} »
+{1 2 3} 🪞 « Result: '｢1 2 3｣ »
+{1 2 3} 🪞′ « Result: [1 2 3] »</code></pre>
     <h2>Normalize Boolean (<code>🜀</code>)</h2>
     <p>
       Pops one argument. Pushes zero if the argument is zero, or one

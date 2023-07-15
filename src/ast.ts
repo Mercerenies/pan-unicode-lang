@@ -1364,6 +1364,12 @@ export class SymbolLit extends AST {
       await x.eval(state);
       break;
     }
+    case '🪞': { // Reflect ( x -- y )
+      const x = state.pop();
+      const isPrime = (this.getPrimeMod() > 0);
+      state.push(await reflectOp(state, x, isPrime));
+      break;
+    }
     /* HIGHER ORDER FUNCTIONS */
     case 'ī': // Push identity function
       state.push(new FunctionLit([]));
@@ -1617,6 +1623,8 @@ export abstract class FunctionLike extends AST {
     return `[ ${this.toStringFunctionBody()} ]`;
   }
 
+  abstract toExpressions(): readonly AST[]
+
   abstract toStringFunctionBody(): string;
 
 }
@@ -1636,6 +1644,10 @@ export class FunctionLit extends FunctionLike {
 
   async call(state: Evaluator): Promise<void> {
     await state.eval(this.body);
+  }
+
+  toExpressions(): readonly AST[] {
+    return this.body;
   }
 
   toStringFunctionBody(): string {
@@ -1664,6 +1676,10 @@ export class CurriedFunction extends FunctionLike {
     await tryCall(this.function, state);
   }
 
+  toExpressions(): readonly AST[] {
+    return [this.arg, this.function, new SymbolLit("$")];
+  }
+
   toStringFunctionBody(): string {
     return `${this.arg} ${this.function} $`;
   }
@@ -1687,6 +1703,10 @@ export class ComposedFunction extends FunctionLike {
   async call(state: Evaluator): Promise<void> {
     await tryCall(this.first, state);
     await tryCall(this.second, state);
+  }
+
+  toExpressions(): readonly AST[] {
+    return [this.first, new SymbolLit("$"), this.second, new SymbolLit("$")];
   }
 
   toStringFunctionBody(): string {
@@ -1738,7 +1758,7 @@ export type ArrayLikeLit = ArrayLit | LazyListLit;
 export class ArrayLit extends AST {
   readonly data: AST[];
 
-  constructor(data: AST[]) {
+  constructor(data: AST[]) { // TODO Should be a readonly arg
     super();
     this.data = data;
   }
@@ -2061,6 +2081,36 @@ export async function forceList(state: Evaluator, a: ArrayLikeLit): Promise<read
 
 export function isArrayLike(ast: AST): ast is ArrayLikeLit {
   return ast instanceof ArrayLit || ast instanceof LazyListLit;
+}
+
+
+// The reflect command (🪞) converts data to code and vice versa. It
+// accepts the following data types.
+//
+// * If given a slip, produces an array containing the sequence of
+//   values in the slip.
+//
+// * If given a function, produces an array containing the sequence of
+//   values in the function.
+//
+// * If given an array, returns a slip containing the values in the
+//   array. With a prime modifier, returns a function instead.
+async function reflectOp(state: Evaluator, ast: AST, isPrime: boolean): Promise<AST> {
+  if (ast instanceof SlipLit) {
+    return new ArrayLit(ast.body);
+  } else if (ast instanceof FunctionLike) {
+    return new ArrayLit(ast.toExpressions().slice());
+  } else if (isArrayLike(ast)) {
+    const data = await forceList(state, ast);
+    if (isPrime) {
+      return new FunctionLit(data.slice());
+    } else {
+      return new SlipLit(data.slice());
+    }
+  } else {
+    // Invalid input type
+    throw new Error.TypeError("array, function, or slip", ast);
+  }
 }
 
 

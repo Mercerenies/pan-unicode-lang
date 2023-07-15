@@ -1357,6 +1357,12 @@ export class SymbolLit extends AST {
                 await x.eval(state);
                 break;
             }
+            case '🪞': { // Reflect ( x -- y )
+                const x = state.pop();
+                const isPrime = (this.getPrimeMod() > 0);
+                state.push(await reflectOp(state, x, isPrime));
+                break;
+            }
             /* HIGHER ORDER FUNCTIONS */
             case 'ī': // Push identity function
                 state.push(new FunctionLit([]));
@@ -1587,6 +1593,9 @@ export class FunctionLit extends FunctionLike {
     async call(state) {
         await state.eval(this.body);
     }
+    toExpressions() {
+        return this.body;
+    }
     toStringFunctionBody() {
         return this.body.map((x) => x.toStringUnquoted()).join(" ");
     }
@@ -1604,6 +1613,9 @@ export class CurriedFunction extends FunctionLike {
         state.push(this.arg);
         await tryCall(this.function, state);
     }
+    toExpressions() {
+        return [this.arg, this.function, new SymbolLit("$")];
+    }
     toStringFunctionBody() {
         return `${this.arg} ${this.function} $`;
     }
@@ -1620,6 +1632,9 @@ export class ComposedFunction extends FunctionLike {
     async call(state) {
         await tryCall(this.first, state);
         await tryCall(this.second, state);
+    }
+    toExpressions() {
+        return [this.first, new SymbolLit("$"), this.second, new SymbolLit("$")];
     }
     toStringFunctionBody() {
         const firstFn = `${this.first} $`;
@@ -1930,6 +1945,38 @@ export async function forceList(state, a) {
 }
 export function isArrayLike(ast) {
     return ast instanceof ArrayLit || ast instanceof LazyListLit;
+}
+// The reflect command (🪞) converts data to code and vice versa. It
+// accepts the following data types.
+//
+// * If given a slip, produces an array containing the sequence of
+//   values in the slip.
+//
+// * If given a function, produces an array containing the sequence of
+//   values in the function.
+//
+// * If given an array, returns a slip containing the values in the
+//   array. With a prime modifier, returns a function instead.
+async function reflectOp(state, ast, isPrime) {
+    if (ast instanceof SlipLit) {
+        return new ArrayLit(ast.body);
+    }
+    else if (ast instanceof FunctionLike) {
+        return new ArrayLit(ast.toExpressions().slice());
+    }
+    else if (isArrayLike(ast)) {
+        const data = await forceList(state, ast);
+        if (isPrime) {
+            return new FunctionLit(data.slice());
+        }
+        else {
+            return new SlipLit(data.slice());
+        }
+    }
+    else {
+        // Invalid input type
+        throw new Error.TypeError("array, function, or slip", ast);
+    }
 }
 // Two specializations of the identity function, used to aid in type inference when calling Op.op.
 function id(a) {
