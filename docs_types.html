@@ -91,7 +91,8 @@
       inherently finite and are fully stored in memory at all times.
       Lazy lists may store only a finite prefix and a "thunk"
       indicating how to compute the rest of the list. Lazy lists can
-      be finite or infinite. Evaluating additional elements of a lazy list isc alled <em>forcing</em> the
+      be finite or infinite. Evaluating additional elements of a lazy
+      list is called <em>forcing</em> the
       list.
     </p>
     <p>
@@ -105,6 +106,8 @@
       contain the same elements. If two lists are compared for
       equality or ordering and at least one is lazy, the lazy list(s)
       are forced to the point necessary to determine the ordering.
+      Note that comparing two infinite lists for equality can cause an
+      infinite loop.
     </p>
     <h2>Functions</h2>
     <p>
