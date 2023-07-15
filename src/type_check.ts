@@ -1,6 +1,6 @@
 
 import { TypeError } from './error.js';
-import { AST, NumberLit, StringLit, ArrayLit, ArrayLikeLit, LazyListLit } from './ast.js';
+import { AST, NumberLit, StringLit, ArrayLit, ArrayLikeLit, LazyListLit, SymbolLit } from './ast.js';
 
 // Various typechecking functions. Unless otherwise stated, these each
 // return their argument if successful and throw an Error.TypeError
@@ -28,6 +28,12 @@ export const isNumber: CheckedCast<AST, NumberLit> = checkOrThrow("number", func
 
 export const isString: CheckedCast<AST, StringLit> = checkOrThrow("string", function(v) {
   return v instanceof StringLit;
+});
+
+
+
+export const isSymbol: CheckedCast<AST, SymbolLit> = checkOrThrow("symbol", function(v) {
+  return v instanceof SymbolLit;
 });
 
 //// names and error messages here

@@ -1,5 +1,5 @@
 import { TypeError } from './error.js';
-import { NumberLit, StringLit, ArrayLit, LazyListLit } from './ast.js';
+import { NumberLit, StringLit, ArrayLit, LazyListLit, SymbolLit } from './ast.js';
 // The predicate should check that A is an instance of B. This is very
 // much not typesafe (which is why it's not exported)
 function checkOrThrow(expecting, p) {
@@ -17,6 +17,9 @@ export const isNumber = checkOrThrow("number", function (v) {
 });
 export const isString = checkOrThrow("string", function (v) {
     return v instanceof StringLit;
+});
+export const isSymbol = checkOrThrow("symbol", function (v) {
+    return v instanceof SymbolLit;
 });
 //// names and error messages here
 export const isList = checkOrThrow("eager list", function (v) {
